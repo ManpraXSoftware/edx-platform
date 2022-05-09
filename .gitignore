@@ -156,17 +156,17 @@ themes/subodha-theme/
 lms/djangoapps/mx_course_discovery/
 cms/djangoapps/mx_importcoursedocx/
 
-cms/envs/common.py
-cms/envs/production.py
-cms/urls.py
+#cms/envs/common.py
+#cms/envs/production.py
+#cms/urls.py
 common/static/js/src/jquery.immediateDescendents.js
-lms/envs/common.py
-lms/envs/production.py
+#lms/envs/common.py
+#lms/envs/production.py
 lms/templates/footer.html
 lms/templates/header/navbar-logo-header.html
-lms/urls.py
+#lms/urls.py
 openedx/core/djangoapps/ace_common/templates/ace_common/edx_ace/common/base_body.html
-setup.py
+#setup.py
 cms/static/js/views/components/add_xblock.js
 cms/static/js/views/components/add_xblock_button.js
 cms/static/js/views/course_rerun.js
