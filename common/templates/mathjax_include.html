@@ -124,7 +124,7 @@
     //                .catch((err) => console.log('Typeset failed: ' + err.message)); 
     // return mathjax_promise; 
     // }
-  mathjax.typeset(() => { 
+  mathjax.typeset(function() { 
       const main = document.querySelector('#main'); 
       return main; 
   }); 

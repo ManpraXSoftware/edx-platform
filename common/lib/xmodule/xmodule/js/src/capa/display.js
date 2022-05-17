@@ -152,10 +152,10 @@
                 that = this;
             if (typeof MathJax !== 'undefined' && MathJax !== null) {
                 var mathjaxElm = this.el.find('.problem > div');
-                MathJax.typesetPromise().then(() => {
+                MathJax.typesetPromise().then(function() {
                             // modify the DOM here
                             MathJax.typesetPromise(mathjaxElm);
-                          }).catch((err) => console.log(err.message));
+                          }).catch(function(err) {console.log(err.message)});
                 // this.el.find('.problem > div').each(function(index, element) {
                 //    // manprax return MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
                 // });
@@ -210,10 +210,10 @@
             if (typeof MathJax !== 'undefined' && MathJax !== null) 
             {
                 var mathjaxElm = this.$('input.math');
-                MathJax.typesetPromise().then(() => {
+                MathJax.typesetPromise().then(function() {
                             // modify the DOM here
                             MathJax.typesetPromise(mathjaxElm);
-                          }).catch((err) => console.log(err.message));
+                          }).catch(function(err) { console.log(err.message) });
                 // this.$('input.math').each(function(index, element) {
                 //   // manprax  return MathJax.Hub.Queue([that.refreshMath, null, element]);
                 // });
@@ -772,10 +772,10 @@
                 });
                 if (typeof MathJax !== 'undefined' && MathJax !== null) {
                     var mathjaxElm = that.el.find('.problem > div');
-                MathJax.typesetPromise().then(() => {
+                MathJax.typesetPromise().then(function() {
                             // modify the DOM here
                             MathJax.typesetPromise(mathjaxElm);
-                          }).catch((err) => console.log(err.message));
+                          }).catch(function(err) { console.log(err.message)});
                     // that.el.find('.problem > div').each(function(index, element) {
                     //    // manprax return MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
                     // });
@@ -851,10 +851,10 @@
                     eqn = mathjaxPreprocessor(eqn);
                 }
                 var mathjaxElm = $(element);
-                MathJax.typesetPromise().then(() => {
+                MathJax.typesetPromise().then(function() {
                             // modify the DOM here
                             MathJax.typesetPromise(mathjaxElm);
-                          }).catch((err) => console.log(err.message));
+                          }).catch(function(err) { console.log(err.message)});
                // manprax MathJax.Hub.Queue(['Text', jax, eqn], [this.updateMathML, jax, element]);
             }
         };
@@ -1340,10 +1340,10 @@
                     hintContainer.attr('hint_index', response.hint_index);
                     edx.HtmlUtils.setHtml(hintMsgContainer, edx.HtmlUtils.HTML(response.msg));
                     var mathjaxElm = hintContainer[0];
-                MathJax.typesetPromise().then(() => {
+                MathJax.typesetPromise().then(function() {
                             // modify the DOM here
                             MathJax.typesetPromise(mathjaxElm);
-                          }).catch((err) => console.log(err.message));
+                          }).catch(function(err) { console.log(err.message)});
                     // manprax MathJax.Hub.Queue(['Typeset', MathJax.Hub, hintContainer[0]]);
                     if (response.should_enable_next_hint) {
                         that.hintButton.removeAttr('disabled');
