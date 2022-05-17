@@ -9,10 +9,10 @@
       Collapsible.setCollapsibles(this.el);
       if (typeof MathJax !== "undefined" && MathJax !== null) {
         var mathjaxElm = this.el[0];
-        MathJax.typesetPromise().then(() => {
+        MathJax.typesetPromise().then(function() {
                     // modify the DOM here
                     MathJax.typesetPromise(mathjaxElm);
-                  }).catch((err) => console.log(err.message));
+                  }).catch(function(err) {console.log(err.message);});
        // manprax MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.el[0]]);
       }
       if (typeof setupFullScreenModal !== "undefined" && setupFullScreenModal !== null) {
