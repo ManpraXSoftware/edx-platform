@@ -486,10 +486,10 @@
 
         DiscussionUtil.typesetMathJax = function(element) {
             if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.Hub !== 'undefined') {
-                MathJax.typesetPromise().then(() => {
+                MathJax.typesetPromise().then(function() {
                     // modify the DOM here
                     MathJax.typesetPromise(element[0]);
-                  }).catch((err) => console.log(err.message));
+                  }).catch(function(err) { console.log(err.message)});
                // manprax MathJax.Hub.Queue(['Typeset', MathJax.Hub, element[0]]);
             }
         };
