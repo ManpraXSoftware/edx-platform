@@ -944,3 +944,23 @@ plugin_settings.add_plugins(__name__, plugin_constants.ProjectType.LMS, plugin_c
 ########################## Derive Any Derived Settings  #######################
 
 derive_settings(__name__)
+
+FEATURES['base_discovery_url'] = ENV_TOKENS.get('BASE_DISCOVERY_URL')
+FEATURES['base_lms_url'] = ENV_TOKENS.get('BASE_LMS_URL')
+FEATURES['client_id'] = ENV_TOKENS.get('client_id')
+FEATURES['client_secret'] = ENV_TOKENS.get('client_secret')
+
+FEATURES['Header_lang_key'] = ENV_TOKENS.get('Header_lang_key')
+
+
+
+# Parler seems to be a bit overeager with its caching of translated models,
+# and so we get a large number of sets, but rarely any gets
+PARLER_ENABLE_CACHING = False
+
+if 'figures' in INSTALLED_APPS:
+        import figures
+        figures.update_settings(
+            WEBPACK_LOADER,
+            CELERYBEAT_SCHEDULE,
+            ENV_TOKENS.get('FIGURES', {}))
