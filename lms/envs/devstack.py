@@ -403,3 +403,13 @@ if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
 # ]
 # TEMPLATES[1]["DIRS"] = _make_mako_template_dirs
 # derive_settings(__name__)
+
+FEATURES['base_discovery_url'] = "http://localhost:18381/"
+FEATURES['base_lms_url'] = "http://localhost:18000/"
+	 
+FEATURES['authToken'] = "jwt 			eyJhbGciOiJIUzI1NiJ9.eyJleHAiOiAxNjUyMjgyMzM4LCAic3ViIjogImY0ZWYxYWY0MWU5ZjRlOWZhMWI4OGUxNDBlYTk0MTJkIiwgImlhdCI6IDE2NTIyNDYzMzgsICJnaXZlbl9uYW1lIjogIiIsICJlbWFpbCI6ICJhZG1pbkBnbWFpbC5jb20iLCAic3VwZXJ1c2VyIjogdHJ1ZSwgInNjb3BlcyI6IFsicHJvZmlsZSIsICJyZWFkIiwgImVtYWlsIiwgIndyaXRlIl0sICJwcmVmZXJyZWRfdXNlcm5hbWUiOiAiYWRtaW4iLCAidmVyc2lvbiI6ICIxLjIuMCIsICJpc19yZXN0cmljdGVkIjogZmFsc2UsICJmaWx0ZXJzIjogW10sICJmYW1pbHlfbmFtZSI6ICIiLCAiYWRtaW5pc3RyYXRvciI6IHRydWUsICJpc3MiOiAiaHR0cDovL2xvY2FsaG9zdDoxODAwMC9vYXV0aDIiLCAibmFtZSI6ICJhZG1pbiIsICJhdWQiOiAibG1zLWtleSIsICJlbWFpbF92ZXJpZmllZCI6IHRydWV9.IbYbu7qMtuQeOAivIzpvS8_1vb-mup9J8Z_y2CtVNFI"
+
+FEATURES['client_id']= 'discovery-backend-service-key', #check locahost:18000/admin --> DJANGO OAUTH TOOLKIT --> Applications - client-id
+FEATURES['client_secret']= 'discovery-backend-service-secret',#check locahost:18000/admin --> DJANGO OAUTH TOOLKIT --> Applications - client_secret
+	 
+FEATURES['Header_lang_key'] = ENV_TOKENS.get('Header_lang_key')	

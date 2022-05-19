@@ -87,8 +87,8 @@ setup(
             "program_enrollments = lms.djangoapps.program_enrollments.apps:ProgramEnrollmentsConfig",
             "courseware_api = openedx.core.djangoapps.courseware_api.apps:CoursewareAPIConfig",
             "mx_course_discovery = lms.djangoapps.mx_course_discovery.apps:CourseDiscoveryDetailsConfig",
-            "mx_user_info = subodha-addin.mx_user_info.apps:MxUserInfoConfig",
-            "mx_multilingual_meta = subodha-addin.mx_multilingual_meta.apps:MxMultilingualMetaConfig",
+            # "mx_user_info = subodha-addin.mx_user_info.apps:MxUserInfoConfig",
+            # "mx_multilingual_meta = subodha-addin.mx_multilingual_meta.apps:MxMultilingualMetaConfig",
         ],
         "cms.djangoapp": [
             "announcements = openedx.features.announcements.apps:AnnouncementsConfig",
