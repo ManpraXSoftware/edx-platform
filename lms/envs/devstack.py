@@ -412,4 +412,4 @@ FEATURES['authToken'] = "jwt 			eyJhbGciOiJIUzI1NiJ9.eyJleHAiOiAxNjUyMjgyMzM4LCA
 FEATURES['client_id']= 'discovery-backend-service-key', #check locahost:18000/admin --> DJANGO OAUTH TOOLKIT --> Applications - client-id
 FEATURES['client_secret']= 'discovery-backend-service-secret',#check locahost:18000/admin --> DJANGO OAUTH TOOLKIT --> Applications - client_secret
 	 
-FEATURES['Header_lang_key'] = ENV_TOKENS.get('Header_lang_key')	
+FEATURES['Header_lang_key'] = ENV_TOKENS.get('Header_lang_key')

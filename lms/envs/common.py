@@ -55,7 +55,6 @@ from openedx.core.release import doc_version
 from xmodule.modulestore.modulestore_settings import update_module_store_settings
 from xmodule.modulestore.edit_info import EditInfoMixin
 from lms.djangoapps.lms_xblock.mixin import LmsBlockMixin
-
 ################################### FEATURES ###################################
 # The display name of the platform to be used in templates/emails/etc.
 PLATFORM_NAME = _('Your Platform Name Here')
@@ -1269,7 +1268,7 @@ LANGUAGES = [
     ('gl', u'Galego'),  # Galician
     ('gu', u'ગુજરાતી'),  # Gujarati
     ('he', u'עברית'),  # Hebrew
-    ('hi', u'हिन्दी'),  # Hindi
+    ('hi', u'Hindi'),  # Hindi
     ('hr', u'hrvatski'),  # Croatian
     ('hu', u'magyar'),  # Hungarian
     ('hy-am', u'Հայերեն (Հայաստան)'),  # Armenian (Armenia)
@@ -1278,10 +1277,10 @@ LANGUAGES = [
     ('ja-jp', u'日本語 (日本)'),  # Japanese (Japan)
     ('kk-kz', u'қазақ тілі (Қазақстан)'),  # Kazakh (Kazakhstan)
     ('km-kh', u'ភាសាខ្មែរ (កម្ពុជា)'),  # Khmer (Cambodia)
-    ('kn', u'ಕನ್ನಡ'),  # Kannada
+    ('kn', u'Kannada'),  # Kannada
     ('ko-kr', u'한국어 (대한민국)'),  # Korean (Korea)
     ('lt-lt', u'Lietuvių (Lietuva)'),  # Lithuanian (Lithuania)
-    ('ml', u'മലയാളം'),  # Malayalam
+    ('ml', u'Malayalam'),  # Malayalam
     ('mn', u'Монгол хэл'),  # Mongolian
     ('mr', u'मराठी'),  # Marathi
     ('ms', u'Bahasa Melayu'),  # Malay
@@ -1301,8 +1300,8 @@ LANGUAGES = [
     ('sr', u'Српски'),  # Serbian
     ('sv', u'svenska'),  # Swedish
     ('sw', u'Kiswahili'),  # Swahili
-    ('ta', u'தமிழ்'),  # Tamil
-    ('te', u'తెలుగు'),  # Telugu
+    ('ta', u'Tamil'),  # Tamil
+    ('te', u'Telugu'),  # Telugu
     ('th', u'ไทย'),  # Thai
     ('tr-tr', u'Türkçe (Türkiye)'),  # Turkish (Turkey)
     ('uk', u'Українська'),  # Ukranian
@@ -2562,7 +2561,7 @@ INSTALLED_APPS = [
     # Management of per-user schedules
     'openedx.core.djangoapps.schedules',
     'rest_framework_jwt',
-
+    'parler',
     #course details from course decovery site
     'mx_course_discovery',
     #user import exoprt
@@ -2570,7 +2569,7 @@ INSTALLED_APPS = [
     #subodha_addin
     'subodha-addin.mx_user_info',
     'subodha-addin.mx_multilingual_meta',
-    'parler',
+    
 
 ]
 
@@ -3926,3 +3925,19 @@ GITHUB_REPO_ROOT = '/edx/var/edxapp/data'
 
 ##################### SUPPORT URL ############################
 SUPPORT_HOW_TO_UNENROLL_LINK = ''
+
+PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
+PARLER_LANGUAGES = {
+    SITE_ID: (
+        {'code': LANGUAGE_CODE, },
+        {'code': 'kn', },
+        {'code': 'hi', },
+        {'code': 'ml', },
+        {'code': 'te', },
+        {'code': 'ta', },
+    ),
+    'default': {
+         'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
+         'hide_untranslated': False,
+     }
+}

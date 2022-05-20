@@ -542,3 +542,5 @@ plugin_settings.add_plugins(__name__, plugin_constants.ProjectType.CMS, plugin_c
 derive_settings(__name__)
 
 MX_IMPORTCOURSRDOCX_TASKQUEUE = DEFAULT_PRIORITY_QUEUE
+
+SITE_ID = ENV_TOKENS.get('SITE_ID', SITE_ID)
