@@ -404,10 +404,10 @@ if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
 # TEMPLATES[1]["DIRS"] = _make_mako_template_dirs
 # derive_settings(__name__)
 
-FEATURES['base_discovery_url'] = "http://localhost:18381/"
+FEATURES['base_discovery_url'] = "http://edx.devstack.discovery:18381/"
 FEATURES['base_lms_url'] = "http://localhost:18000/"
 	 
-FEATURES['authToken'] = "jwt 			eyJhbGciOiJIUzI1NiJ9.eyJzdXBlcnVzZXIiOiB0cnVlLCAibmFtZSI6ICJhZG1pbiIsICJ2ZXJzaW9uIjogIjEuMi4wIiwgImlzcyI6ICJodHRwOi8vbG9jYWxob3N0OjE4MDAwL29hdXRoMiIsICJhZG1pbmlzdHJhdG9yIjogdHJ1ZSwgImF1ZCI6ICJsbXMta2V5IiwgImlzX3Jlc3RyaWN0ZWQiOiBmYWxzZSwgImVtYWlsX3ZlcmlmaWVkIjogdHJ1ZSwgImZhbWlseV9uYW1lIjogIiIsICJzdWIiOiAiZjRlZjFhZjQxZTlmNGU5ZmExYjg4ZTE0MGVhOTQxMmQiLCAic2NvcGVzIjogWyJyZWFkIiwgImVtYWlsIiwgIndyaXRlIiwgInByb2ZpbGUiXSwgInByZWZlcnJlZF91c2VybmFtZSI6ICJhZG1pbiIsICJlbWFpbCI6ICJhZG1pbkBnbWFpbC5jb20iLCAiZXhwIjogMTY1MzQxOTMyNCwgImlhdCI6IDE2NTMzODMzMjQsICJmaWx0ZXJzIjogW10sICJnaXZlbl9uYW1lIjogIiJ9.WjmfbUj18H_aLEuTbpRXodkQkWB6evG-9baQ3T6RRs8"
+FEATURES['authToken'] = "jwt 			eyJhbGciOiJIUzI1NiJ9.eyJpc19yZXN0cmljdGVkIjogZmFsc2UsICJnaXZlbl9uYW1lIjogIiIsICJwcmVmZXJyZWRfdXNlcm5hbWUiOiAiYWRtaW4iLCAiZW1haWwiOiAiYWRtaW5AZ21haWwuY29tIiwgImV4cCI6IDE2NTM1MTYyNjcsICJlbWFpbF92ZXJpZmllZCI6IHRydWUsICJzY29wZXMiOiBbIndyaXRlIiwgInJlYWQiLCAiZW1haWwiLCAicHJvZmlsZSJdLCAiYWRtaW5pc3RyYXRvciI6IHRydWUsICJpYXQiOiAxNjUzNDgwMjY3LCAic3VwZXJ1c2VyIjogdHJ1ZSwgIm5hbWUiOiAiYWRtaW4iLCAiZmFtaWx5X25hbWUiOiAiIiwgInZlcnNpb24iOiAiMS4yLjAiLCAiaXNzIjogImh0dHA6Ly9sb2NhbGhvc3Q6MTgwMDAvb2F1dGgyIiwgImZpbHRlcnMiOiBbXSwgInN1YiI6ICJmNGVmMWFmNDFlOWY0ZTlmYTFiODhlMTQwZWE5NDEyZCIsICJhdWQiOiAibG1zLWtleSJ9.OlT-_mzPV9O7neybO04F3L068-SyRI7H_h-EkAVYXYM"
 
 FEATURES['client_id']= 'discovery-backend-service-key', #check locahost:18000/admin --> DJANGO OAUTH TOOLKIT --> Applications - client-id
 FEATURES['client_secret']= 'discovery-backend-service-secret',#check locahost:18000/admin --> DJANGO OAUTH TOOLKIT --> Applications - client_secret

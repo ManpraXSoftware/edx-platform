@@ -1240,7 +1240,7 @@ LANGUAGES = [
     ('az', u'azərbaycanca'),  # Azerbaijani
     ('bg-bg', u'български (България)'),  # Bulgarian (Bulgaria)
     ('bn-bd', u'বাংলা (বাংলাদেশ)'),  # Bengali (Bangladesh)
-    ('bn-in', u'বাংলা (ভারত)'),  # Bengali (India)
+    ('bn', u'Bengali'),  # Bengali (India)
     ('bs', u'bosanski'),  # Bosnian
     ('ca', u'Català'),  # Catalan
     ('ca@valencia', u'Català (València)'),  # Catalan (Valencia)
@@ -3935,9 +3935,12 @@ PARLER_LANGUAGES = {
         {'code': 'ml', },
         {'code': 'te', },
         {'code': 'ta', },
+        {'code': 'bn', },
     ),
     'default': {
          'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
          'hide_untranslated': False,
      }
 }
+
+PARLER_ENABLE_CACHING = False
