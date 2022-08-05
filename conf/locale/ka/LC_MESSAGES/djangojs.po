@@ -1164,11 +1164,11 @@ msgstr ""
 msgid "New window"
 msgstr ""
 
-#: cms/templates/js/paging-header.underscore
-#: common/static/common/templates/components/paging-footer.underscore
-#: common/static/common/templates/discussion/templates.underscore
-msgid "Next"
-msgstr "მომდევნო"
+
+
+
+
+
 
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
@@ -5132,9 +5132,9 @@ msgstr ""
 msgid "Overall Score"
 msgstr "საერთო შეფასება"
 
-#: openedx/features/course_bookmarks/static/course_bookmarks/js/views/bookmark_button.js
-msgid "Bookmark this page"
-msgstr ""
+
+
+
 
 #: openedx/features/course_experience/static/course_experience/js/CourseGoals.js
 msgid "Thank you for setting your course goal to {goal}!"
@@ -5149,8 +5149,8 @@ msgid "There was an error updating your goal."
 msgstr ""
 
 #: lms/templates/ccx/schedule.underscore
-msgid "Expand All"
-msgstr "ყველას გახსნა"
+
+
 
 #: lms/templates/ccx/schedule.underscore
 msgid "Collapse All"
@@ -5250,9 +5250,6 @@ msgstr ""
 msgid "Accomplishments"
 msgstr ""
 
-#: openedx/features/learner_profile/static/learner_profile/js/views/learner_profile_view.js
-msgid "Profile"
-msgstr ""
 
 #: cms/static/cms/js/main.js cms/static/js/views/active_video_upload_list.js
 #: cms/static/js/views/video_transcripts.js
@@ -6734,11 +6731,11 @@ msgstr "გაშვების თარიღი მითითებულ�
 msgid "Date"
 msgstr "თარიღი"
 
-#: cms/templates/js/paging-header.underscore
-#: common/static/common/templates/components/paging-footer.underscore
-#: common/static/common/templates/discussion/templates.underscore
-msgid "Previous"
-msgstr "წინა"
+
+
+
+
+
 
 #: cms/templates/js/previous-video-upload-list.underscore
 #: lms/djangoapps/support/static/support/templates/manage_user.underscore
@@ -6781,8 +6778,8 @@ msgstr "საძიებო ველის გაწმენდა"
 #: lms/djangoapps/support/static/support/templates/certificates.underscore
 #: lms/djangoapps/support/static/support/templates/enrollment.underscore
 #: lms/djangoapps/support/static/support/templates/manage_user.underscore
-msgid "Search"
-msgstr "ძიება"
+
+
 
 #: common/static/common/templates/discussion/templates.underscore
 msgid "Add a Response"
@@ -6796,10 +6793,10 @@ msgstr ""
 msgid "Add a response:"
 msgstr ""
 
-#: common/static/common/templates/discussion/templates.underscore
-#: lms/templates/verify_student/incourse_reverify.underscore
-msgid "Submit"
-msgstr "გაგზავნა"
+
+
+
+
 
 #: common/static/common/templates/discussion/templates.underscore
 #, python-format
@@ -7242,9 +7239,9 @@ msgstr "კურსის საიდენტიფიკაციო ნო�
 msgid "Course Start"
 msgstr "კურსის დაწყება"
 
-#: lms/djangoapps/support/static/support/templates/enrollment.underscore
-msgid "Course End"
-msgstr "კურსის დასასრული"
+
+
+
 
 #: lms/djangoapps/support/static/support/templates/enrollment.underscore
 msgid "Upgrade Deadline"
@@ -8099,13 +8096,15 @@ msgstr ""
 msgid "for {courseName}"
 msgstr ""
 
-#: lms/templates/learner_dashboard/course_enroll.underscore
-msgid "View Archived Course"
-msgstr "დაარქივებული კურსის ნახვა"
 
-#: lms/templates/learner_dashboard/course_enroll.underscore
-msgid "View Course"
-msgstr "კურსის ნახვა"
+
+
+
+
+
+
+
+
 
 #: lms/templates/learner_dashboard/course_enroll.underscore
 msgid "Select a session:"
@@ -8179,12 +8178,12 @@ msgstr ""
 msgid "Explore New Programs"
 msgstr "გადახედეთ ახალ პროგრამებს"
 
-#: lms/templates/learner_dashboard/program_card.underscore
-#: lms/templates/verify_student/enrollment_confirmation_step.underscore
-msgid "Course"
-msgid_plural "Courses"
-msgstr[0] ""
-msgstr[1] ""
+
+
+
+
+
+
 
 #: lms/templates/learner_dashboard/program_card.underscore
 msgid "Completed"
@@ -10621,9 +10620,10 @@ msgid ""
 "before the learners start the exam."
 msgstr ""
 
-#: cms/templates/js/transcript-organization-credentials.underscore
-msgid "Account"
-msgstr ""
+
+
+
+
 
 #: cms/templates/js/transcript-organization-credentials.underscore
 msgid ""
@@ -10910,3 +10910,119 @@ msgstr ""
 #: cms/templates/js/video/transcripts/messages/transcripts-use-existing.underscore
 msgid "Use Current Transcript"
 msgstr "არსებული სუბტიტრების გამოყენება"
+
+#. #-#-#-#-#  django-partial.po (edx-platform)  #-#-#-#-#
+#. Translators: 'Discussion' refers to the tab in the courseware that leads to
+#. the discussion forums
+#: cms/djangoapps/contentstore/views/component.py
+#: lms/djangoapps/courseware/tabs.py lms/djangoapps/discussion/plugins.py
+#: openedx/core/lib/xblock_builtin/xblock_discussion/xblock_discussion/__init__.py
+#: lms/djangoapps/discussion/templates/discussion/discussion_profile_page.html
+#: lms/templates/ux/reference/bootstrap/course-skeleton.html
+msgid "Subodha is a learning management system containing accessible resources for students with visual impairments and their educators."	
+msgstr "ಸುಬೋಧ ಎನ್ನುವುದು ದೃಷ್ಟಿಹೀನತೆ ಹೊಂದಿರುವ ವಿದ್ಯಾರ್ಥಿಗಳು ಮತ್ತು ಅವರ ಶಿಕ್ಷಕರಿಗೆ ಪ್ರವೇಶಿಸಬಹುದಾದ ಸಂಪನ್ಮೂಲಗಳನ್ನು ಒಳಗೊಂಡಿರುವ ಕಲಿಕೆಯ ನಿರ್ವಹಣಾ ವ್ಯವಸ್ಥೆಯಾಗಿದೆ"
+msgid "SIGN IN"	
+msgstr "ಸೈನ್ ಇನ್ ಮಾಡಿ"
+msgid "Enter your Email below"	
+msgstr "ನಿಮ್ಮ ಇಮೇಲ್ ಅನ್ನು ಕೆಳಗೆ ನಮೂದಿಸಿ"
+msgid "Enter your Password below"
+msgstr "ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಕೆಳಗೆ ನಮೂದಿಸಿ"
+msgid "Forgot Password?"	
+msgstr "ಪಾಸ್ವರ್ಡ್ ಮರೆತಿರಾ?"
+
+msgid "To create a new account please write to"	
+msgstr "ಹೊಸ ಖಾತೆಯನ್ನು ರಚಿಸಲು ದಯವಿಟ್ಟು ಇಲ್ಲಿ ಬರೆಯಿರಿ"
+msgid "powered by"	
+msgstr "ಇದರ ಮೂಲಕ ನಡೆಸಲ್ಪಡುತ್ತಿದೆ"
+msgid "Explore Courses"	
+msgstr "ಕೋರ್ಸ್‌ಗಳನ್ನು ಅನ್ವೇಷಿಸಿ"
+msgid "Search for topic of interest"	
+msgstr "ಆಸಕ್ತಿಯ ವಿಷಯಕ್ಕಾಗಿ ಹುಡುಕಿ"
+msgid "Explore subjects of your Interest"	
+msgstr "ನಿಮ್ಮ ಆಸಕ್ತಿಯ ವಿಷಯಗಳನ್ನು ಅನ್ವೇಷಿಸಿ"
+msgid "Resume your last course"	
+msgstr "ನಿಮ್ಮ ಕೊನೆಯ ಕೋರ್ಸ್ ಅನ್ನು ಪುನರಾರಂಭಿಸಿ"
+msgid "Dashboard"	
+msgstr "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+msgid "Profile"	
+msgstr "ಪ್ರೊಫೈಲ್"
+msgid "Account"	
+msgstr "ಖಾತೆ"
+msgid "Sign Out"	
+msgstr "ಖಾತೆ ಯಿಂದ ಹಿಂತಿರುಗಿ"
+msgid "Our Partners"	
+msgstr "ನಮ್ಮ ಪಾಲುದಾರರು"
+msgid "Supported by Elektrobit"	
+msgstr "ಎಲೆಕ್ಟ್ರೋಬಿಟ್‌ನಿಂದ ಬೆಂಬಲಿತವಾಗಿದೆ"
+msgid "All rights reserved to VisionEmpower 2021"	
+msgstr "ವಿಷನ್ ಎಂಪವರ್ 2021 ಗೆ ಎಲ್ಲಾ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ"
+msgid "My Courses"	
+msgstr "ನನ್ನ ಕೋರ್ಸ್‌ಗಳು"
+msgid "View Course"	
+msgstr "ಕೋರ್ಸ್ ಅನ್ನು ವೀಕ್ಷಿಸಿ"
+msgid "Related Programs:"	
+msgstr "ಸಂಬಂಧಿತ ಕಾರ್ಯಕ್ರಮಗಳು:"
+msgid "Unenroll"	
+msgstr "ನೋಂದಣಿ ರದ್ದುಮಾಡಿ/ಅನ್-ಎನ್ರೋಲ್"
+msgid "Resume Course"	
+msgstr "ಕೋರ್ಸ್ಅನ್ನು ಪುನರಾರಂಭಿಸಿ"
+msgid "View Archived Course"	
+msgstr "ಸಂಗ್ರಹಿತ ಮಾಡಿದ ಕೋರ್ಸ್ ಅನ್ನು ವೀಕ್ಷಿಸಿ"
+msgid "For Students"	
+msgstr "ವಿದ್ಯಾರ್ಥಿಗಳಿಗಾಗಿ"
+msgid "Topics in"	
+msgstr "ವಿಷಯಗಳ ಒಳಗೆ"
+msgid "For Teachers"	
+msgstr "ಶಿಕ್ಷಕರಿಗಾಗಿ"
+msgid "Courses"
+msgstr "ಕೋರ್ಸ್‌ಗಳು"
+msgid "created by"	
+msgstr "ರಚಿಸಿದವರು"
+msgid "Courses in the Program"	
+msgstr "ಕಾರ್ಯಕ್ರಮದಲ್ಲಿನ ಕೋರ್ಸ್‌ಗಳು"
+msgid "Displaying"	
+msgstr "ಪ್ರದರ್ಶಿಸಲಾಗುತ್ತಿದೆ"
+msgid "YOU ARE ENROLLED IN ALL THE COURSES"	
+msgstr "ನೀವು ಎಲ್ಲಾ ಕೋರ್ಸ್‌ಗಳಲ್ಲಿ ದಾಖಲಾಗಿದ್ದೀರಿ"
+msgid "Add All Courses To Dashboard"	
+msgstr "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಎಲ್ಲಾ ಕೋರ್ಸ್‌ಗಳನ್ನು ಸೇರಿಸಿ"
+msgid "Course"	
+msgstr "ಕೋರ್ಸ್/ವಿಷಯ"
+msgid "Discussion "	
+msgstr "ಚರ್ಚೆ"
+msgid "Search the course"	
+msgstr "ಕೋರ್ಸ್ ಅನ್ನು ಹುಡುಕಿ"
+msgid "Search"	
+msgstr "ಹುಡುಕಿ"
+msgid "Start Course"	
+msgstr "ಕೋರ್ಸ್ ಅನ್ನು ಪ್ರಾರಂಭಿಸಿ"
+msgid "View this course as:"	
+msgstr "ಈ ಕೋರ್ಸ್ ಅನ್ನು ಹೀಗೆ ವೀಕ್ಷಿಸಿ:"
+msgid "Expand All"	
+msgstr "ಎಲ್ಲವನ್ನು ವಿಸ್ತರಿಸು"
+msgid "Course Tools"	
+msgstr "ಕೋರ್ಸ್ ಪರಿಕರಗಳು"
+msgid "Bookmarks"	
+msgstr "ಬುಕ್‌ಮಾರ್ಕ್‌ಗಳು"
+msgid "Upcoming Dates"	
+msgstr "ಮುಂಬರುವ ದಿನಗಳು"
+msgid "Course End"	
+msgstr "ಕೋರ್ಸ್ ನ ಅಂತ್ಯ"
+msgid "After this date, course content will be archived."	
+msgstr "ಈ ದಿನದ ನಂತರ, ಕೋರ್ಸ್ ವಿಷಯವನ್ನು ಸಂಗ್ರಹ ಮಾಡಲಾಗುತ್ತದೆ."
+msgid "Previous"	
+msgstr "ಹಿಂದಿನದು"
+msgid "Next"	
+msgstr "ಮುಂದಿನದು"
+msgid "Bookmark this page"	
+msgstr "ಈ ಪುಟವನ್ನು ಬುಕ್‌ಮಾರ್ಕ್ ಮಾಡಿ"
+msgid "View Unit in Studio"	
+msgstr "ಸ್ಟುಡಿಯೋದಲ್ಲಿ ಘಟಕವನ್ನು ವೀಕ್ಷಿಸಿ"
+msgid "Staff Debug Info"	
+msgstr "ಸಿಬ್ಬಂದಿ ಡೀಬಗ್ ಮಾಹಿತಿ"
+msgid "Submit"	
+msgstr "ಸಲ್ಲಿಸು"
+msgid "Show Answer"	
+msgstr "ಉತ್ತರ ತೋರಿಸು"
+msgid "Submission history"	
+msgstr "ಸಲ್ಲಿಕೆ ಇತಿಹಾಸ"

@@ -1998,15 +1998,15 @@ msgstr ""
 msgid "New window"
 msgstr ""
 
-#. #-#-#-#-#  djangojs-partial.po (edx-platform)  #-#-#-#-#
-#. Translators: this is a message from the raw HTML editor displayed in the
-#. browser when a user needs to edit HTML
-#: common/lib/xmodule/xmodule/js/src/html/edit.js
-#: common/static/bundles/commons.js cms/templates/js/paging-header.underscore
-#: common/static/common/templates/components/paging-footer.underscore
-#: common/static/common/templates/discussion/pagination.underscore
-msgid "Next"
-msgstr ""
+
+
+
+
+
+
+
+
+
 
 #. Translators: this is a message from the raw HTML editor displayed in the
 #. browser when a user needs to edit HTML
@@ -3145,25 +3145,25 @@ msgstr ""
 msgid "The more you tell us, the more quickly and helpfully we can respond!"
 msgstr ""
 
-#: common/static/bundles/SingleSupportForm.js
-#: lms/djangoapps/support/static/support/jsx/logged_in_user.jsx
-#: common/static/common/templates/discussion/new-post.underscore
-#: common/static/common/templates/discussion/thread-response.underscore
-#: common/static/common/templates/discussion/thread.underscore
-#: lms/templates/verify_student/incourse_reverify.underscore
-msgid "Submit"
-msgstr ""
+
+
+
+
+
+
+
+
 
 #: common/static/bundles/SingleSupportForm.js
 #: lms/djangoapps/support/static/support/jsx/logged_out_user.jsx
 msgid "Sign in to {platform} so we can help you better."
 msgstr ""
 
-#: common/static/bundles/SingleSupportForm.js
-#: lms/templates/student_account/hinted_login.underscore
-#: lms/templates/student_account/login.underscore
-msgid "Sign in"
-msgstr ""
+
+
+
+
+
 
 #: common/static/bundles/SingleSupportForm.js
 msgid "Create an {platform} account"
@@ -3400,10 +3400,10 @@ msgstr ""
 msgid "An error has occurred. Please try again."
 msgstr ""
 
-#: common/static/bundles/VerticalStudentView.js
-#: openedx/features/course_bookmarks/static/course_bookmarks/js/views/bookmark_button.js
-msgid "Bookmark this page"
-msgstr ""
+
+
+
+
 
 #: common/static/bundles/commons.js
 #: common/static/common/js/components/utils/view_utils.js
@@ -6157,9 +6157,9 @@ msgstr ""
 msgid "Accomplishments"
 msgstr ""
 
-#: openedx/features/learner_profile/static/learner_profile/js/views/learner_profile_view.js
-msgid "Profile"
-msgstr ""
+
+
+
 
 #: cms/static/js/certificates/collections/certificates.js
 msgid "Could not parse certificate JSON. %(message)s"
@@ -7043,11 +7043,11 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: cms/templates/js/paging-header.underscore
-#: common/static/common/templates/components/paging-footer.underscore
-#: common/static/common/templates/discussion/pagination.underscore
-msgid "Previous"
-msgstr "पिछला"
+
+
+
+
+
 
 #: cms/templates/js/previous-video-upload-list.underscore
 #: lms/djangoapps/support/static/support/templates/manage_user.underscore
@@ -7085,13 +7085,13 @@ msgstr ""
 msgid "Clear search"
 msgstr ""
 
-#: common/static/common/templates/components/search-field.underscore
-#: lms/djangoapps/discussion/static/discussion/templates/search.underscore
-#: lms/djangoapps/support/static/support/templates/certificates.underscore
-#: lms/djangoapps/support/static/support/templates/enrollment.underscore
-#: lms/djangoapps/support/static/support/templates/manage_user.underscore
-msgid "Search"
-msgstr ""
+
+
+
+
+
+
+
 
 #: common/static/common/templates/discussion/forum-action-answer.underscore
 msgid "Mark as Answer"
@@ -7543,9 +7543,9 @@ msgstr ""
 msgid "Course Start"
 msgstr ""
 
-#: lms/djangoapps/support/static/support/templates/enrollment.underscore
-msgid "Course End"
-msgstr ""
+
+
+
 
 #: lms/djangoapps/support/static/support/templates/enrollment.underscore
 msgid "Upgrade Deadline"
@@ -7696,9 +7696,9 @@ msgstr ""
 msgid "This catalog's courses:"
 msgstr ""
 
-#: lms/templates/ccx/schedule.underscore
-msgid "Expand All"
-msgstr ""
+
+
+
 
 #: lms/templates/ccx/schedule.underscore
 msgid "Collapse All"
@@ -8323,13 +8323,11 @@ msgstr ""
 msgid "for {courseName}"
 msgstr ""
 
-#: lms/templates/learner_dashboard/course_enroll.underscore
-msgid "View Archived Course"
-msgstr ""
 
-#: lms/templates/learner_dashboard/course_enroll.underscore
-msgid "View Course"
-msgstr ""
+
+
+
+
 
 #: lms/templates/learner_dashboard/course_enroll.underscore
 msgid "Select a session:"
@@ -8401,12 +8399,12 @@ msgstr ""
 msgid "Explore New Programs"
 msgstr ""
 
-#: lms/templates/learner_dashboard/program_card.underscore
-#: lms/templates/verify_student/enrollment_confirmation_step.underscore
-msgid "Course"
-msgid_plural "Courses"
-msgstr[0] ""
-msgstr[1] ""
+
+
+
+
+
+
 
 #: lms/templates/learner_dashboard/program_card.underscore
 msgid "Completed"
@@ -10606,9 +10604,9 @@ msgid ""
 "before the learners start the exam."
 msgstr ""
 
-#: cms/templates/js/transcript-organization-credentials.underscore
-msgid "Account"
-msgstr ""
+
+
+
 
 #: cms/templates/js/transcript-organization-credentials.underscore
 msgid ""
@@ -10861,3 +10859,117 @@ msgstr ""
 #: cms/templates/js/video/transcripts/messages/transcripts-use-existing.underscore
 msgid "Use Current Transcript"
 msgstr ""
+
+# Translators:
+# Anant Vima <anant.vima@anu.edu.au>, 2014
+# ria1234 <contactpayal@yahoo.com.au>, 2014
+# plankton rules <planktonrules0@gmail.com>, 2016
+msgid "Subodha is a learning management system containing accessible resources for students with visual impairments and their educators."
+msgstr "सुबोध एक सीखने की प्रबंधन प्रणाली है जिसमें दृष्टिबाधित छात्रों और उनके शिक्षकों के लिए सुलभ संसाधन हैं।"
+
+msgid "SIGN IN"	
+msgstr "साइन इन करें"
+msgid "Enter your Email below"	
+msgstr "नीचे अपना ईमेल दर्ज करें"
+msgid "Enter your Password below"	
+msgstr "अपना पासवर्ड नीचे दर्ज करें"
+msgid "Forgot Password?"	
+msgstr "पासवर्ड भूल गए हैं?"
+msgid "Sign in"	
+msgstr "साइन इन करें"
+msgid "To create a new account please write to"	
+msgstr "एक नया खाता बनाने के लिए कृपया .......... को लिखें"
+msgid "powered by"	
+msgstr "द्वारा संचालित"
+msgid "Explore Courses"	
+msgstr "पाठ्यक्रमों का अन्वेषण करें"
+msgid "Search for topic of interest"	
+msgstr "रुचि के विषय की खोज करे"
+msgid "Explore subjects of your Interest"	
+msgstr "अपनी रुचि के विषयों का अन्वेषण करें"
+msgid "Resume your last course"	
+msgstr "अपना अंतिम पाठ्यक्रम फिर से शुरू करें"
+msgid "Dashboard"	
+msgstr "डैशबोर्ड"
+msgid "Profile"	
+msgstr "प्रोफ़ाइल"
+msgid "Account"
+msgstr "खाता"
+msgid "Sign Out"	
+msgstr "साइन आउट करें"
+msgid "Our Partners"	
+msgstr "हमारे साहियोगी"
+msgid "Supported by Elektrobit"	
+msgstr "इलेक्ट्रोबिट द्वारा समर्थित"
+msgid "All rights reserved to VisionEmpower 2021"	
+msgstr "विज़न एम्पावर 2021 के लिए सर्वाधिकार सुरक्षित"
+msgid "My Courses"	
+msgstr "मेरे पाठ्यक्रम"
+msgid "View Course"	
+msgstr "पाठ्यक्रम देखें"
+msgid "Related Programs:"	
+msgstr "संबंधित कार्यक्रम"
+msgid "Unenroll"	
+msgstr "अनएनरोल करें"
+msgid "Resume Course"	
+msgstr "पाठ्यक्रम फिर से शुरू करें"
+msgid "View Archived Course"	
+msgstr "संग्रहीत पाठ्यक्रम देखें"
+msgid "For Students"	
+msgstr "छात्रों के लिए"
+msgid "Topics in"	
+msgstr "विषय में"
+msgid "For Teachers"	
+msgstr "शिक्षकों के लिए"
+msgid "Courses"	
+msgstr "पाठ्यक्रम"
+msgid "created by"	
+msgstr "द्वारा बनाया गया"
+msgid "Courses in the Program"	
+msgstr "कार्यक्रम में पाठ्यक्रम"
+msgid "Displaying"
+msgstr "प्रदर्शित"
+msgid "YOU ARE ENROLLED IN ALL THE COURSES"	
+msgstr "आप सभी पाठ्यक्रमों में नामांकित हैं"
+msgid "Add All Courses To Dashboard"	
+msgstr "डैशबोर्ड में सभी पाठ्यक्रम जोड़ें"
+msgid "Course"	
+msgstr "पाठ्यक्रम"
+msgid "Discussion "
+msgstr "विचार विमर्श"
+msgid "Search the course"	
+msgstr "पाठ्यक्रम खोजें"
+msgid "Search"	
+msgstr "खोज"
+msgid "Start Course"	
+msgstr "पाठ्यक्रम प्रारंभ करें"
+msgid "View this course as:"	
+msgstr "इस पाठ्यक्रम को इस रूप में देखें:"
+msgid "Expand All"	
+msgstr "सभी का विस्तार"
+msgid "Course Tools"	
+msgstr "पाठ्यक्रम टूल"
+msgid "Bookmarks"	
+msgstr "बुकमार्क"
+msgid "Upcoming Dates"	
+msgstr "आगामी तारीख"
+msgid "Course End"	
+msgstr "पाठ्यक्रम समाप्त"
+msgid "After this date, course content will be archived."	
+msgstr "इस तारीख के बाद, पाठ्यक्रम सामग्री संग्रहीत की जाएगी।"
+msgid "Previous"	
+msgstr "पिछला"
+msgid "Next"	
+msgstr "अगला"
+msgid "Bookmark this page"	
+msgstr "इस पृष्ठ को बुकमार्क करें"
+msgid "View Unit in Studio"	
+msgstr "स्टूडियो में यूनिट देखें"
+msgid "Staff Debug Info"	
+msgstr "स्टाफ डीबग जानकारी"
+msgid "Submit"	
+msgstr "जमा करें"
+msgid "Show Answer"	
+msgstr "उत्तर दिखाएँ"
+msgid "Submission history"	
+msgstr "सबमिशन हिस्ट्री"

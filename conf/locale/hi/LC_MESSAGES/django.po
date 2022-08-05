@@ -2079,9 +2079,9 @@ msgstr ""
 msgid "Past Due"
 msgstr ""
 
-#: lms/templates/problem.html
-msgid "Show Answer"
-msgstr "जवाब देखें"
+
+
+
 
 #: common/lib/xmodule/xmodule/capa_base.py
 msgid ""
@@ -2227,17 +2227,17 @@ msgid ""
 "contact moocsupport@mathworks.com"
 msgstr ""
 
-#: cms/templates/index.html lms/templates/help_modal.html
-#: lms/templates/manage_user_standing.html lms/templates/register-shib.html
-#: lms/templates/dashboard/_entitlement_reason_survey.html
-#: lms/templates/dashboard/_reason_survey.html
-#: lms/templates/peer_grading/peer_grading_problem.html
-#: lms/templates/survey/survey.html
-#: openedx/core/djangoapps/dark_lang/templates/dark_lang/preview-language-fragment.html
-#: openedx/core/djangoapps/theming/templates/theming/theming-admin-fragment.html
-#: themes/stanford-style/lms/templates/register-shib.html
-msgid "Submit"
-msgstr "सबमिट"
+
+
+
+
+
+
+
+
+
+
+
 
 #: common/lib/xmodule/xmodule/capa_base.py
 msgid "Submitting"
@@ -4070,16 +4070,16 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: common/lib/xmodule/xmodule/tabs.py lms/djangoapps/courseware/tabs.py
-#: lms/djangoapps/courseware/views/views.py
-#: lms/djangoapps/shoppingcart/reports.py
-#: openedx/features/course_experience/__init__.py
-#: cms/templates/widgets/header.html lms/templates/help_modal.html
-#: lms/templates/courseware/course_navigation.html
-#: lms/templates/courseware/courseware.html
-#: lms/templates/ux/reference/bootstrap/course-skeleton.html
-msgid "Course"
-msgstr ""
+
+
+
+
+
+
+
+
+
+
 
 #: common/lib/xmodule/xmodule/video_module/transcripts_utils.py
 #, python-brace-format
@@ -5347,18 +5347,18 @@ msgstr ""
 msgid "Course starts in {time_remaining_string} at {course_start_time}."
 msgstr ""
 
-#: lms/djangoapps/courseware/date_summary.py
-msgid "Course End"
-msgstr ""
+
+
+
 
 #: lms/djangoapps/courseware/date_summary.py
 msgid ""
 "To earn a certificate, you must complete all requirements before this date."
 msgstr ""
 
-#: lms/djangoapps/courseware/date_summary.py
-msgid "After this date, course content will be archived."
-msgstr ""
+
+
+
 
 #: lms/djangoapps/courseware/date_summary.py
 msgid ""
@@ -9049,19 +9049,19 @@ msgstr ""
 "दूसरे लेखों पर किए गए अपडेटों पर निर्भर करती हैं, तो ये बदल सकती हैं, जो कि "
 "अच्छी बात हो सकती है या नहीं भी।"
 
-#: lms/templates/wiki/plugins/attachments/index.html
-#: lms/templates/dashboard.html lms/templates/index.html
-#: lms/templates/api_admin/catalogs/search.html
-#: lms/templates/courseware/courses.html
-#: lms/templates/courseware/courseware.html
-#: lms/templates/edxnotes/edxnotes.html
-#: lms/templates/ux/reference/bootstrap/course-skeleton.html
-#: openedx/features/course_experience/templates/course_experience/course-home-fragment.html
-#: openedx/features/course_search/templates/course_search/course-search-fragment.html
-#: themes/edx.org/lms/templates/dashboard.html
-#: themes/stanford-style/lms/templates/index.html
-msgid "Search"
-msgstr "खोजें"
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #: lms/templates/wiki/plugins/attachments/index.html
 msgid ""
@@ -9293,13 +9293,13 @@ msgid ""
 "Service{link_end}."
 msgstr ""
 
-#: openedx/core/djangoapps/bookmarks/apps.py
-#: openedx/features/course_bookmarks/plugins.py
-#: openedx/features/course_bookmarks/views/course_bookmarks.py
-#: lms/templates/courseware/courseware.html
-#: openedx/features/course_bookmarks/templates/course_bookmarks/course-bookmarks.html
-msgid "Bookmarks"
-msgstr ""
+
+
+
+
+
+
+
 
 #: openedx/core/djangoapps/bookmarks/views.py
 msgid "An error has occurred. Please try again."
@@ -10620,12 +10620,12 @@ msgstr ""
 msgid "{sign_in_link} or {register_link} and then enroll in this course."
 msgstr ""
 
-#: openedx/features/course_experience/views/course_home_messages.py
-#: lms/templates/header/navbar-not-authenticated.html
-#: lms/templates/navigation/navbar-not-authenticated.html
-#: themes/edx.org/lms/templates/header/navbar-not-authenticated.html
-msgid "Sign in"
-msgstr ""
+
+
+
+
+
+
 
 #: openedx/features/course_experience/views/course_home_messages.py
 #, python-brace-format
@@ -11459,17 +11459,17 @@ msgstr "पाठ्यक्रम संख्या:"
 msgid "Course Run:"
 msgstr ""
 
-#: cms/templates/index.html lms/templates/sysadmin_dashboard.html
-#: lms/templates/sysadmin_dashboard_gitlogs.html
-#: lms/templates/courseware/courses.html
-#: lms/templates/header/navbar-authenticated.html
-#: lms/templates/header/navbar-not-authenticated.html
-#: lms/templates/navigation/navbar-authenticated.html
-#: lms/templates/navigation/navbar-not-authenticated.html
-#: lms/templates/navigation/bootstrap/navbar-authenticated.html
-#: themes/edx.org/lms/templates/header/navbar-authenticated.html
-msgid "Courses"
-msgstr "पाठ्यक्रम"
+
+
+
+
+
+
+
+
+
+
+
 
 #: cms/templates/login.html themes/red-theme/cms/templates/login.html
 msgid "Sign In to {studio_name}"
@@ -11569,10 +11569,10 @@ msgstr ""
 msgid "Choose Language"
 msgstr ""
 
-#: cms/templates/widgets/header.html lms/templates/user_dropdown.html
-#: lms/templates/header/user_dropdown.html
-msgid "Account"
-msgstr ""
+
+
+
+
 
 #: cms/templates/widgets/header.html
 #: lms/templates/header/navbar-authenticated.html
@@ -11649,10 +11649,10 @@ msgstr ""
 msgid "Usermenu dropdown"
 msgstr ""
 
-#: cms/templates/widgets/user_dropdown.html lms/templates/user_dropdown.html
-#: lms/templates/header/user_dropdown.html
-msgid "Sign Out"
-msgstr ""
+
+
+
+
 
 #: common/lib/capa/capa/templates/codeinput.html
 msgid "Code Editor"
@@ -11778,9 +11778,9 @@ msgstr "टिप्पणियां छुपाएं"
 msgid "Bookmarked"
 msgstr ""
 
-#: lms/templates/bookmark_button.html
-msgid "Bookmark this page"
-msgstr ""
+
+
+
 
 #: lms/templates/conditional_module.html
 msgid "You do not have access to this dependency module."
@@ -11804,23 +11804,17 @@ msgstr ""
 msgid "View all Courses"
 msgstr ""
 
-#: lms/templates/dashboard.html lms/templates/user_dropdown.html
-#: lms/templates/header/user_dropdown.html
-#: themes/edx.org/lms/templates/dashboard.html
-msgid "Dashboard"
-msgstr "डैशबोर्ड"
+
+
+
+
+
 
 #: lms/templates/dashboard.html themes/edx.org/lms/templates/dashboard.html
 msgid "You are not enrolled in any courses yet."
 msgstr ""
 
-#: lms/templates/dashboard.html
-#: lms/templates/header/navbar-not-authenticated.html
-#: lms/templates/navigation/navbar-authenticated.html
-#: lms/templates/navigation/bootstrap/navbar-authenticated.html
-#: themes/edx.org/lms/templates/dashboard.html
-msgid "Explore courses"
-msgstr ""
+
 
 #: lms/templates/dashboard.html
 #: lms/templates/registration/account_activation_sidebar_notice.html
@@ -11860,19 +11854,19 @@ msgstr "पाठ्यक्रम ई-मेलें प्राप्त �
 msgid "Save Settings"
 msgstr "सेटिंग्स सहेजें"
 
-#: lms/templates/dashboard.html lms/templates/ccx/enrollment.html
-#: lms/templates/dashboard/_dashboard_course_listing.html
-#: lms/templates/dashboard/_dashboard_entitlement_actions.html
-#: lms/templates/dashboard/_dashboard_entitlement_unenrollment_modal.html
-#: lms/templates/instructor/instructor_dashboard_2/membership.html
-#: themes/edx.org/lms/templates/dashboard.html
-#: themes/edx.org/lms/templates/dashboard/_dashboard_entitlement_unenrollment_modal.html
-msgid "Unenroll"
-msgstr "दाखिला रद्द करें"
 
-#: lms/templates/edit_unit_link.html
-msgid "View Unit in Studio"
-msgstr ""
+
+
+
+
+
+
+
+
+
+
+
+
 
 #: lms/templates/email_change_failed.html lms/templates/email_exists.html
 msgid "E-mail change failed"
@@ -12399,9 +12393,9 @@ msgstr "आपके कोई नोट्स नहीं है।"
 msgid "Course View"
 msgstr ""
 
-#: lms/templates/preview_menu.html
-msgid "View this course as:"
-msgstr ""
+
+
+
 
 #: lms/templates/preview_menu.html
 msgid "Learner"
@@ -12723,13 +12717,13 @@ msgstr ""
 msgid "Important!"
 msgstr ""
 
-#: lms/templates/seq_module.html
-msgid "Previous"
-msgstr "पिछला"
 
-#: lms/templates/seq_module.html
-msgid "Next"
-msgstr "अगला"
+
+
+
+
+
+
 
 #: lms/templates/seq_module.html
 msgid "Sequence"
@@ -12789,13 +12783,11 @@ msgstr ""
 msgid "Inactive Groups"
 msgstr ""
 
-#: lms/templates/staff_problem_info.html
-msgid "Staff Debug Info"
-msgstr "स्टाफ़ डीबग सूचना"
 
-#: lms/templates/staff_problem_info.html
-msgid "Submission history"
-msgstr "सबमिशन हिस्टरी"
+
+
+
+
 
 #: lms/templates/staff_problem_info.html
 msgid "{platform_name} Content Quality Assessment"
@@ -14457,12 +14449,12 @@ msgstr ""
 msgid "You are enrolled in this course"
 msgstr ""
 
-#: lms/templates/courseware/course_about.html
-#: lms/templates/dashboard/_dashboard_course_listing.html
-#: lms/templates/shoppingcart/registration_code_receipt.html
-#: openedx/features/journals/templates/journals/bundle_about.html
-msgid "View Course"
-msgstr "पाठयक्रम देखें"
+
+
+
+
+
+
 
 #: lms/templates/courseware/course_about.html
 msgid "This course is in your <a href=\"{cart_link}\">cart</a>."
@@ -14668,11 +14660,11 @@ msgstr ""
 msgid "Welcome to {course_title}!"
 msgstr ""
 
-#: lms/templates/courseware/info.html
-#: lms/templates/dashboard/_dashboard_course_listing.html
-#: openedx/features/course_experience/templates/course_experience/course-home-fragment.html
-msgid "Resume Course"
-msgstr ""
+
+
+
+
+
 
 #: lms/templates/courseware/info.html
 msgid "View Updates in Studio"
@@ -14686,10 +14678,10 @@ msgstr ""
 msgid "Handout Navigation"
 msgstr "है्न्डआउट नैविगेशन"
 
-#: lms/templates/courseware/info.html
-#: openedx/features/course_experience/templates/course_experience/course-home-fragment.html
-msgid "Course Tools"
-msgstr ""
+
+
+
+
 
 #: lms/templates/courseware/news.html
 msgid "News - MITx 6.002x"
@@ -15212,9 +15204,9 @@ msgstr ""
 msgid "You can change sessions until {entitlement_expiration_date}."
 msgstr ""
 
-#: lms/templates/dashboard/_dashboard_course_listing.html
-msgid "View Archived Course"
-msgstr "संग्रहित कोर्स देखें "
+
+
+
 
 #: lms/templates/dashboard/_dashboard_course_listing.html
 msgid "I'm taking {course_name} online with {facebook_brand}. Check it out!"
@@ -16315,13 +16307,13 @@ msgstr ""
 msgid "Journals"
 msgstr ""
 
-#: lms/templates/header/navbar-authenticated.html
-#: lms/templates/header/user_dropdown.html
-#: lms/templates/navigation/navbar-authenticated.html
-#: lms/templates/navigation/bootstrap/navbar-authenticated.html
-#: themes/edx.org/lms/templates/header/navbar-authenticated.html
-msgid "Profile"
-msgstr ""
+
+
+
+
+
+
+
 
 #: lms/templates/header/navbar-authenticated.html
 msgid "Discover New"
@@ -16357,9 +16349,9 @@ msgstr "यह कैसे काम करता है"
 msgid "Schools"
 msgstr "विश्वविद्यालय"
 
-#: lms/templates/header/user_dropdown.html
-msgid "Resume your last course"
-msgstr ""
+
+
+
 
 #: lms/templates/instructor/instructor_dashboard_2/add_coupon_modal.html
 #: lms/templates/instructor/instructor_dashboard_2/e-commerce.html
@@ -17959,10 +17951,10 @@ msgstr ""
 msgid "Show the status for the tasks that you submitted for this problem."
 msgstr ""
 
-#: lms/templates/learner_dashboard/_dashboard_navigation_courses.html
-#: themes/edx.org/lms/templates/dashboard.html
-msgid "My Courses"
-msgstr ""
+
+
+
+
 
 #: lms/templates/learner_dashboard/_dashboard_navigation_journals.html
 msgid "My Journals"
@@ -18008,9 +18000,9 @@ msgstr ""
 "अपनी पसंदीदा भाषा नहीं दिख रही? {link_start}स्वयंसेवी अनुवादक "
 "बनें!{link_end}"
 
-#: lms/templates/navigation/navbar-not-authenticated.html
-msgid "Explore Courses"
-msgstr ""
+
+
+
 
 #: lms/templates/navigation/navigation.html
 msgid "Global"
@@ -18846,16 +18838,16 @@ msgstr ""
 msgid "Skeleton Page"
 msgstr ""
 
-#: lms/templates/ux/reference/bootstrap/course-skeleton.html
-#: openedx/features/course_experience/templates/course_experience/course-home-fragment.html
-#: openedx/features/course_search/templates/course_search/course-search-fragment.html
-msgid "Search the course"
-msgstr ""
 
-#: lms/templates/ux/reference/bootstrap/course-skeleton.html
-#: openedx/features/course_experience/templates/course_experience/course-home-fragment.html
-msgid "Start Course"
-msgstr ""
+
+
+
+
+
+
+
+
+
 
 #: lms/templates/verify_student/_verification_help.html
 msgid "Have questions?"
@@ -19043,9 +19035,9 @@ msgstr ""
 msgid "Upgrade ({price})"
 msgstr ""
 
-#: openedx/features/course_experience/templates/course_experience/course-outline-fragment.html
-msgid "Expand All"
-msgstr ""
+
+
+
 
 #: openedx/features/course_experience/templates/course_experience/course-outline-fragment.html
 msgid "Prerequisite: "
@@ -23725,3 +23717,119 @@ msgid ""
 "A new revision was created: Merge between Revision #%(r1)d and Revision "
 "#%(r2)d"
 msgstr "नया संशोधन बनाया गया: संशोधन क्रमांक #%(r1)d और #%(r2)d जोड़ें"
+
+# Translators:
+# Anant Vima <anant.vima@anu.edu.au>, 2014
+# ria1234 <contactpayal@yahoo.com.au>, 2014
+# plankton rules <planktonrules0@gmail.com>, 2016
+msgid "Subodha is a learning management system containing accessible resources for students with visual impairments and their educators."
+msgstr "सुबोध एक सीखने की प्रबंधन प्रणाली है जिसमें दृष्टिबाधित छात्रों और उनके शिक्षकों के लिए सुलभ संसाधन हैं।"
+
+msgid "SIGN IN"	
+msgstr "साइन इन करें"
+msgid "Enter your Email below"	
+msgstr "नीचे अपना ईमेल दर्ज करें"
+msgid "Enter your Password below"	
+msgstr "अपना पासवर्ड नीचे दर्ज करें"
+msgid "Forgot Password?"	
+msgstr "पासवर्ड भूल गए हैं?"
+msgid "Sign in"	
+msgstr "साइन इन करें"
+msgid "To create a new account please write to"	
+msgstr "एक नया खाता बनाने के लिए कृपया .......... को लिखें"
+msgid "powered by"	
+msgstr "द्वारा संचालित"
+msgid "Explore Courses"	
+msgstr "पाठ्यक्रमों का अन्वेषण करें"
+msgid "Explore courses"	
+msgstr "पाठ्यक्रमों का अन्वेषण करें"
+msgid "Search for topic of interest"	
+msgstr "रुचि के विषय की खोज करे"
+msgid "Explore subjects of your Interest"	
+msgstr "अपनी रुचि के विषयों का अन्वेषण करें"
+msgid "Resume your last course"	
+msgstr "अपना अंतिम पाठ्यक्रम फिर से शुरू करें"
+msgid "Dashboard"	
+msgstr "डैशबोर्ड"
+msgid "Profile"	
+msgstr "प्रोफ़ाइल"
+msgid "Account"
+msgstr "खाता"
+msgid "Sign Out"	
+msgstr "साइन आउट करें"
+msgid "Our Partners"	
+msgstr "हमारे साहियोगी"
+msgid "Supported by Elektrobit"	
+msgstr "इलेक्ट्रोबिट द्वारा समर्थित"
+msgid "All rights reserved to VisionEmpower 2021"	
+msgstr "विज़न एम्पावर 2021 के लिए सर्वाधिकार सुरक्षित"
+msgid "My Courses"	
+msgstr "मेरे पाठ्यक्रम"
+msgid "View Course"	
+msgstr "पाठ्यक्रम देखें"
+msgid "Related Programs:"	
+msgstr "संबंधित कार्यक्रम"
+msgid "Unenroll"	
+msgstr "अनएनरोल करें"
+msgid "Resume Course"	
+msgstr "पाठ्यक्रम फिर से शुरू करें"
+msgid "View Archived Course"	
+msgstr "संग्रहीत पाठ्यक्रम देखें"
+msgid "For Students"	
+msgstr "छात्रों के लिए"
+msgid "Topics in"	
+msgstr "विषय में"
+msgid "For Teachers"	
+msgstr "शिक्षकों के लिए"
+msgid "Courses"	
+msgstr "पाठ्यक्रम"
+msgid "created by"	
+msgstr "द्वारा बनाया गया"
+msgid "Courses in the Program"	
+msgstr "कार्यक्रम में पाठ्यक्रम"
+msgid "Displaying"
+msgstr "प्रदर्शित"
+msgid "YOU ARE ENROLLED IN ALL THE COURSES"	
+msgstr "आप सभी पाठ्यक्रमों में नामांकित हैं"
+msgid "Add All Courses To Dashboard"	
+msgstr "डैशबोर्ड में सभी पाठ्यक्रम जोड़ें"
+msgid "Course"	
+msgstr "पाठ्यक्रम"
+msgid "Discussion "
+msgstr "विचार विमर्श"
+msgid "Search the course"	
+msgstr "पाठ्यक्रम खोजें"
+msgid "Search"	
+msgstr "खोज"
+msgid "Start Course"	
+msgstr "पाठ्यक्रम प्रारंभ करें"
+msgid "View this course as:"	
+msgstr "इस पाठ्यक्रम को इस रूप में देखें:"
+msgid "Expand All"	
+msgstr "सभी का विस्तार"
+msgid "Course Tools"	
+msgstr "पाठ्यक्रम टूल"
+msgid "Bookmarks"	
+msgstr "बुकमार्क"
+msgid "Upcoming Dates"	
+msgstr "आगामी तारीख"
+msgid "Course End"	
+msgstr "पाठ्यक्रम समाप्त"
+msgid "After this date, course content will be archived."	
+msgstr "इस तारीख के बाद, पाठ्यक्रम सामग्री संग्रहीत की जाएगी।"
+msgid "Previous"	
+msgstr "पिछला"
+msgid "Next"	
+msgstr "अगला"
+msgid "Bookmark this page"	
+msgstr "इस पृष्ठ को बुकमार्क करें"
+msgid "View Unit in Studio"	
+msgstr "स्टूडियो में यूनिट देखें"
+msgid "Staff Debug Info"	
+msgstr "स्टाफ डीबग जानकारी"
+msgid "Submit"	
+msgstr "जमा करें"
+msgid "Show Answer"	
+msgstr "उत्तर दिखाएँ"
+msgid "Submission history"	
+msgstr "सबमिशन हिस्ट्री"
