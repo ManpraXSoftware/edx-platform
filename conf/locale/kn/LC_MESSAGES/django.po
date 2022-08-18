@@ -20848,11 +20848,11 @@ msgstr "ახალი კურსების გადათვალიე�
 
 #: openedx/features/learner_profile/templates/learner_profile/learner_profile.html
 msgid "View My Records"
-msgstr ""
+msgstr "ನನ್ನ ದಾಖಲೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ"
 
 #: openedx/features/learner_profile/templates/learner_profile/learner_profile.html
 msgid "My Profile"
-msgstr ""
+msgstr "ಸ್ವ ಭೂಮಿಕೆ"
 
 #: openedx/features/learner_profile/templates/learner_profile/learner_profile.html
 msgid ""
@@ -25700,9 +25700,7 @@ msgstr ""
 msgid "New article below"
 msgstr ""
 
-#: wiki/templates/wiki/includes/revision_info.html
-msgid "by"
-msgstr ""
+
 
 #: wiki/templates/wiki/includes/revision_info.html
 msgid "restored"
@@ -25940,3 +25938,15 @@ msgid "Submission history"
 msgstr "ಸಲ್ಲಿಕೆ ಇತಿಹಾಸ"
 msgid "courses for"	
 msgstr "ಕೋರ್ಸ್‌ಗಳು"
+msgid "courses related to"	
+msgstr "ಸಂಬಂಧಿಸಿದ ಕೋರ್ಸ್‌ಗಳು"
+msgid "listed below"	
+msgstr "ಕೆಳಗೆ ಪಟ್ಟಿಮಾಡಲಾಗಿದೆ"
+msgid "program related to"	
+msgstr "ಸಂಬಂಧಿಸಿದ ಕಾರ್ಯಕ್ರಮ"
+msgid "by"	
+msgstr "ಮೂಲಕ"
+msgid "No Program Available In Selected Language"	
+msgstr "ಆಯ್ದ ಭಾಷೆಯಲ್ಲಿ ಯಾವುದೇ ಪ್ರೋಗ್ರಾಂ ಲಭ್ಯವಿಲ್ಲ"
+msgid "Topics Not Found"	
+msgstr "ವಿಷಯಗಳು ಕಂಡುಬಂದಿಲ್ಲ"
