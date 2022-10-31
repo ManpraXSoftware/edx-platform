@@ -32,8 +32,9 @@ def course_context_from_url(url):
                 ),
                 exc_info=True
             )
-
-    return course_context_from_course_id(course_id)
+    
+        return course_context_from_course_id(course_id)
+    return
 
 
 def course_context_from_course_id(course_id):
