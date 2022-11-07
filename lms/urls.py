@@ -208,6 +208,10 @@ urlpatterns = [
     ),
     path('api/discounts/', include(('openedx.features.discounts.urls', 'openedx.features.discounts'),
                                    namespace='api_discounts')),
+
+
+    # re_path(r'^api/otp/', include(('openedx.features.edxplus.otp_api.urls', "openedx.features.edxplus.otp_api"), namespace='otpapi')),
+    # re_path(r'^api/mx_catalog/', include(('openedx.features.edxplus.mx_catalog.urls', "openedx.features.edxplus.mx_catalog"),namespace='mx_catalog')),
     path('403', handler403),
     path('404', handler404),
     path('429', handler429),
