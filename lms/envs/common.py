@@ -2191,7 +2191,7 @@ MIDDLEWARE = [
 ]
 
 # Clickjacking protection can be disbaled by setting this to 'ALLOW'
-X_FRAME_OPTIONS = 'DENY'
+# X_FRAME_OPTIONS = 'DENY'
 
 # Platform for Privacy Preferences header
 P3P_HEADER = 'CP="Open EdX does not have a P3P policy."'
@@ -3228,6 +3228,7 @@ INSTALLED_APPS = [
 
     # Blockstore
     'blockstore.apps.bundles',
+
 ]
 
 ######################### CSRF #########################################
@@ -5091,3 +5092,8 @@ DISCUSSION_MODERATION_CLOSE_REASON_CODES = {
     "duplicate": _("Post is a duplicate"),
     "off-topic": _("Post is off-topic"),
 }
+
+
+MEDIA_ROOT = "/openedx/media"
+X_FRAME_OPTIONS= 'ALLOW'
+MEDIA_URL = "/media/"

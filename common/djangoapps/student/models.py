@@ -40,6 +40,7 @@ from django.db.utils import ProgrammingError
 from django.dispatch import receiver
 
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_noop
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext_noop
 from django_countries.fields import CountryField
@@ -563,72 +564,134 @@ class UserProfile(models.Model):
         blank=True, null=True, max_length=6, db_index=True,
         choices=LEVEL_OF_EDUCATION_CHOICES
     )
+    
+    STATE_LIST = (
+        ('AP',ugettext_noop('Andhra Pradesh')),
+        ('AR',ugettext_noop('Arunachal Pradesh')),
+        ('AS',ugettext_noop('Assam')),
+        ('BR',ugettext_noop('Bihar')),
+        ('CG',ugettext_noop('Chhattisgarh')),
+        ('CHGH',ugettext_noop('Chandigarh')),
+        ('DN',ugettext_noop('Dadra and Nagar Haveli')),
+        ('DD',ugettext_noop('Daman and Diu')),
+        ('DL',ugettext_noop('Delhi')),
+        ('GA',ugettext_noop('Goa')),
+        ('GJ',ugettext_noop('Gujarat')),
+        ('HR',ugettext_noop('Haryana')),
+        ('HP',ugettext_noop('Himachal Pradesh')),
+        ('JK',ugettext_noop('Jammu and Kashmir')),
+        ('JH',ugettext_noop('Jharkhand')),
+        ('KA',ugettext_noop('Karnataka')),
+        ('KL',ugettext_noop('Kerala')),
+        ('MP',ugettext_noop('Madhya Pradesh')),
+        ('MH',ugettext_noop('Maharashtra')),
+        ('MN',ugettext_noop('Manipur')),
+        ('ML',ugettext_noop('Meghalaya')),
+        ('MZ',ugettext_noop('Mizoram')),
+        ('NL',ugettext_noop('Nagaland')),
+        ('OD',ugettext_noop('Odisha')),
+        ('PB',ugettext_noop('Punjab')),
+        ('PY',ugettext_noop('Pondicherry')),
+        ('RJ',ugettext_noop('Rajasthan')),
+        ('SK',ugettext_noop('Sikkim')),
+        ('TN',ugettext_noop('Tamil Nadu')),
+        ('TR',ugettext_noop('Tripura')),
+        ('UP',ugettext_noop('Uttar Pradesh')),
+        ('UK',ugettext_noop('Uttarakhand')),
+        ('WB',ugettext_noop('West Bengal'))
+        )
+    state = models.CharField(blank=True, null=True, max_length=6, db_index=True,
+        choices=STATE_LIST)
+
+    district = models.TextField(blank=True, null=True)
+    block = models.TextField(blank=True, null=True)
+
+    CLASSES_LIST = (
+        ('primary', ugettext_noop('Primary')),
+        ('middle', ugettext_noop("Middle")),
+        ('secondary', ugettext_noop("Secondary")),
+        ('senior_secondary', ugettext_noop("Senior Secondary")),
+        ('other', ugettext_noop("Other"))
+    )
+    classes_taught = models.CharField(blank=True, null=True, max_length=20, db_index=True,
+        choices=CLASSES_LIST)
+
+    COMPANY_LIST = (
+        ('aif', ugettext_noop('AIF')),
+        ('pratham', ugettext_noop("Pratham")),
+        ('bharti', ugettext_noop("Bharti Foundation")),
+        ('other', ugettext_noop("Other"))
+        )
+    company = models.CharField(blank=True, null=True, max_length=20, db_index=True, choices=COMPANY_LIST)
+
+    TITLE_LIST = (
+        # other states
+        ('government_school_teacher', ugettext_noop("Government School Teacher")),
+        # other states, hp
+        ('private_school_teacher', ugettext_noop("Private School Teacher")),
+        # other states, hp
+        ('principal', ugettext_noop("Principal")),
+        # other states, hp
+        ('teacher_trainee', ugettext_noop("Teacher Trainee")),
+        # other states
+        ('teacher_trainer', ugettext_noop("Teacher Trainer")),
+        #  other states
+        ('cac', ugettext_noop("CAC")),
+        # other states
+        ('crc', ugettext_noop("CRC")),
+        # other states
+        ('brc', ugettext_noop("BRC")),
+        # hp
+        ('jbt', ugettext_noop("Junior Basic Teacher")),
+        # hp
+        ('tgt', ugettext_noop("Trained Graduate Teacher")),
+        # hp
+        ('ht', ugettext_noop("Head Teacher")),
+        # hp
+        ('diet_p', ugettext_noop("DIET Principal")),
+        # hp
+        ('diet_f', ugettext_noop("DIET Faculty")),
+        # other states, hp
+        ('other', ugettext_noop("Other"))
+    )
+
+    title = models.CharField(blank=True, null=True, max_length=30, db_index=True,
+        choices=TITLE_LIST)
+    # Custome Fields on request of goverment official
+    ref_name = models.CharField(blank=True, default='', max_length=255)
+    diet_code = models.CharField(blank=True, default='', max_length=255)
+    # PMIS CODE: Originally request by HP goverment
+    #also used to store teacher id requested from Chhattisgarh Government
+    pmis_code = models.CharField(max_length=32, blank=True, default='')
+
+    school = models.TextField(blank=True, null=True)
+
+    DISTRIBUTION_LIST = (
+        ('indi', ugettext_noop('Independent')),
+        ('integrated', ugettext_noop("Integrated")),
+        ('other', ugettext_noop("Other"))
+    )
+    distribution_model =  models.CharField(blank=True, null=True, max_length=10, db_index=True,
+        choices=DISTRIBUTION_LIST)
+    REFERER_LIST = (
+        ('rf',ugettext_noop('Refferal')),
+        ('org',ugettext_noop('Organisation')),
+        ('ad',ugettext_noop('Advertisment')),
+        ('other',ugettext_noop('Other')),
+        )
+    referer = models.CharField(blank=True, null=True, max_length=6, db_index=True,
+        choices=REFERER_LIST)
     mailing_address = models.TextField(blank=True, null=True)
     city = models.TextField(blank=True, null=True)
     country = CountryField(blank=True, null=True)
-    COUNTRY_WITH_STATES = 'US'
-    STATE_CHOICES = (
-        ('AL', 'Alabama'),
-        ('AK', 'Alaska'),
-        ('AZ', 'Arizona'),
-        ('AR', 'Arkansas'),
-        ('AA', 'Armed Forces Americas'),
-        ('AE', 'Armed Forces Europe'),
-        ('AP', 'Armed Forces Pacific'),
-        ('CA', 'California'),
-        ('CO', 'Colorado'),
-        ('CT', 'Connecticut'),
-        ('DE', 'Delaware'),
-        ('DC', 'District Of Columbia'),
-        ('FL', 'Florida'),
-        ('GA', 'Georgia'),
-        ('HI', 'Hawaii'),
-        ('ID', 'Idaho'),
-        ('IL', 'Illinois'),
-        ('IN', 'Indiana'),
-        ('IA', 'Iowa'),
-        ('KS', 'Kansas'),
-        ('KY', 'Kentucky'),
-        ('LA', 'Louisiana'),
-        ('ME', 'Maine'),
-        ('MD', 'Maryland'),
-        ('MA', 'Massachusetts'),
-        ('MI', 'Michigan'),
-        ('MN', 'Minnesota'),
-        ('MS', 'Mississippi'),
-        ('MO', 'Missouri'),
-        ('MT', 'Montana'),
-        ('NE', 'Nebraska'),
-        ('NV', 'Nevada'),
-        ('NH', 'New Hampshire'),
-        ('NJ', 'New Jersey'),
-        ('NM', 'New Mexico'),
-        ('NY', 'New York'),
-        ('NC', 'North Carolina'),
-        ('ND', 'North Dakota'),
-        ('OH', 'Ohio'),
-        ('OK', 'Oklahoma'),
-        ('OR', 'Oregon'),
-        ('PA', 'Pennsylvania'),
-        ('RI', 'Rhode Island'),
-        ('SC', 'South Carolina'),
-        ('SD', 'South Dakota'),
-        ('TN', 'Tennessee'),
-        ('TX', 'Texas'),
-        ('UT', 'Utah'),
-        ('VT', 'Vermont'),
-        ('VA', 'Virginia'),
-        ('WA', 'Washington'),
-        ('WV', 'West Virginia'),
-        ('WI', 'Wisconsin'),
-        ('WY', 'Wyoming'),
-    )
-    state = models.CharField(blank=True, null=True, max_length=2, choices=STATE_CHOICES)
     goals = models.TextField(blank=True, null=True)
     bio = models.CharField(blank=True, null=True, max_length=3000, db_index=False)
     profile_image_uploaded_at = models.DateTimeField(null=True, blank=True)
     phone_regex = RegexValidator(regex=r'^\+?1?\d*$', message="Phone number can only contain numbers.")
     phone_number = models.CharField(validators=[phone_regex], blank=True, null=True, max_length=50)
+    
+    # Adding field to store tags associated with the User.
+    tag_label = models.TextField(verbose_name=_("Tag Label"), null=True, blank=True)
 
     @property
     def has_profile_image(self):
@@ -652,6 +715,16 @@ class UserProfile(models.Model):
         if self.level_of_education:
             return self.__enumerable_to_display(self.LEVEL_OF_EDUCATION_CHOICES, self.level_of_education)
 
+    @property
+    def title_display(self):
+        """ Convenience method that returns the human readable title. """
+        if self.title:
+            return self.__enumerable_to_display(self.TITLE_LIST, self.title)
+    @property
+    def state_display(self):
+        """ Convenience method that returns the human readable state. """
+        if self.state:
+            return self.__enumerable_to_display(self.STATE_LIST, self.state)
     @property
     def gender_display(self):
         """ Convenience method that returns the human readable gender. """

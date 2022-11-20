@@ -17,10 +17,11 @@ class CourseOverviewField(serializers.RelatedField):  # lint-amnesty, pylint: di
     """
     Custom field to wrap a CourseOverview object. Read-only.
     """
-    def to_representation(self, course_overview):  # lint-amnesty, pylint: disable=arguments-differ
+    def to_representation(self,course_overview):  # lint-amnesty, pylint: disable=arguments-differ
         course_id = str(course_overview.id)
         request = self.context.get('request')
-        api_version = self.context.get('api_version')
+        # api_version = self.context.get('api_version')
+        api_version = "v1"
         enrollment = CourseEnrollment.get_enrollment(user=self.context.get('request').user, course_key=course_id)
 
         return {

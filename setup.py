@@ -110,6 +110,8 @@ setup(
             "course_apps = openedx.core.djangoapps.course_apps.apps:CourseAppsConfig",
             "otp_api = openedx.features.edxplus.otp_api.apps:OtpApiConfig",
             "mx_catalog = openedx.features.edxplus.mx_catalog.apps:CatalogConfig",
+            "mxcertification_api = openedx.features.edxplus.mxcertification_api.apps:MxCertificationApiConfig",
+            "mx_enrollment = openedx.features.edxplus.mx_enrollment.apps:MxEnrollmentConfig",
 
         ],
         "cms.djangoapp": [
@@ -135,6 +137,8 @@ setup(
             "course_apps = openedx.core.djangoapps.course_apps.apps:CourseAppsConfig",
             "otp_api = openedx.features.edxplus.otp_api.apps:OtpApiConfig",
             "mx_catalog = openedx.features.edxplus.mx_catalog.apps:CatalogConfig",
+            "mxcertification_api = openedx.features.edxplus.mxcertification_api.apps:MxCertificationApiConfig",
+            "mx_enrollment = openedx.features.edxplus.mx_enrollment.apps:MxEnrollmentConfig",
         ],
         'openedx.learning_context': [
             'lib = openedx.core.djangoapps.content_libraries.library_context:LibraryContextImpl',

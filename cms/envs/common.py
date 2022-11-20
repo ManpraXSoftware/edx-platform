@@ -889,7 +889,7 @@ MIDDLEWARE = [
 EXTRA_MIDDLEWARE_CLASSES = []
 
 # Clickjacking protection can be disabled by setting this to 'ALLOW'
-X_FRAME_OPTIONS = 'DENY'
+# X_FRAME_OPTIONS = 'DENY'
 
 # Platform for Privacy Preferences header
 P3P_HEADER = 'CP="Open EdX does not have a P3P policy."'
@@ -1129,7 +1129,7 @@ ALTERNATE_WORKER_QUEUES = 'lms'
 
 STATIC_URL_BASE = '/static/'
 
-X_FRAME_OPTIONS = 'DENY'
+# X_FRAME_OPTIONS = 'DENY'
 
 # .. setting_name: GIT_REPO_EXPORT_DIR
 # .. setting_default: '/edx/var/edxapp/export_course_repos'
