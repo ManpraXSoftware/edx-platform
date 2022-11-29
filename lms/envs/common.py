@@ -5094,6 +5094,28 @@ DISCUSSION_MODERATION_CLOSE_REASON_CODES = {
 }
 
 
+
+# MX Added settings
 MEDIA_ROOT = "/openedx/media"
 X_FRAME_OPTIONS= 'ALLOW'
 MEDIA_URL = "/media/"
+CORS_ORIGIN_ALLOW_ALL=True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = (
+    'Content-Type',
+    'Content-Length',
+    'Authorization',
+    'If-Match',
+    'If-None-Match',
+    'X-Experience-API-Version',
+    'Accept-Language'
+)
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
