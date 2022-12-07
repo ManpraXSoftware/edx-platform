@@ -1,4 +1,4 @@
 [submodule "openedx/features/edxplus"]
 	path = openedx/features/edxplus
-	url = https://alok.kumar:ggo6ridxandqbcbptznoxep6g5524fjwzordetnmokca7qnfixhq@manprax.visualstudio.com/DefaultCollection/BTF/_git/edxplus
+	url = https://alok.kumar:yjwarov5vf6e2yjbe7vesgsvo6pdw3oavhspt7wgww5aypjf26bqmanprax.visualstudio.com/DefaultCollection/BTF/_git/edxplus
 	branch = release/nutmeg_tutor
