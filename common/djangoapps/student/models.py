@@ -665,7 +665,25 @@ class UserProfile(models.Model):
     pmis_code = models.CharField(max_length=32, blank=True, default='')
 
     school = models.TextField(blank=True, null=True)
-
+    dob = models.DateField(default=date.today)
+    board = models.CharField(blank=True, default='', max_length=255)
+    # "Are you associated with Bharti Foundation Program"
+    BHARTI_FOUNDATION_LIST = (
+        ('quality_support_program', ugettext_noop('Quality Support Program')),
+        ('satya_bharti_school', ugettext_noop("Satya Bharti School")),
+        ('no', ugettext_noop("No"))
+    )
+    association_with_bhartifound = models.CharField(blank=True, null=True, max_length=60, db_index=True,
+        choices=BHARTI_FOUNDATION_LIST)
+    # "What do you want to see on this App" 
+    YOU_WANT_SEE_APP_LIST =(
+        ('scholastic', ugettext_noop('Self paced learning courses – Scholastic')),
+        ('co_cholastic', ugettext_noop("Self paced Learning courses – Co Scholastic")),
+        ('webinar', ugettext_noop("webinar")),
+        ('educational_resources', ugettext_noop("Educational Resources"))
+    )
+    you_want_see_inthis_app = models.CharField(blank=True, null=True, max_length=60, db_index=True,
+        choices=YOU_WANT_SEE_APP_LIST)
     DISTRIBUTION_LIST = (
         ('indi', ugettext_noop('Independent')),
         ('integrated', ugettext_noop("Integrated")),
