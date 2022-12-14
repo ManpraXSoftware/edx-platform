@@ -81,7 +81,8 @@ class CourseOverviewField(serializers.RelatedField):  # lint-amnesty, pylint: di
             # removed.
             'video_outline': None,
 
-            'is_self_paced': course_overview.self_paced
+            'is_self_paced': course_overview.self_paced,
+            'short_description': course_overview.short_description,
         }
 
 
