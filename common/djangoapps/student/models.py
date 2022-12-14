@@ -483,21 +483,17 @@ class UserStanding(models.Model):
 class UserProfile(models.Model):
     """This is where we store all the user demographic fields. We have a
     separate table for this rather than extending the built-in Django auth_user.
-
     Notes:
         * Some fields are legacy ones from the first run of 6.002, from which
           we imported many users.
         * Fields like name and address are intentionally open ended, to account
           for international variations. An unfortunate side-effect is that we
           cannot efficiently sort on last names for instance.
-
     Replication:
         * Only the Portal servers should ever modify this information.
         * All fields are replicated into relevant Course databases
-
     Some of the fields are legacy ones that were captured during the initial
     MITx fall prototype.
-
     .. pii: Contains many PII fields. Retired in AccountRetirementView.
     .. pii_types: name, location, birth_date, gender, biography, phone_number
     .. pii_retirement: local_api
@@ -665,25 +661,6 @@ class UserProfile(models.Model):
     pmis_code = models.CharField(max_length=32, blank=True, default='')
 
     school = models.TextField(blank=True, null=True)
-    dob = models.DateField(default=date.today)
-    board = models.CharField(blank=True, default='', max_length=255)
-    # "Are you associated with Bharti Foundation Program"
-    BHARTI_FOUNDATION_LIST = (
-        ('quality_support_program', ugettext_noop('Quality Support Program')),
-        ('satya_bharti_school', ugettext_noop("Satya Bharti School")),
-        ('no', ugettext_noop("No"))
-    )
-    association_with_bhartifound = models.CharField(blank=True, null=True, max_length=60, db_index=True,
-        choices=BHARTI_FOUNDATION_LIST)
-    # "What do you want to see on this App" 
-    YOU_WANT_SEE_APP_LIST =(
-        ('scholastic', ugettext_noop('Self paced learning courses – Scholastic')),
-        ('co_cholastic', ugettext_noop("Self paced Learning courses – Co Scholastic")),
-        ('webinar', ugettext_noop("webinar")),
-        ('educational_resources', ugettext_noop("Educational Resources"))
-    )
-    you_want_see_inthis_app = models.CharField(blank=True, null=True, max_length=60, db_index=True,
-        choices=YOU_WANT_SEE_APP_LIST)
     DISTRIBUTION_LIST = (
         ('indi', ugettext_noop('Independent')),
         ('integrated', ugettext_noop("Integrated")),
@@ -777,14 +754,12 @@ class UserProfile(models.Model):
 
     def requires_parental_consent(self, year=None, age_limit=None, default_requires_consent=True):
         """Returns true if this user requires parental consent.
-
         Args:
             year (int): The year for which consent needs to be tested (defaults to now).
             age_limit (int): The age limit at which parental consent is no longer required.
                 This defaults to the value of the setting 'PARENTAL_CONTROL_AGE_LIMIT'.
             default_requires_consent (bool): True if users require parental consent if they
                 have no specified year of birth (default is True).
-
         Returns:
              True if the user requires parental consent.
         """
@@ -817,7 +792,6 @@ class UserProfile(models.Model):
 
     def _calculate_age(self, year, year_of_birth):
         """Calculate the youngest age for a user with a given year of birth.
-
         :param year: year
         :param year_of_birth: year of birth
         :return: youngest age a user could be for the given year
@@ -831,7 +805,6 @@ class UserProfile(models.Model):
         """Return cache key name to be used to cache current country.
         Args:
             user_id(int): Id of user.
-
         Returns:
             Unicode cache key
         """
