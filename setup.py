@@ -113,7 +113,8 @@ setup(
             "mxcertification_api = openedx.features.edxplus.mxcertification_api.apps:MxCertificationApiConfig",
             "mx_enrollment = openedx.features.edxplus.mx_enrollment.apps:MxEnrollmentConfig",
             "mx_xapi = openedx.features.edxplus.mx_xapi.apps:MxXapiConfig",
-            "mx_content_analytics = openedx.features.edxplus.mx_content_analytics.apps:MxContentAnalyticsConfig"
+            "mx_content_analytics = openedx.features.edxplus.mx_content_analytics.apps:MxContentAnalyticsConfig",
+            "mx_wp = openedx.features.edxplus.mx_wp.apps:MxWpConfig",
 
         ],
         "cms.djangoapp": [
@@ -142,7 +143,8 @@ setup(
             "mxcertification_api = openedx.features.edxplus.mxcertification_api.apps:MxCertificationApiConfig",
             "mx_enrollment = openedx.features.edxplus.mx_enrollment.apps:MxEnrollmentConfig",
             "mx_xapi = openedx.features.edxplus.mx_xapi.apps:MxXapiConfig",
-            "mx_content_analytics = openedx.features.edxplus.mx_content_analytics.apps:MxContentAnalyticsConfig"
+            "mx_content_analytics = openedx.features.edxplus.mx_content_analytics.apps:MxContentAnalyticsConfig",
+            "mx_wp = openedx.features.edxplus.mx_wp.apps:MxWpConfig",
         ],
         'openedx.learning_context': [
             'lib = openedx.core.djangoapps.content_libraries.library_context:LibraryContextImpl',
