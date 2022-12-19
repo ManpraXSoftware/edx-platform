@@ -21,6 +21,7 @@ from django.db import IntegrityError, ProgrammingError, transaction
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
 from pytz import UTC
+from openedx.features.edxplus.mx_accounts.models import CustomUserProfile
 
 from common.djangoapps import third_party_auth
 from common.djangoapps.course_modes.models import CourseMode
@@ -732,12 +733,11 @@ def do_create_account(form, custom_form=None):
             raise
 
     registration.register(user)
-
     profile_fields = [
         "name", "level_of_education", "gender", "mailing_address", "city", "country", "goals",
-        "year_of_birth"
+        "year_of_birth",'mobile_number'
     ]
-    profile = UserProfile(
+    profile = CustomUserProfile(
         user=user,
         **{key: form.cleaned_data.get(key) for key in profile_fields}
     )

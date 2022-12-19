@@ -1151,7 +1151,8 @@ OAUTH2_DEFAULT_SCOPES = {
 }
 
 OAUTH2_PROVIDER = {
-    'OAUTH2_VALIDATOR_CLASS': 'openedx.core.djangoapps.oauth_dispatch.dot_overrides.validators.EdxOAuth2Validator',
+    # 'OAUTH2_VALIDATOR_CLASS': 'openedx.core.djangoapps.oauth_dispatch.dot_overrides.validators.EdxOAuth2Validator',
+    'OAUTH2_VALIDATOR_CLASS': 'openedx.features.edxplus.mx_accounts.validator.MyOAuth2Validator',
     # 3 months and then we expire refresh tokens using edx_clear_expired_tokens (length is mobile app driven)
     'REFRESH_TOKEN_EXPIRE_SECONDS': 7776000,
     'SCOPES_BACKEND_CLASS': 'openedx.core.djangoapps.oauth_dispatch.scopes.ApplicationModelScopes',
@@ -3496,6 +3497,7 @@ LOGIN_REDIRECT_WHITELIST = []
 #   includes a paragraph that links to the honor code page (defined my MKTG_URLS["HONOR"]). This page might not be
 #   available for all Open edX platforms. In such cases, the "honor_code" registration field should be "hidden".
 REGISTRATION_EXTRA_FIELDS = {
+    'mobile_number':'required',
     'confirm_email': 'hidden',
     'level_of_education': 'optional',
     'gender': 'optional',
@@ -4111,6 +4113,17 @@ ACCOUNT_VISIBILITY_CONFIGURATION["admin_fields"] = (
         "phone_number",
         "activation_key",
         "pending_name_change",
+        "city",
+        "classes_taught",
+        "district",
+        "state",
+        "tag_label",
+        "certificate_count",
+        "mobile_number",
+        "association_with_bhartifound",
+        "you_want_see_inthis_app",
+        "dob",
+        "board",
     ]
 )
 
@@ -5121,4 +5134,5 @@ CORS_ALLOW_METHODS = [
 APPEND_SLASH = False
 FEATURES['MX_TINCAN_SERVER_IP'] = 'https://tt2n-lms.manprax.com/api/xapi'
 WORDPRESS_HOST = "https://wp.tt2n-lms.manprax.com"
+
 

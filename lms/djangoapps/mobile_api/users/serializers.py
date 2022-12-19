@@ -135,6 +135,19 @@ class UserSerializer(serializers.ModelSerializer):
     """
     name = serializers.ReadOnlyField(source='profile.name')
     course_enrollments = serializers.SerializerMethodField()
+    mobile_number = serializers.SerializerMethodField()
+    classes_taught = serializers.SerializerMethodField()
+    tag_label = serializers.SerializerMethodField()
+    district = serializers.SerializerMethodField()
+    board = serializers.SerializerMethodField()
+    medium = serializers.SerializerMethodField()
+    dob = serializers.SerializerMethodField()
+    you_want_see_inthis_app = serializers.SerializerMethodField()
+    association_with_bhartifound = serializers.SerializerMethodField()
+    state = serializers.ReadOnlyField(source='profile.state')
+    gender = serializers.ReadOnlyField(source='profile.gender')
+    city = serializers.ReadOnlyField(source='profile.city')
+    
 
     def get_course_enrollments(self, model):
         request = self.context.get('request')
@@ -145,10 +158,43 @@ class UserSerializer(serializers.ModelSerializer):
             kwargs={'api_version': api_version, 'username': model.username},
             request=request
         )
-
+    
+    def get_mobile_number(self, model):
+        mobile_number = self.context.get('mobile_number')
+        return mobile_number
+    def get_classes_taught(self, model):
+        classes_taught = self.context.get('classes_taught')
+        return classes_taught
+    
+    def get_tag_label(self, model):
+        tag_label = self.context.get('tag_label')
+        return tag_label
+    
+    def get_district(self, model):
+        district = self.context.get('district')
+        return district
+    
+    def get_board(self, model):
+        board = self.context.get('board')
+        return board
+    
+    def get_medium(self, model):
+        medium = self.context.get('medium')
+        return medium
+    
+    def get_dob(self, model):
+        dob = self.context.get('dob')
+        return dob
+    def get_you_want_see_inthis_app(self, model):
+        you_want_see_inthis_app = self.context.get('you_want_see_inthis_app')
+        return you_want_see_inthis_app
+    
+    def get_association_with_bhartifound(self, model):
+        association_with_bhartifound = self.context.get('association_with_bhartifound')
+        return association_with_bhartifound
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'name', 'course_enrollments')
+        fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','state','tag_label','district','gender','city','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound')
         lookup_field = 'username'
         # For disambiguating within the drf-yasg swagger schema
         ref_name = 'mobile_api.User'

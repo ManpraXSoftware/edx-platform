@@ -12,6 +12,8 @@ from lms.djangoapps.verify_student.models import (
 )
 
 from .models import UserPreference
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):

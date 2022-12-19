@@ -569,7 +569,8 @@ class RegistrationView(APIView):
 
         data = request.POST.copy()
         self._handle_terms_of_service(data)
-
+        data['mobile_number'] = data.get('username')
+        data['username'] = str(data.get('name'))+"_"+str(data.get('username'))[-5:]
         try:
             data = StudentRegistrationRequested.run_filter(form_data=data)
         except StudentRegistrationRequested.PreventRegistration as exc:

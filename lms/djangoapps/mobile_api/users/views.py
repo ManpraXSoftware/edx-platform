@@ -74,8 +74,24 @@ class UserDetail(generics.RetrieveAPIView):
     lookup_field = 'username'
 
     def get_serializer_context(self):
+        from openedx.features.edxplus.mx_accounts.models import CustomUserProfile
         context = super().get_serializer_context()
         context['api_version'] = self.kwargs.get('api_version')
+        userprofile = CustomUserProfile.objects.get(user=User.objects.get(username=self.kwargs.get('username')))
+        profile_dict = {
+            "gender":userprofile.get_gender_display(),
+            "state":userprofile.get_state_display(),
+            "district":userprofile.district,
+            "city":userprofile.city,
+            "board":userprofile.board,
+            "medium":userprofile.medium,
+            "dob":userprofile.dob,
+            "mobile_number":userprofile.mobile_number,
+            "you_want_see_inthis_app":userprofile.you_want_see_inthis_app,
+            "association_with_bhartifound":userprofile.association_with_bhartifound,
+            "classes_taught":userprofile.get_classes_taught_display(),
+        }
+        context.update(profile_dict)
         return context
 
 
