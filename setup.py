@@ -115,6 +115,7 @@ setup(
             "mx_xapi = openedx.features.edxplus.mx_xapi.apps:MxXapiConfig",
             "mx_content_analytics = openedx.features.edxplus.mx_content_analytics.apps:MxContentAnalyticsConfig",
             "mx_wp = openedx.features.edxplus.mx_wp.apps:MxWpConfig",
+            "mx_accounts = openedx.features.edxplus.mx_accounts.apps:MxAccountsConfig",
 
         ],
         "cms.djangoapp": [
@@ -145,6 +146,7 @@ setup(
             "mx_xapi = openedx.features.edxplus.mx_xapi.apps:MxXapiConfig",
             "mx_content_analytics = openedx.features.edxplus.mx_content_analytics.apps:MxContentAnalyticsConfig",
             "mx_wp = openedx.features.edxplus.mx_wp.apps:MxWpConfig",
+            "mx_accounts = openedx.features.edxplus.mx_accounts.apps:MxAccountsConfig",
         ],
         'openedx.learning_context': [
             'lib = openedx.core.djangoapps.content_libraries.library_context:LibraryContextImpl',
