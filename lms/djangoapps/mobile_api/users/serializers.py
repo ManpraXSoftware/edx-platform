@@ -139,6 +139,7 @@ class UserSerializer(serializers.ModelSerializer):
     classes_taught = serializers.SerializerMethodField()
     tag_label = serializers.SerializerMethodField()
     district = serializers.SerializerMethodField()
+    school = serializers.SerializerMethodField()
     board = serializers.SerializerMethodField()
     medium = serializers.SerializerMethodField()
     dob = serializers.SerializerMethodField()
@@ -177,6 +178,10 @@ class UserSerializer(serializers.ModelSerializer):
     def get_board(self, model):
         board = self.context.get('board')
         return board
+
+    def get_school(self, model):
+        board = self.context.get('school')
+        return board
     
     def get_medium(self, model):
         medium = self.context.get('medium')
@@ -194,7 +199,7 @@ class UserSerializer(serializers.ModelSerializer):
         return association_with_bhartifound
     class Meta:
         model = User
-        fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','state','tag_label','district','gender','city','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound')
+        fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','school','state','tag_label','district','gender','city','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound')
         lookup_field = 'username'
         # For disambiguating within the drf-yasg swagger schema
         ref_name = 'mobile_api.User'
