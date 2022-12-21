@@ -121,7 +121,7 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
         :return: Dict serialized account
         """
         try:
-            from openedx.features.edxplus.mx_accounts.models import CustomUserProfile
+            from mx_accounts.models import CustomUserProfile
             # user_profile = user.profile
             user_profile = CustomUserProfile.objects.get(user_id=user.id)
         except ObjectDoesNotExist:

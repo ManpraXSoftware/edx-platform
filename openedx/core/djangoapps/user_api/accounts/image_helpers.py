@@ -149,7 +149,7 @@ def set_has_profile_image(username, is_uploaded, upload_dt=None):
         ValueError: is_uploaded was True, but no upload datetime was supplied.
         UserNotFound: no user with username `username` exists.
     """
-    from openedx.features.edxplus.mx_accounts.models import CustomUserProfile
+    from mx_accounts.models import CustomUserProfile
     if is_uploaded and upload_dt is None:  # lint-amnesty, pylint: disable=no-else-raise
         raise ValueError("No upload datetime was supplied.")
     elif not is_uploaded:
