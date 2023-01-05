@@ -5130,7 +5130,7 @@ CORS_ALLOW_METHODS = [
     "POST",
     "PUT",
 ]
-APPEND_SLASH = False
+
 FEATURES['MX_TINCAN_SERVER_IP'] = 'https://tt2n-lms.manprax.com/api/xapi'
 WORDPRESS_HOST = "https://wp.tt2n-lms.manprax.com"
 
