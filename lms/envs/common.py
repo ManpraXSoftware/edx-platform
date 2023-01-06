@@ -68,7 +68,7 @@ PLATFORM_TWITTER_ACCOUNT = "@YourPlatformTwitterAccount"
 
 ENABLE_JASMINE = False
 
-LMS_ROOT_URL = 'https://tt2n-lms.manprax.com'
+LMS_ROOT_URL = 'https://btf-lms.manprax.in'
 LMS_INTERNAL_ROOT_URL = LMS_ROOT_URL
 LMS_ENROLLMENT_API_PATH = "/api/enrollment/v1/"
 
@@ -5131,7 +5131,7 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
-FEATURES['MX_TINCAN_SERVER_IP'] = 'https://tt2n-lms.manprax.com/api/xapi'
-WORDPRESS_HOST = "https://wp.tt2n-lms.manprax.com"
+FEATURES['MX_TINCAN_SERVER_IP'] = 'https://btf-lms.manprax.in/api/xapi'
+WORDPRESS_HOST = "https://wp.btf-lms.manprax.in/"
 
 
