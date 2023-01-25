@@ -3578,7 +3578,7 @@ PROGRAM_CERTIFICATES_ROUTING_KEY = 'edx.lms.core.default'
 
 # See https://github.com/edx/edx-django-sites-extensions for more info
 # Default site to use if site matching request headers does not exist
-SITE_ID = 3
+SITE_ID = 1
 
 # dir containing all themes
 COMPREHENSIVE_THEME_DIRS = []
