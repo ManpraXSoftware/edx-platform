@@ -1,0 +1,246 @@
+{
+  "sourceLanguage": "en",
+  "targetLanguage": "hi-IN",
+  "dictionary": [
+ {
+      "id": "607d1db7dc5207106358ba71",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_S_G4_02+2021/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_S_G4-07+2021/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VE+G7_MAT_002+2021/course"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "OVERVIEW": {
+          "value": "1.ಅವಲೋಕನ"
+        }
+      }
+    },
+	{
+      "id": "608a5fcfacbf8110487c33bc",
+      "context": "",
+      "labels": [],
+      "url": [
+        "staging-lms.visionempowertrust.org/xblock/block-v1:VisionEmpower+VE_TIK_M_G4-15+2019+type@html+block@9c456df1ac484f499828eab6227a4d88",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/ce98c28ae7f3453091537446433c70a9/3bf25a2ea9ee444a9973cdcaf1c444ee",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_06_TheJunkSeller+2019/courseware/4f3974b949144f4da56e326d620e54f9/1c3796a5cbec4d3c8627fc5ee37a0a9c"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "OBJECTIVE & PREREQUISITES": {
+          "value": "1.1 ಉದ್ದೇಶಗಳು ಮತ್ತು ಪೂರ್ವಅವಶ್ಯಕತೆಗಳು"
+        }
+      }
+    },
+	{
+      "id": "607d1db7dc5207106358ba75",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_S_G4_02+2021/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_S_G4-07+2021/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VE+G7_MAT_002+2021/course"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "LEARN": {
+          "value": "2.ಕಲಿಯಿರಿ"
+        }
+      }
+    },
+	  {
+      "id": "607d6c63dc520710635c3301",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_S_G5-03+2021/courseware/8c1d730dc1b04fa08eec0d67799f9bb0/40a03834a4114b5f952a4ab122e22d7b",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_07_JugsAndMugs+2021/courseware/730aa4e8d826494498bb37367785adbb/3b712f74d6cd4a91b66091ff7d48c30e",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_07_JugsAndMugs+2021/course"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Key Points": {
+          "value": "ಮುಖ್ಯ ಅಂಶಗಳು"
+        }
+      }
+    },
+        
+        {
+     "id": "6098e5fb974a9210bc9d518f",
+     "context": "",
+     "labels": [],
+     "url": [
+       "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/a7043dcb7f044e38a345ca09eac55f04",
+       "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/c131b6a3008a47a2afa365d560c4b497",
+       "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/8675385ca3fe47488fac853be5990341/0eeb35b92d564314b0e2a27f6d7d81ed"
+        ],
+        "phraseKey": "",
+        "translation": {
+           "The Living World": {
+               "value": "ಜೀವ ಜಗತ್ತು"
+             }
+          }
+      },        
+
+	{
+      "id": "621766af6672209e6495fca4",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_07+2021/courseware/a003f47f0df54e8794597cbda5779323/8026986f9e954fc1bb2d774f33bbc702"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Learn more": {
+          "value": "ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ"
+        }
+      }
+    },
+	 {
+      "id": "6228d6967be78dcde7374453",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G8_07_practicalgeometry+2021/courseware/b8bdce148c53417f9172c08f6abca11a/1ea925273faa464e89ae33b4a10e3cb5",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G8_07_practicalgeometry+2021/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G8_07_practicalgeometry+2021/courseware/b8bdce148c53417f9172c08f6abca11a/eab8c2187a114decb631c49c3311c08a"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Engage": {
+          "value": "ತೊಡಗಿಸಿಕೊಳ್ಳಿ"
+        }
+      }
+    },
+	{
+      "id": "607d1db7dc5207106358ba7d",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_M_G7-10+2019/courseware/aa9d25af6be443a39fefc0111e412d68/917bfcaf6c954ce5b2dff060cf2f95e2",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_S_G4_02+2021/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VE+G7_MAT_002+2021/course"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "INTEREST GENERATION ACTIVITY": {
+          "value": "3.1 ಆಸಕ್ತಿ ಮೂಡಿಸುವ ಚಟುವಟಿಕೆಗಳು"
+        }
+      }
+    },
+	 {
+      "id": "6098e6aed3568d10c2c0dc04",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/c131b6a3008a47a2afa365d560c4b497"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Living beings and non living things": {
+          "value": "ಸಜೀವಿಗಳು ಮತ್ತು ನಿರ್ಜೀವಿಗಳು"
+        }
+      }
+    },
+	{
+      "id": "622465fb0608c4f24e48fade",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G8_05_squaresandsquareroots+2021/courseware/7c2583ee39c64ed6ae7b78eae00d1f12/03850200c2114a18969cb247dd145381",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_07_JugsAndMugs+2021/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_07_JugsAndMugs+2021/courseware/76d80ced02d74508844130e701f3c173/ae1b93a7d7c1417a87018879cf84ff1e"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Concept Introduction Activities": {
+          "value": "ಪರಿಕಲ್ಪನೆಯ ಪರಿಚಯ ಚಟುವಟಿಕೆಗಳು"
+        }
+      }
+    },
+	{
+      "id": "6098e6b3d3568d10c2c0dd20",
+      "context": "",
+      "labels": [
+        "lz-phrase-contains-number"
+      ],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/0e5afee4c8444110b0a511acaf670de0"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Characteristics of Living Beings – part 1": {
+          "value": "ಸಜೀವಿಗಳ ಗುಣಲಕ್ಷಣಗಳು - ಭಾಗ 1"
+        }
+      }
+    },
+	{
+      "id": "6098e6b3d3568d10c2c0dd22",
+      "context": "",
+      "labels": [
+        "lz-phrase-contains-number"
+      ],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/0e5afee4c8444110b0a511acaf670de0"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Characteristics of Living Beings – part 2": {
+          "value": "ಸಜೀವಿಗಳ ಗುಣಲಕ್ಷಣಗಳು - ಭಾಗ 2"
+        }
+      }
+    },
+	 {
+      "id": "608a4c3dacbf8110487b91b9",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/6b97c16a33004595b55f5e4b24cd4e43/e869b5278a4e43489a235c945617999c",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_M_G7-10+2019/courseware/aa9d25af6be443a39fefc0111e412d68/917bfcaf6c954ce5b2dff060cf2f95e2",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VE+G7_MAT_002+2021/course"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "LET’S DISCUSS: RELATE TO DAILY LIFE*": {
+          "value": "3.3 ದೈನಂದಿನ ಜೀವನಕ್ಕೆ ಸಂಬಂಧಿಸಿದಂತೆ ಚರ್ಚಿಸೋಣ"
+        }
+      }
+    },
+	 {
+      "id": "608a61df221b2e106a1b6fc9",
+      "context": "",
+      "labels": [
+        "lz-phrase-contains-number"
+      ],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_Math_G6-CH10+2019/courseware/67a81561172e4ef2ab609934b8e692ec/c679f2c56c4242a093083d9034ae9b77",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_M_G5-20+2019/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_M_G5-20+2019/courseware/ed2be141497842589dddd3941d42aa26/c1086a8abe1f43c0bd610e2cb02181a4"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "4 EXERCISES & REINFORCEMENT": {
+          "value": "4 ಅಭ್ಯಾಸ ಚಟುವಟಿಕೆಗಳು ಮತ್ತು ಬಲವರ್ಧನೆ"
+        }
+      }
+    },
+	{
+      "id": "60828830250327107f21f73e",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_06_TheJunkSeller+2019/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/69b21e2bfb804a1d8d6485a43e4765c8/3c00e33218f54c4fa8bb66beca114ffb",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_M_G7-10+2019/courseware/aa9d25af6be443a39fefc0111e412d68/917bfcaf6c954ce5b2dff060cf2f95e2"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "IMPORTANT GUIDELINES*": {
+          "value": "4.2 ಪ್ರಮುಖ ಮಾರ್ಗಸೂಚಿಗಳು *"
+        }
+      }
+    }
+	]
+	}

@@ -385,6 +385,14 @@ DCS_SESSION_COOKIE_SAMESITE_FORCE_ALL = True
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
     from .private import *  # pylint: disable=import-error,wildcard-import
 
+
+if 'figures' in INSTALLED_APPS:
+    import figures
+    figures.update_settings(
+        WEBPACK_LOADER,
+        CELERYBEAT_SCHEDULE,
+        ENV_TOKENS.get('FIGURES', {}))
+
 ########################## THEMING  #######################
 # If you want to enable theming in devstack, uncomment this section and add any relevant
 # theme directories to COMPREHENSIVE_THEME_DIRS

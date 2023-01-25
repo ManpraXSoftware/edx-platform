@@ -1,0 +1,8 @@
+django-parler==2.0.1
+mammoth==1.4.15
+et-xmlfile==1.0.1
+openpyxl==2.6.4
+xlrd==1.1.0
+tablib==2.0.0
+django-import_export==2.5.0
+openedx-completion-aggregator==3.0.3

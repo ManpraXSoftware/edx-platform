@@ -313,7 +313,7 @@ FEATURES = {
     'CERTIFICATES_HTML_VIEW': False,
 
     # Course discovery feature
-    'ENABLE_COURSE_DISCOVERY': False,
+    'ENABLE_COURSE_DISCOVERY': True,
 
     # Setting for overriding default filtering facets for Course discovery
     # COURSE_DISCOVERY_FILTERS = ["org", "language", "modes"]
@@ -3578,7 +3578,7 @@ PROGRAM_CERTIFICATES_ROUTING_KEY = 'edx.lms.core.default'
 
 # See https://github.com/edx/edx-django-sites-extensions for more info
 # Default site to use if site matching request headers does not exist
-SITE_ID = 3
+SITE_ID = 1
 
 # dir containing all themes
 COMPREHENSIVE_THEME_DIRS = []
@@ -3928,7 +3928,7 @@ SUPPORT_HOW_TO_UNENROLL_LINK = ''
 
 PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
 PARLER_LANGUAGES = {
-    SITE_ID: (
+    1: (
         {'code': LANGUAGE_CODE, },
         {'code': 'kn', },
         {'code': 'hi', },

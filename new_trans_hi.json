@@ -1,0 +1,240 @@
+{
+  "sourceLanguage": "en",
+  "targetLanguage": "hi-IN",
+  "dictionary": [
+    {
+      "id": "607d1db7dc5207106358ba71",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_02+2019/courseware/192bbadf349c4453ba06130235d89e84/416119a4c4614e368dd2702fe5841cb8",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/ce98c28ae7f3453091537446433c70a9/3bf25a2ea9ee444a9973cdcaf1c444ee",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_06_TheJunkSeller+2019/courseware/4f3974b949144f4da56e326d620e54f9/1c3796a5cbec4d3c8627fc5ee37a0a9c"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "OVERVIEW": {
+          "value": "अवलोकन"
+        }
+      }
+    },
+    {
+      "id": "6098e5fb974a9210bc9d518f",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/a7043dcb7f044e38a345ca09eac55f04",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/c131b6a3008a47a2afa365d560c4b497",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/8675385ca3fe47488fac853be5990341/0eeb35b92d564314b0e2a27f6d7d81ed"
+      ],
+      "phraseKey": "",
+      "translation": {
+      "The Living World": {
+         "value": "जीवित दुनिया"
+        }
+      }
+    },
+    {
+      "id": "608a5fcfacbf8110487c33bc",
+      "context": "",
+      "labels": [],
+      "url": [
+        "staging-lms.visionempowertrust.org/xblock/block-v1:VisionEmpower+VE_TIK_M_G4-15+2019+type@html+block@9c456df1ac484f499828eab6227a4d88",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/ce98c28ae7f3453091537446433c70a9/3bf25a2ea9ee444a9973cdcaf1c444ee",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_06_TheJunkSeller+2019/courseware/4f3974b949144f4da56e326d620e54f9/1c3796a5cbec4d3c8627fc5ee37a0a9c"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "OBJECTIVE & PREREQUISITES": {
+          "value": "उद्देश्य और पूर्वापेक्षाएँ"
+        }
+      }
+    },
+    {
+      "id": "607d1db7dc5207106358ba75",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_M_G7-15+2019/courseware/a7c587ac50464b1b9b68d74886bc3f4f/4011341a198c42f684c9e1b86408a443",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_02+2019/course/#content",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/6067727002c749fbbe3316716cee716c/ce1b4f4b80b7435a986a023e5cfd6cfc"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "LEARN": {
+          "value": "सीखना"
+        }
+      }
+    },
+    {
+      "id": "6227a822db4e81eaf8e2e169",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_10+2021/courseware/c873532d16714a369b4ec08c2ddd24ed/c1de9ce26f334998a3038139590ab0fd"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Key points": {
+          "value": "प्रमुख बिंदु"
+        }
+      }
+    },
+    {
+      "id": "621766af6672209e6495fca4",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_07+2021/courseware/a003f47f0df54e8794597cbda5779323/8026986f9e954fc1bb2d774f33bbc702"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Learn more": {
+          "value": "और अधिक जानें"
+        }
+      }
+    },
+    {
+      "id": "607d1db7dc5207106358ba7b",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/6b97c16a33004595b55f5e4b24cd4e43/ed8ed96268f748c6b3fadcf22d4e3a9e",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/6b97c16a33004595b55f5e4b24cd4e43/e869b5278a4e43489a235c945617999c",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_06_TheJunkSeller+2019/courseware/47ce575d29e74026a13a523e40a6309e/d7355b77b9054160a72cc592250a64d7"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "ENGAGE": {
+          "value": "संलग्न"
+        }
+      }
+    },
+    {
+      "id": "608ef6e0fe896510a40605ca",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_S_G4_03+2021/courseware/0b77fe49951544de9db7ddbcb34f595d/83ec95bc853f4a0191be05bfb2bf49b7",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G4-18+2021/courseware/7589eaa58f2b469991a175d7126ffe58/b267b298852b44d780fcfcabc2611829",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G3_08+2020/courseware/e5b565aaba204dbda7b16baa4fe03f6f/a7a25b93b1fe48cab57ce8673efdea64"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Interest generation activity": {
+          "value": "स्वार्थ सृजन गतिविधि"
+        }
+      }
+    },
+    {
+      "id": "6098e6aed3568d10c2c0dc04",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/c131b6a3008a47a2afa365d560c4b497"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Living beings and non living things": {
+          "value": "जीवित प्राणी और निर्जीव वस्तुएं"
+        }
+      }
+    },
+    {
+      "id": "608a4c3dacbf8110487b9193",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VE+G7_MAT_002+2021/courseware/776b288c0c174de9b28fe6b01d7bb3aa/67a845a0aead4f238c325eea002e675e",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/6b97c16a33004595b55f5e4b24cd4e43/ed8ed96268f748c6b3fadcf22d4e3a9e",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_06_TheJunkSeller+2019/courseware/47ce575d29e74026a13a523e40a6309e/d7355b77b9054160a72cc592250a64d7"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "CONCEPT INTRODUCTION ACTIVITIES": {
+          "value": "अवधारणा परिचय गतिविधियां"
+        }
+      }
+    },
+    {
+      "id": "6098e6b3d3568d10c2c0dd20",
+      "context": "",
+      "labels": [
+        "lz-phrase-contains-number"
+      ],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/0e5afee4c8444110b0a511acaf670de0"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Characteristics of Living Beings – part 1": {
+          "value": "जीवित प्राणियों के लक्षण - भाग १"
+        }
+      }
+    },
+    {
+      "id": "6098e6b3d3568d10c2c0dd22",
+      "context": "",
+      "labels": [
+        "lz-phrase-contains-number"
+      ],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_S_G5-01+2021/courseware/a2b2a1e2b1e045f39d79a356334d6207/0e5afee4c8444110b0a511acaf670de0"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "Characteristics of Living Beings – part 2": {
+          "value": "जीवित प्राणियों के लक्षण - भाग 2"
+        }
+      }
+    },
+    {
+      "id": "608a4c3dacbf8110487b91b9",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_M_G7-15+2019/courseware/a7c587ac50464b1b9b68d74886bc3f4f/4011341a198c42f684c9e1b86408a443",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_04_TickTickTick+2021/courseware/75d9502d36204960ae53c4b39c7e6d01/c34fa24b0fdf41e08af8f6864de30c95",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/6b97c16a33004595b55f5e4b24cd4e43/e869b5278a4e43489a235c945617999c"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "LET’S DISCUSS: RELATE TO DAILY LIFE*": {
+          "value": "आइए चर्चा करें: दैनिक जीवन से संबंधित*"
+        }
+      }
+    },
+    {
+      "id": "607d1db7dc5207106358ba83",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_S_G4_01+2021/courseware/738c89d15c9048da94affbaae1e9002c/b83f52fb59bd4c30b54047b06c4adf96",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_02+2019/course/#content",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/69b21e2bfb804a1d8d6485a43e4765c8/3c00e33218f54c4fa8bb66beca114ffb"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "EXERCISES & REINFORCEMENT": {
+          "value": "अभ्यास और सुदृढीकरण"
+        }
+      }
+    },
+    {
+      "id": "60828830250327107f21f73e",
+      "context": "",
+      "labels": [],
+      "url": [
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_M_G7-15+2019/courseware/a7c587ac50464b1b9b68d74886bc3f4f/4011341a198c42f684c9e1b86408a443",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G4_06_TheJunkSeller+2019/course",
+        "subodha-lms.visionempowertrust.org/courses/course-v1:VisionEmpower+VE_TIK_NCERT_M_G5_04+2021/courseware/69b21e2bfb804a1d8d6485a43e4765c8/3c00e33218f54c4fa8bb66beca114ffb"
+      ],
+      "phraseKey": "",
+      "translation": {
+        "IMPORTANT GUIDELINES*": {
+          "value": "महत्वपूर्ण दिशानिर्देश*"
+        }
+      }
+    }
+  ]
+}
