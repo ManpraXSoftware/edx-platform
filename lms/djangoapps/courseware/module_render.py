@@ -95,6 +95,7 @@ from common.djangoapps.util.json_request import JsonResponse
 from common.djangoapps.edxmako.services import MakoService
 from common.djangoapps.xblock_django.user_service import DjangoXBlockUserService
 from openedx.core.lib.cache_utils import CacheService
+from django.contrib.auth.decorators import login_required
 
 log = logging.getLogger(__name__)
 
@@ -945,6 +946,7 @@ def handle_xblock_callback_noauth(request, course_id, usage_id, handler, suffix=
 @csrf_exempt
 @xframe_options_exempt
 @transaction.non_atomic_requests
+@login_required
 def handle_xblock_callback(request, course_id, usage_id, handler, suffix=None):
     """
     Generic view for extensions. This is where AJAX calls go.
