@@ -2644,5 +2644,5 @@ TEXTBOOKS_HELP_URL = "https://edx.readthedocs.io/projects/open-edx-building-and-
 WIKI_HELP_URL = "https://edx.readthedocs.io/projects/open-edx-building-and-running-a-course/en/latest/course_assets/course_wiki.html"
 CUSTOM_PAGES_HELP_URL = "https://edx.readthedocs.io/projects/open-edx-building-and-running-a-course/en/latest/course_assets/pages.html#adding-custom-pages"
 
-FEATURES['MX_TINCAN_SERVER_IP'] = 'https://tt2n-lms.manprax.com/api/xapi'
-WORDPRESS_HOST = "https://wp.tt2n-lms.manprax.com"
+FEATURES['MX_TINCAN_SERVER_IP'] = 'https://btf-lms.manprax.in/api/xapi'
+WORDPRESS_HOST = "https://wp.btf-lms.manprax.in/"
