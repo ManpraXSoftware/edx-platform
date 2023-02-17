@@ -219,7 +219,7 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
                     "tag_label": user_profile.tag_label,
                     "certificate_count": certificate_count,
                     "mobile_number": user_profile.mobile_number,
-                    "association_with_bhartifound":user_profile.association_with_bhartifound,
+                    "association_with_bhartifound":user_profile.get_association_with_bhartifound_display(),
                     "you_want_see_inthis_app": user_profile.you_want_see_inthis_app,
                     "dob": user_profile.dob,
                     "board": user_profile.board,

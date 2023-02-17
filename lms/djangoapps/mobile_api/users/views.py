@@ -90,7 +90,7 @@ class UserDetail(generics.RetrieveAPIView):
             "school":userprofile.school,
             "mobile_number":userprofile.mobile_number,
             "you_want_see_inthis_app":userprofile.you_want_see_inthis_app,
-            "association_with_bhartifound":userprofile.association_with_bhartifound,
+            "association_with_bhartifound":userprofile.get_association_with_bhartifound_display(),
             "classes_taught":userprofile.get_classes_taught_display(),
         }
         context.update(profile_dict)
