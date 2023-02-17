@@ -3651,9 +3651,6 @@ AUTH_PASSWORD_VALIDATORS = [
             "max_length": 75
         }
     },
-     {
-        "NAME": "otp_api.custom_password_validator.CustomPasswordValidator",
-      },
 ]
 
 PASSWORD_POLICY_COMPLIANCE_ROLLOUT_CONFIG = {
