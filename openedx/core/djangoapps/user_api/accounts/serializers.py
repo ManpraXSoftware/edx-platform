@@ -145,6 +145,10 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
             certificate_count = GeneratedCertificate.eligible_certificates.filter(user=user).count()
         except:
             certificate_count = 0
+        try:
+            organisation = user_profile.organisation.name
+        except:
+            organisation = ''
         data = {
             "username": user.username,
             "url": self.context.get('request').build_absolute_uri(
@@ -223,6 +227,7 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
                     "you_want_see_inthis_app": user_profile.you_want_see_inthis_app,
                     "dob": user_profile.dob,
                     "board": user_profile.board,
+                    "organisation":organisation,
                 }
             )
 

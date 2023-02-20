@@ -4123,6 +4123,7 @@ ACCOUNT_VISIBILITY_CONFIGURATION["admin_fields"] = (
         "you_want_see_inthis_app",
         "dob",
         "board",
+        "organisation",
     ]
 )
 

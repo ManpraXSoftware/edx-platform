@@ -148,6 +148,7 @@ class UserSerializer(serializers.ModelSerializer):
     state = serializers.ReadOnlyField(source='profile.state')
     gender = serializers.ReadOnlyField(source='profile.gender')
     city = serializers.ReadOnlyField(source='profile.city')
+    organisation = serializers.SerializerMethodField()
     
 
     def get_course_enrollments(self, model):
@@ -197,9 +198,13 @@ class UserSerializer(serializers.ModelSerializer):
     def get_association_with_bhartifound(self, model):
         association_with_bhartifound = self.context.get('association_with_bhartifound')
         return association_with_bhartifound
+
+    def get_organisation(self, model):
+        organisation = self.context.get("organisation")
+        return organisation
     class Meta:
         model = User
-        fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','school','state','tag_label','district','gender','city','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound')
+        fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','school','state','tag_label','district','gender','city','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound','organisation')
         lookup_field = 'username'
         # For disambiguating within the drf-yasg swagger schema
         ref_name = 'mobile_api.User'
