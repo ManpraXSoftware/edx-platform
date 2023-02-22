@@ -972,7 +972,7 @@ def handle_xblock_callback(request, course_id, usage_id, handler, suffix=None):
     else:
         authentication_classes = (JwtAuthentication, BearerAuthenticationAllowInactiveUser)
         authenticators = [auth() for auth in authentication_classes]
-
+        user_auth_tuple = None
         for authenticator in authenticators:
             try:
                 user_auth_tuple = authenticator.authenticate(request)
@@ -984,7 +984,8 @@ def handle_xblock_callback(request, course_id, usage_id, handler, suffix=None):
                 if user_auth_tuple is not None:
                     request.user, _ = user_auth_tuple
                     break
-
+        if user_auth_tuple is None:
+            return HttpResponseForbidden('Unauthenticated')
     # NOTE (CCB): Allow anonymous GET calls (e.g. for transcripts). Modifying this view is simpler than updating
     # the XBlocks to use `handle_xblock_callback_noauth`, which is practically identical to this view.
     if request.method != 'GET' and not (request.user and request.user.is_authenticated):
