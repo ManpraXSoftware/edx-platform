@@ -90,14 +90,16 @@ class AccessTokenView(_DispatchingView):
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
         import logging
-        from django.http import HttpResponse
         log = logging.getLogger(__name__)
         from oauth2_provider import models as dot_models
         from django.utils import timezone
+        from rest_framework.exceptions import AuthenticationFailed
         log.info("grant type------------------{}".format(request.POST.get('grant_type', '')))
         if request.POST.get('grant_type', '') == 'refresh_token':
-            response.status_code = 404
-            return response
+            return ({
+                'error_code': "token_expired",
+                'developer_message': 'The provided access token does not match any valid tokens.'
+            })
         try:
             tokens = dot_models.AccessToken.objects.filter(user__profile__customuserprofile__mobile_number=request.POST.get('username', '')).update(expires=timezone.now())
         except Exception as e:
