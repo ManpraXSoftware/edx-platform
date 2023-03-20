@@ -99,7 +99,7 @@ class AccessTokenView(_DispatchingView):
                 'developer_message': 'The provided access token does not match any valid tokens.'
             })
         try:
-            tokens = dot_models.AccessToken.objects.filter(user__username='ajamal54_mal54').update(expires=timezone.now())
+            tokens = dot_models.AccessToken.objects.filter(user__username=request.POST.get('username', '')).update(expires=timezone.now())
         except Exception as e:
             log.info("error------------------{}".format(e))
         response = super().dispatch(request, *args, **kwargs)
