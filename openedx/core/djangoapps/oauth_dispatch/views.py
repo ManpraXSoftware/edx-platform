@@ -93,7 +93,7 @@ class AccessTokenView(_DispatchingView):
         from oauth2_provider import models as dot_models
         from django.utils import timezone
         from rest_framework.exceptions import AuthenticationFailed
-        import pdb;pdb.set_trace()
+        log.info("grant type------------------{}".format(request.POST.get('grant_type', '')))
         if request.POST.get('grant_type', '') == 'refresh_token':
             raise AuthenticationFailed({
                 'error_code': "token_expired",
