@@ -96,7 +96,7 @@ class AccessTokenView(_DispatchingView):
         from rest_framework.exceptions import AuthenticationFailed
         log.info("grant type------------------{}".format(request.POST.get('grant_type', '')))
         if request.POST.get('grant_type', '') == 'refresh_token':
-            return ({
+            raise AuthenticationFailed({
                 'error_code': "token_expired",
                 'developer_message': 'The provided access token does not match any valid tokens.'
             })
