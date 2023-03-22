@@ -24,7 +24,8 @@ from openedx.core.djangoapps.catalog.cache import (
     PROGRAM_CACHE_KEY_TPL,
     PROGRAMS_BY_TYPE_CACHE_KEY_TPL,
     SITE_PATHWAY_IDS_CACHE_KEY_TPL,
-    SITE_PROGRAM_UUIDS_CACHE_KEY_TPL
+    SITE_PROGRAM_UUIDS_CACHE_KEY_TPL,
+    SUBJECT_PROGRAMS_CACHE_KEY_TPL
 )
 from openedx.core.djangoapps.catalog.models import CatalogIntegration
 from openedx.core.djangoapps.oauth_dispatch.jwt import create_jwt_for_user
@@ -39,7 +40,6 @@ missing_details_msg_tpl = u'Failed to get details for program {uuid} from the ca
 def create_catalog_api_client(user, site=None):
     """Returns an API client which can be used to make Catalog API requests."""
     jwt = create_jwt_for_user(user)
-
     if site:
         url = site.configuration.get_value('COURSE_CATALOG_API_URL')
     else:
@@ -88,7 +88,7 @@ def check_catalog_integration_and_get_user(error_message_field):
 
 
 # pylint: disable=redefined-outer-name
-def get_programs(site=None, uuid=None, uuids=None, course=None, catalog_course_uuid=None, organization=None):
+def get_programs(site=None, uuid=None, uuids=None, course=None, catalog_course_uuid=None, organization=None, subject=None):
     """Read programs from the cache.
 
     The cache is populated by a management command, cache_programs.
@@ -105,7 +105,7 @@ def get_programs(site=None, uuid=None, uuids=None, course=None, catalog_course_u
         list of dict, representing programs.
         dict, if a specific program is requested.
     """
-    if len([arg for arg in (site, uuid, uuids, course, catalog_course_uuid, organization) if arg is not None]) != 1:
+    if len([arg for arg in (site, uuid, uuids, course, catalog_course_uuid, organization, subject) if arg is not None]) != 1:
         raise TypeError('get_programs takes exactly one argument')
 
     if uuid:
@@ -138,6 +138,13 @@ def get_programs(site=None, uuid=None, uuids=None, course=None, catalog_course_u
     elif organization:
         uuids = get_programs_for_organization(organization)
         if not uuids:
+            return []
+        
+    elif subject:
+        uuids = cache.get(SUBJECT_PROGRAMS_CACHE_KEY_TPL.format(subject_id=subject))
+        if not uuids:
+            # Currently, the cache does not differentiate between a cache miss and a subject
+            # without programs. After this is changed, log any cache misses here.
             return []
 
     return get_programs_by_uuids(uuids)
@@ -623,6 +630,20 @@ def course_run_keys_for_program(parent_program):
         keys.update(_course_runs_from_container(program))
     return keys
 
+def subject_keys_for_program(parent_program):
+    """
+    All of the course run keys associated with this ``parent_program``, either
+    via its ``curriculum`` field (looking at both the curriculum's courses
+    and child programs), or through the many-to-many ``courses`` field on the program.
+    """
+    keys = set()
+    for program in [parent_program] + child_programs(parent_program):
+        curriculum = _primary_active_curriculum(program)
+        if curriculum:
+            keys.update(_subjects_from_container(curriculum))
+        keys.update(_subjects_from_container(program))
+    return keys
+
 
 def course_uuids_for_program(parent_program):
     """
@@ -674,6 +695,17 @@ def _course_runs_from_container(container):
         course_run.get('key')
         for course in container.get('courses', [])
         for course_run in course.get('course_runs', [])
+    ]
+
+def _subjects_from_container(container):
+    """
+    Pluck nested course runs out of a ``container`` dictionary,
+    which is either the ``curriculum`` field of a program, or
+    a program itself (since either may contain a ``courses`` list).
+    """
+    return [
+        subject.get('name')
+        for subject in container.get('subjects', [])
     ]
 
 
