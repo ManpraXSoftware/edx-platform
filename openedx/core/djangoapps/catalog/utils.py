@@ -39,12 +39,23 @@ missing_details_msg_tpl = u'Failed to get details for program {uuid} from the ca
 
 def create_catalog_api_client(user, site=None):
     """Returns an API client which can be used to make Catalog API requests."""
-    jwt = create_jwt_for_user(user)
 
     if site:
         url = site.configuration.get_value('COURSE_CATALOG_API_URL')
+        jwt = create_jwt_for_user(user)
     else:
         url = CatalogIntegration.current().get_internal_api_url()
+        from django.conf import settings
+        from openedx.core.djangoapps.catalog.models import CatalogIntegration
+        import requests
+        url = settings.FEATURES['base_lms_url']+"oauth2/access_token/"
+        payload={'grant_type': 'client_credentials',
+                 'client_id': settings.FEATURES['client_id'],
+                 'token_type': 'jwt',
+                 'client_secret': settings.FEATURES['client_secret'],
+                 }
+        response = requests.request("POST", url, data=payload)
+        jwt = response.json()['access_token']
 
     return EdxRestApiClient(url, jwt=jwt)
 
