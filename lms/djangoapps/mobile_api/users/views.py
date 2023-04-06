@@ -97,6 +97,9 @@ class UserDetail(generics.RetrieveAPIView):
             "association_with_bhartifound":userprofile.get_association_with_bhartifound_display(),
             "classes_taught":userprofile.get_classes_taught_display(),
             "organisation":organisation,
+            "pincode":userprofile.pincode,
+            "role":userprofile.role.name if userprofile.role else '',
+            "receive_update_on_whatsapp":userprofile.receive_update_on_whatsapp
         }
         
         context.update(profile_dict)

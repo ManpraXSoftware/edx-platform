@@ -149,6 +149,9 @@ class UserSerializer(serializers.ModelSerializer):
     gender = serializers.ReadOnlyField(source='profile.gender')
     city = serializers.ReadOnlyField(source='profile.city')
     organisation = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+    pincode = serializers.SerializerMethodField()
+    receive_update_on_whatsapp = serializers.SerializerMethodField()
     
 
     def get_course_enrollments(self, model):
@@ -202,9 +205,24 @@ class UserSerializer(serializers.ModelSerializer):
     def get_organisation(self, model):
         organisation = self.context.get("organisation")
         return organisation
+    
+    def get_role(self,model):
+        role = self.context['role']
+        return role
+    
+    def get_pincode(self,model):
+        pincode = self.context["pincode"]
+        return pincode
+    
+    def get_receive_update_on_whatsapp(self,model):
+        receive_update_on_whatsapp=self.context['receive_update_on_whatsapp']
+        return receive_update_on_whatsapp
+    
     class Meta:
         model = User
-        fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','school','state','tag_label','district','gender','city','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound','organisation')
+        fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','school','state',
+                  'tag_label','district','gender','city','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound',
+                  'organisation', 'receive_update_on_whatsapp', 'role', 'pincode')
         lookup_field = 'username'
         # For disambiguating within the drf-yasg swagger schema
         ref_name = 'mobile_api.User'
