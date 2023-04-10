@@ -183,8 +183,8 @@ def create_account_with_params(request, params):  # pylint: disable=too-many-sta
     third_party_auth_credentials_in_api = 'provider' in params
     is_third_party_auth_enabled = third_party_auth.is_enabled()
 
-    if is_third_party_auth_enabled and (pipeline.running(request) or third_party_auth_credentials_in_api):
-        params["password"] = generate_password()
+    # if is_third_party_auth_enabled and (pipeline.running(request) or third_party_auth_credentials_in_api):
+    #     params["password"] = generate_password()
 
     # in case user is registering via third party (Google, Facebook) and pipeline has expired, show appropriate
     # error message
