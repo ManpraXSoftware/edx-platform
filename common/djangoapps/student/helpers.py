@@ -734,7 +734,7 @@ def do_create_account(form, custom_form=None):
 
     registration.register(user)
     profile_fields = [
-        "name", "level_of_education", "gender", "mailing_address", "city", "country", "goals",
+        "name", "level_of_education", "gender", "mailing_address", "country", "goals",
         "year_of_birth",'mobile_number'
     ]
     from mx_accounts.models import CustomUserProfile

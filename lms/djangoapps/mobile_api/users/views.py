@@ -85,9 +85,9 @@ class UserDetail(generics.RetrieveAPIView):
         profile_dict = {
             "gender":userprofile.get_gender_display(),
             "state":userprofile.get_state_display(),
-            "district":userprofile.district,
+            # "district":userprofile.district,
             "tag_label":userprofile.tag_label,
-            "city":userprofile.city,
+            # "city":userprofile.city,
             "board":userprofile.board,
             "medium":userprofile.medium,
             "dob":userprofile.dob,

@@ -4112,9 +4112,7 @@ ACCOUNT_VISIBILITY_CONFIGURATION["admin_fields"] = (
         "phone_number",
         "activation_key",
         "pending_name_change",
-        "city",
         "classes_taught",
-        "district",
         "state",
         "tag_label",
         "certificate_count",
@@ -4124,6 +4122,9 @@ ACCOUNT_VISIBILITY_CONFIGURATION["admin_fields"] = (
         "dob",
         "board",
         "organisation",
+        "role",
+        "pincode",
+        "receive_update_on_whatsapp"
     ]
 )
 

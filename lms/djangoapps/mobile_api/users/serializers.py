@@ -138,7 +138,7 @@ class UserSerializer(serializers.ModelSerializer):
     mobile_number = serializers.SerializerMethodField()
     classes_taught = serializers.SerializerMethodField()
     tag_label = serializers.SerializerMethodField()
-    district = serializers.SerializerMethodField()
+    # district = serializers.SerializerMethodField()
     school = serializers.SerializerMethodField()
     board = serializers.SerializerMethodField()
     medium = serializers.SerializerMethodField()
@@ -147,7 +147,7 @@ class UserSerializer(serializers.ModelSerializer):
     association_with_bhartifound = serializers.SerializerMethodField()
     state = serializers.ReadOnlyField(source='profile.state')
     gender = serializers.ReadOnlyField(source='profile.gender')
-    city = serializers.ReadOnlyField(source='profile.city')
+    # city = serializers.ReadOnlyField(source='profile.city')
     organisation = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
     pincode = serializers.SerializerMethodField()
@@ -175,9 +175,9 @@ class UserSerializer(serializers.ModelSerializer):
         tag_label = self.context.get('tag_label')
         return tag_label
     
-    def get_district(self, model):
-        district = self.context.get('district')
-        return district
+    # def get_district(self, model):
+    #     district = self.context.get('district')
+    #     return district
     
     def get_board(self, model):
         board = self.context.get('board')
@@ -221,7 +221,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','school','state',
-                  'tag_label','district','gender','city','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound',
+                  'tag_label','gender','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound',
                   'organisation', 'receive_update_on_whatsapp', 'role', 'pincode')
         lookup_field = 'username'
         # For disambiguating within the drf-yasg swagger schema

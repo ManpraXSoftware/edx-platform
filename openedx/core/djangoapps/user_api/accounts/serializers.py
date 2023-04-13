@@ -216,9 +216,9 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
 
                     #btf Custom
                     # tta_custom : custom fields for tta app
-                    "city": user_profile.city,
+                    # "city": user_profile.city,
                     "classes_taught": user_profile.classes_taught,
-                    "district": user_profile.district,
+                    # "district": user_profile.district,
                     "state": user_profile.state,
                     "tag_label": user_profile.tag_label,
                     "certificate_count": certificate_count,
