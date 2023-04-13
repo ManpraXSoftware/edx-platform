@@ -99,7 +99,8 @@ class UserDetail(generics.RetrieveAPIView):
             "organisation":organisation,
             "pincode":userprofile.pincode,
             "role":userprofile.role.name if userprofile.role else '',
-            "receive_update_on_whatsapp":userprofile.receive_update_on_whatsapp
+            "receive_update_on_whatsapp":userprofile.receive_update_on_whatsapp,
+            "is_google":userprofile.is_google
         }
         
         context.update(profile_dict)

@@ -152,6 +152,7 @@ class UserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField()
     pincode = serializers.SerializerMethodField()
     receive_update_on_whatsapp = serializers.SerializerMethodField()
+    is_google = serializers.SerializerMethodField()
     
 
     def get_course_enrollments(self, model):
@@ -174,6 +175,10 @@ class UserSerializer(serializers.ModelSerializer):
     def get_tag_label(self, model):
         tag_label = self.context.get('tag_label')
         return tag_label
+    
+    def get_is_google(self, model):
+        is_google = self.context.get('is_google')
+        return is_google
     
     # def get_district(self, model):
     #     district = self.context.get('district')
@@ -222,7 +227,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','school','state',
                   'tag_label','gender','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound',
-                  'organisation', 'receive_update_on_whatsapp', 'role', 'pincode')
+                  'organisation', 'receive_update_on_whatsapp', 'role', 'pincode',"is_google")
         lookup_field = 'username'
         # For disambiguating within the drf-yasg swagger schema
         ref_name = 'mobile_api.User'
