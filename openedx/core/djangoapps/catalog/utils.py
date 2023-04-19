@@ -25,7 +25,8 @@ from openedx.core.djangoapps.catalog.cache import (
     PROGRAMS_BY_TYPE_CACHE_KEY_TPL,
     SITE_PATHWAY_IDS_CACHE_KEY_TPL,
     SITE_PROGRAM_UUIDS_CACHE_KEY_TPL,
-    SUBJECT_PROGRAMS_CACHE_KEY_TPL
+    SUBJECT_PROGRAMS_CACHE_KEY_TPL,
+    TOPIC_PROGRAMS_CACHE_KEY_TPL,
 )
 from openedx.core.djangoapps.catalog.models import CatalogIntegration
 from openedx.core.djangoapps.oauth_dispatch.jwt import create_jwt_for_user
@@ -89,7 +90,7 @@ def check_catalog_integration_and_get_user(error_message_field):
 
 
 # pylint: disable=redefined-outer-name
-def get_programs(site=None, uuid=None, uuids=None, course=None, catalog_course_uuid=None, organization=None, subject=None):
+def get_programs(site=None, uuid=None, uuids=None, course=None, catalog_course_uuid=None, organization=None, subject=None, topic=None):
     """Read programs from the cache.
 
     The cache is populated by a management command, cache_programs.
@@ -99,6 +100,8 @@ def get_programs(site=None, uuid=None, uuids=None, course=None, catalog_course_u
         uuid (string): UUID identifying a specific program to read from the cache.
         uuids (list of string): UUIDs identifying a specific programs to read from the cache.
         course (string): course run id identifying a specific course run to read from the cache.
+        subject (string): course run id identifying a specific course run to read from the cache.
+        topic (string): course run id identifying a specific course run to read from the cache.
         catalog_course_uuid (string): Catalog Course UUID
         organization (string): short name for specific organization to read from the cache.
 
@@ -106,7 +109,7 @@ def get_programs(site=None, uuid=None, uuids=None, course=None, catalog_course_u
         list of dict, representing programs.
         dict, if a specific program is requested.
     """
-    if len([arg for arg in (site, uuid, uuids, course, catalog_course_uuid, organization, subject) if arg is not None]) != 1:
+    if len([arg for arg in (site, uuid, uuids, course, catalog_course_uuid, organization, subject, topic) if arg is not None]) != 1:
         raise TypeError('get_programs takes exactly one argument')
 
     if uuid:
@@ -142,10 +145,14 @@ def get_programs(site=None, uuid=None, uuids=None, course=None, catalog_course_u
             return []
 
     elif subject:
-        uuids = cache.get(SUBJECT_PROGRAMS_CACHE_KEY_TPL.format(subject_id=subject))
+        uuids = cache.get(SUBJECT_PROGRAMS_CACHE_KEY_TPL.format(subject=subject))
         if not uuids:
             # Currently, the cache does not differentiate between a cache miss and a subject
             # without programs. After this is changed, log any cache misses here.
+            return []
+    elif topic:
+        uuids = cache.get(TOPIC_PROGRAMS_CACHE_KEY_TPL.format(topic=topic.lower().replace(" ","-")))
+        if not uuids:
             return []
 
     return get_programs_by_uuids(uuids)
@@ -645,6 +652,20 @@ def subject_keys_for_program(parent_program):
         keys.update(_subjects_from_container(program))
     return keys
 
+def topic_keys_for_program(parent_program):
+    """
+    All of the course run keys associated with this ``parent_program``, either
+    via its ``curriculum`` field (looking at both the curriculum's courses
+    and child programs), or through the many-to-many ``courses`` field on the program.
+    """
+    keys = set()
+    for program in [parent_program] + child_programs(parent_program):
+        curriculum = _primary_active_curriculum(program)
+        if curriculum:
+            keys.update(_topics_from_container(curriculum))
+        keys.update(_topics_from_container(program))
+    return keys
+
 def course_uuids_for_program(parent_program):
     """
     All of the course uuids associated with this ``parent_program``, either
@@ -699,14 +720,15 @@ def _course_runs_from_container(container):
 
 
 def _subjects_from_container(container):
-    """
-    Pluck nested course runs out of a ``container`` dictionary,
-    which is either the ``curriculum`` field of a program, or
-    a program itself (since either may contain a ``courses`` list).
-    """
     return [
         subject.get('name')
         for subject in container.get('subjects', [])
+    ]
+
+def _topics_from_container(container):
+    return [
+        topic.lower().replace(" ","-")
+        for topic in container.get('topics', [])
     ]
 
 

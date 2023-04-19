@@ -14,7 +14,10 @@ SITE_PATHWAY_IDS_CACHE_KEY_TPL = 'pathway-ids-{domain}'
 COURSE_PROGRAMS_CACHE_KEY_TPL = 'course-programs-{course_run_id}'
 
 # Template used to create cache keys for individual course runs to program uuids.
-SUBJECT_PROGRAMS_CACHE_KEY_TPL = 'subject-programs-{subject_id}'
+SUBJECT_PROGRAMS_CACHE_KEY_TPL = 'subject-programs-{subject}'
+
+# Template used to create cache keys for individual course runs to program uuids.
+TOPIC_PROGRAMS_CACHE_KEY_TPL = 'topic-programs-{topic}'
 
 # Template used to create cache keys for individual Courses to program uuids.
 CATALOG_COURSE_PROGRAMS_CACHE_KEY_TPL = 'catalog-course-programs-{course_uuid}'

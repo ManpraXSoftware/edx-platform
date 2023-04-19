@@ -20,7 +20,8 @@ from openedx.core.djangoapps.catalog.cache import (
     PROGRAMS_BY_ORGANIZATION_CACHE_KEY_TPL,
     PROGRAMS_BY_TYPE_CACHE_KEY_TPL,
     SITE_PATHWAY_IDS_CACHE_KEY_TPL,
-    SITE_PROGRAM_UUIDS_CACHE_KEY_TPL
+    SITE_PROGRAM_UUIDS_CACHE_KEY_TPL,
+    TOPIC_PROGRAMS_CACHE_KEY_TPL,
 )
 from openedx.core.djangoapps.catalog.models import CatalogIntegration
 from openedx.core.djangoapps.catalog.utils import (
@@ -28,7 +29,8 @@ from openedx.core.djangoapps.catalog.utils import (
     course_uuids_for_program,
     create_catalog_api_client,
     normalize_program_type,
-    subject_keys_for_program
+    subject_keys_for_program,
+    topic_keys_for_program,
 )
 
 logger = logging.getLogger(__name__)
@@ -65,6 +67,7 @@ class Command(BaseCommand):
         pathways = {}
         courses = {}
         subjects = {}
+        topics={}
         catalog_courses = {}
         programs_by_type = {}
         organizations = {}
@@ -95,6 +98,7 @@ class Command(BaseCommand):
             pathways.update(new_pathways)
             courses.update(self.get_courses(new_programs))
             subjects.update(self.get_subjects(new_programs))
+            topics.update(self.get_topics(new_programs))
             catalog_courses.update(self.get_catalog_courses(new_programs))
             programs_by_type.update(self.get_programs_by_type(site, new_programs))
             organizations.update(self.get_programs_by_organization(new_programs))
@@ -123,6 +127,9 @@ class Command(BaseCommand):
 
         logger.info(u'Caching programs uuids for {} subjects.'.format(len(subjects)))
         cache.set_many(subjects, None)
+
+        logger.info(u'Caching programs uuids for {} topics.'.format(len(topics)))
+        cache.set_many(topics, None)
 
         logger.info(u'Caching programs uuids for {} catalog courses.'.format(len(catalog_courses)))
         cache.set_many(catalog_courses, None)
@@ -256,10 +263,25 @@ class Command(BaseCommand):
         subjects = defaultdict(list)
 
         for program in programs.values():
-            for subject_run_key in subject_keys_for_program(program):
-                subject_run_cache_key = SUBJECT_PROGRAMS_CACHE_KEY_TPL.format(subject_id=subject_run_key)
-                subjects[subject_run_cache_key].append(program['uuid'])
+            for subject_key in subject_keys_for_program(program):
+                subject_cache_key = SUBJECT_PROGRAMS_CACHE_KEY_TPL.format(subject=subject_key)
+                subjects[subject_cache_key].append(program['uuid'])
         return subjects
+    
+    def get_topics(self, programs):
+        """
+        Get all topic runs for programs.
+        TODO: when topic discovery can handle it, use that instead. That will allow us to put all topic runs
+        in the cache not just the topic runs in a program. Therefore, a cache miss would be different from a
+        topic not in a program.
+        """
+        topics = defaultdict(list)
+
+        for program in programs.values():
+            for topic_key in topic_keys_for_program(program):
+                topic_cache_key = TOPIC_PROGRAMS_CACHE_KEY_TPL.format(topic=topic_key)
+                topics[topic_cache_key].append(program['uuid'])
+        return topics
 
     def get_catalog_courses(self, programs):
         """
