@@ -247,6 +247,8 @@ def _update_course_context(request, context, course, platform_name):
     """
     Updates context dictionary with course info.
     """
+    from common.djangoapps.student.models import CourseEnrollment
+    context['enrollment_id'] = CourseEnrollment.objects.get(user=request.user.id,course_id=CourseKey.from_string(context["course_id"])).id
     context['full_course_image_url'] = request.build_absolute_uri(course_image_url(course))
     course_title_from_cert = context['certificate_data'].get('course_title', '')
     accomplishment_copy_course_name = course_title_from_cert if course_title_from_cert else course.display_name
@@ -321,7 +323,7 @@ def _update_context_with_user_info(context, user, user_certificate):
     context['username'] = user.username
     context['course_mode'] = user_certificate.mode
     context['accomplishment_user_id'] = user.id
-    context['accomplishment_copy_name'] = user_fullname
+    context['accomplishment_copy_name'] = user.first_name +" "+ user.last_name
     context['accomplishment_copy_username'] = user.username
 
     context['accomplishment_more_title'] = _("More Information About {user_name}'s Certificate:").format(
@@ -658,6 +660,7 @@ def render_html_view(request, course_id, certificate=None):  # pylint: disable=t
                 configuration,
                 cert_path=exc.template_name or INVALID_CERTIFICATE_TEMPLATE_PATH,
             )
+        
         except CertificateRenderStarted.RedirectToPage as exc:
             response = HttpResponseRedirect(exc.redirect_to)
         except CertificateRenderStarted.RenderCustomResponse as exc:
