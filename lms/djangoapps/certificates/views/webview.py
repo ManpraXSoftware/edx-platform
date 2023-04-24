@@ -247,8 +247,6 @@ def _update_course_context(request, context, course, platform_name):
     """
     Updates context dictionary with course info.
     """
-    from common.djangoapps.student.models import CourseEnrollment
-    context['enrollment_id'] = CourseEnrollment.objects.get(user=request.user.id,course_id=CourseKey.from_string(context["course_id"])).id
     context['full_course_image_url'] = request.build_absolute_uri(course_image_url(course))
     course_title_from_cert = context['certificate_data'].get('course_title', '')
     accomplishment_copy_course_name = course_title_from_cert if course_title_from_cert else course.display_name
@@ -631,7 +629,21 @@ def render_html_view(request, course_id, certificate=None):  # pylint: disable=t
 
         # Append/Override the existing view context values with certificate specific values
         _update_certificate_context(context, course, course_overview, user_certificate, platform_name)
-
+        from common.djangoapps.student.models import CourseEnrollment
+        if preview_mode:
+            context["enrollment_id"] = ''
+        else:
+            context['enrollment_id'] = CourseEnrollment.objects.get(user=request.user.id,course_id=CourseKey.from_string(context["course_id"])).id
+        from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+        course_overview_instance = CourseOverview.objects.get(id=str(course.id))
+        if course_overview_instance.effort:
+            context["duration"]= course_overview_instance.effort
+        else:
+            context["duration"] = "00:00"
+        if course_overview_instance.end:
+            context["end_date"] = course_overview_instance.end.strftime("%d-%m-%Y")
+        else:
+            context["end_date"]=""
         # Append badge info
         _update_badge_context(context, course, user)
 
