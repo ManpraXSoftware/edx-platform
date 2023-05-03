@@ -55,6 +55,9 @@ def get_logger_config(log_dir,  # lint-amnesty, pylint: disable=unused-argument
             },
             'remoteip_context': {
                 '()': 'edx_django_utils.logging.RemoteIpFilter',
+            },
+            'custom_filter': {
+                '()': 'mx_accounts.custom_error_filter.CustomFilter',
             }
         },
         'handlers': {
@@ -62,12 +65,12 @@ def get_logger_config(log_dir,  # lint-amnesty, pylint: disable=unused-argument
                 'level': 'INFO',
                 'class': 'logging.StreamHandler',
                 'formatter': 'standard',
-                'filters': ['userid_context', 'remoteip_context'],
+                'filters': ['userid_context', 'remoteip_context', 'custom_filter'],
                 'stream': sys.stderr,
             },
             'mail_admins': {
                 'level': 'ERROR',
-                'filters': ['require_debug_false'],
+                'filters': ['require_debug_false','custom_filter'],
                 'class': 'django.utils.log.AdminEmailHandler'
             },
             'local': {
@@ -75,7 +78,7 @@ def get_logger_config(log_dir,  # lint-amnesty, pylint: disable=unused-argument
                 'class': 'logging.handlers.SysLogHandler',
                 'address': '/dev/log',
                 'formatter': 'syslog_format',
-                'filters': ['userid_context', 'remoteip_context'],
+                'filters': ['userid_context', 'remoteip_context', 'custom_filter'],
                 'facility': SysLogHandler.LOG_LOCAL0,
             },
             'tracking': {
