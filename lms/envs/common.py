@@ -3944,3 +3944,29 @@ PARLER_LANGUAGES = {
 }
 
 PARLER_ENABLE_CACHING = False
+
+
+ELASTIC_FIELD_MAPPINGS = {"courses": {
+    "type":"nested",
+    "properties": {
+        "course_completion_percent": {
+            "type": "double"
+        },
+        "display_name": {
+            "type": "string"
+        },
+        "id": {
+            "type": "string"
+        },
+        "org": {
+            "type": "string"
+        },
+        "points_earned": {
+            "type": "double"
+        },
+        "total_points": {
+            "type": "double"
+        }
+    }
+}
+}
