@@ -594,6 +594,7 @@ class UserProfile(models.Model):
         ('RJ',ugettext_noop('Rajasthan')),
         ('SK',ugettext_noop('Sikkim')),
         ('TN',ugettext_noop('Tamil Nadu')),
+        ('TS',ugettext_noop('Telangana')),
         ('TR',ugettext_noop('Tripura')),
         ('UP',ugettext_noop('Uttar Pradesh')),
         ('UK',ugettext_noop('Uttarakhand')),
