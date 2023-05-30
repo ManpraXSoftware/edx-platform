@@ -561,7 +561,7 @@ class UserProfile(models.Model):
         choices=LEVEL_OF_EDUCATION_CHOICES
     )
     mailing_address = models.TextField(blank=True, null=True)
-    # city = models.TextField(blank=True, null=True)
+    city = models.TextField(blank=True, null=True)
     country = CountryField(blank=True, null=True)
     COUNTRY_WITH_STATES = 'US'
     STATE_LIST = (
