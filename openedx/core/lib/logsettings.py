@@ -55,9 +55,9 @@ def get_logger_config(log_dir,  # lint-amnesty, pylint: disable=unused-argument
             'remoteip_context': {
                 '()': 'edx_django_utils.logging.RemoteIpFilter',
             },
-            'custom_filter': {
-                '()': 'mx_accounts.custom_error_filter.CustomFilter',
-            }
+            #'custom_filter': {
+            #    '()': 'mx_accounts.custom_error_filter.CustomFilter',
+            #}
         },
         'handlers': {
             'console': {
