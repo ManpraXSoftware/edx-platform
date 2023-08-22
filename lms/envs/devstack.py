@@ -232,6 +232,15 @@ FEATURES['ENABLE_ENROLLMENT_RESET'] = True
 ######################### New Courseware MFE #####################
 FEATURES['ENABLE_COURSEWARE_MICROFRONTEND'] = True
 
+
+FEATURES['base_discovery_url'] = "http://localhost:18381/"
+FEATURES['base_lms_url'] = "http://localhost:18000/"
+FEATURES['authToken'] = "jwt 			eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOiAxNjA1MTUxMTcyLCAic3VwZXJ1c2VyIjogdHJ1ZSwgImFkbWluaXN0cmF0b3IiOiB0cnVlLCAiZmlsdGVycyI6IFtdLCAiZmFtaWx5X25hbWUiOiAiIiwgInByZWZlcnJlZF91c2VybmFtZSI6ICJuZWVyYWoxIiwgImVtYWlsX3ZlcmlmaWVkIjogdHJ1ZSwgInZlcnNpb24iOiAiMS4yLjAiLCAic3ViIjogIjg3OTIxYWUxMzAxM2E4YWM0NzBhZjU5OTliYzY5MzgxIiwgImlzX3Jlc3RyaWN0ZWQiOiBmYWxzZSwgImlzcyI6ICJodHRwOi8vbG9jYWxob3N0OjE4MDAwL29hdXRoMiIsICJzY29wZXMiOiBbImVtYWlsIiwgIndyaXRlIiwgInJlYWQiLCAicHJvZmlsZSJdLCAiZW1haWwiOiAibmVlcmFqc2luZ2gwMTMyQGdtYWlsLmNvbSIsICJnaXZlbl9uYW1lIjogIiIsICJhdWQiOiAibG1zLWtleSIsICJuYW1lIjogIk5lZXJhaiBLdW1hciIsICJleHAiOiAxNjA1MTg3MTcyfQ.oUs_1qmu3QZR41yQ6vW2BAveNbSp17UiU6L0ozEJYv4"
+FEATURES['client_id']= 'discovery-backend-service-key', #check locahost:18000/admin --> DJANGO OAUTH TOOLKIT --> Applications - client-id
+FEATURES['client_secret']= 'discovery-backend-service-secret',#check locahost:18000/admin --> DJANGO OAUTH TOOLKIT --> Applications - client_secret
+	 
+FEATURES['Header_lang_key'] = ENV_TOKENS.get('Header_lang_key')	
+	
 ########################## Third Party Auth #######################
 
 if FEATURES.get('ENABLE_THIRD_PARTY_AUTH') and 'third_party_auth.dummy.DummyBackend' not in AUTHENTICATION_BACKENDS:

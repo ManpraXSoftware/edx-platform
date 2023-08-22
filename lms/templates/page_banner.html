@@ -10,6 +10,7 @@ from openedx.core.djangolib.markup import HTML
 from openedx.core.djangoapps.util.user_messages import PageLevelMessages, UserMessage, UserMessageType
 # app that handles site status messages
 from status.status import get_site_status_msg
+import re
 %>
 
 <%
@@ -27,12 +28,15 @@ if site_status_message:
         <div class="user-messages" role="complementary" aria-label="messages">
             <ul class="user-messages-ul">
                 % for message in banner_messages:
+                   % if not re.search('Enroll now', HTML(message.message_html)):
                     <li>
                         <div class="alert ${message.css_class}" role="alert">
                             <span class="icon icon-alert fa ${message.icon_class}" aria-hidden="true"></span>
                             ${HTML(message.message_html)}
+                            
                         </div>
                     </li>
+                    %endif
                 % endfor
             </ul>
         </div>

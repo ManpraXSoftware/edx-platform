@@ -104,6 +104,8 @@ urlpatterns = [
     url(r'^checklists/{}?$'.format(settings.COURSE_KEY_PATTERN),
         contentstore.views.checklists_handler,
         name='checklists_handler'),
+    
+    url(r'^mx_importcoursedocx/', include('mx_importcoursedocx.urls')),
 
     url(r'^course_notifications/{}/(?P<action_state_id>\d+)?$'.format(settings.COURSE_KEY_PATTERN),
         contentstore.views.course_notifications_handler,

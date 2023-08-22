@@ -175,6 +175,8 @@ urlpatterns = [
     url(r'^api-admin/', include(('openedx.core.djangoapps.api_admin.urls', 'openedx.core.djangoapps.api_admin'),
                                 namespace='api_admin')),
 
+    url(r'^explore-courses/', include('mx_course_discovery.urls')),
+
     url(r'^dashboard/', include('learner_dashboard.urls')),
     url(r'^api/experiments/', include(('experiments.urls', 'lms.djangoapps.experiments'), namespace='api_experiments')),
     url(r'^api/discounts/', include(('openedx.features.discounts.urls', 'openedx.features.discounts'),
