@@ -36,6 +36,7 @@ from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 from six import text_type
 
+import requests
 import track.views
 from bulk_email.models import Optout
 from course_modes.models import CourseMode
@@ -375,17 +376,56 @@ def change_enrollment(request, check_access=True):
         # Otherwise, there is only one mode available (the default)
         return HttpResponse()
     elif action == "unenroll":
-        enrollment = CourseEnrollment.get_enrollment(user, course_id)
-        if not enrollment:
-            return HttpResponseBadRequest(_("You are not enrolled in this course"))
+        # enrollment = CourseEnrollment.get_enrollment(user, course_id)
+        
+        # if not enrollment:
+        #     return HttpResponseBadRequest(_("You are not enrolled in this course"))
 
-        certificate_info = cert_info(user, enrollment.course_overview)
-        if certificate_info.get('status') in DISABLE_UNENROLL_CERT_STATES:
-            return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from this course"))
+        # certificate_info = cert_info(user, enrollment.course_overview)
+        # if certificate_info.get('status') in DISABLE_UNENROLL_CERT_STATES:
+        #     return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from this course"))
 
-        CourseEnrollment.unenroll(user, course_id)
-        REFUND_ORDER.send(sender=None, course_enrollment=enrollment)
-        return HttpResponse()
+        # CourseEnrollment.unenroll(user, course_id)
+        # REFUND_ORDER.send(sender=None, course_enrollment=enrollment)
+        # return HttpResponse()
+
+
+        base_discovery_url = settings.FEATURES['base_discovery_url']
+        url = base_discovery_url+"extandedapi/getprogramcourses/?course_id="+str(course_id)
+        response = requests.get(url)
+        if response.status_code == 200:
+            course_keys_in_program = response.json()
+            
+            not_enrolled_in_courses = list()
+            certificate_prevents = list()
+            for course_key in course_keys_in_program:
+                course_id = CourseKey.from_string(course_key)
+                enrollment = CourseEnrollment.get_enrollment(user, course_id)
+                # import pdb;pdb.set_trace()
+                if not enrollment:
+                    not_enrolled_in_courses.append(course_key)
+                    continue
+                    # return HttpResponseBadRequest(_("You are not enrolled in this course"))
+
+                certificate_info = cert_info(user, enrollment.course_overview)
+                if certificate_info.get('status') in DISABLE_UNENROLL_CERT_STATES:
+                    # return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from this course"))
+                    certificate_prevents.append(course_key)
+                    continue
+
+                CourseEnrollment.unenroll(user, course_id)
+                REFUND_ORDER.send(sender=None, course_enrollment=enrollment)
+            if not_enrolled_in_courses:
+                return HttpResponseBadRequest(_("You are not enrolled in these courses {}".format(not_enrolled_in_courses)))
+            
+            if certificate_prevents:
+                return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from these courses {}".format(certificate_prevents)))
+            
+            return HttpResponse()
+        else:
+            return HttpResponseBadRequest(_("Unrollment action is invalid"))
+
+        
     else:
         return HttpResponseBadRequest(_("Enrollment action is invalid"))
 
