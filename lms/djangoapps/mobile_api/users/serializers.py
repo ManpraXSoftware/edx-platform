@@ -24,7 +24,8 @@ class CourseOverviewField(serializers.RelatedField):
         request = self.context.get('request')
         api_version = self.context.get('api_version')
         enrollment = CourseEnrollment.get_enrollment(user=self.context.get('request').user, course_key=course_id)
-
+        # enrollment = CourseEnrollment.get_enrollment(user=User.objects.filter(username='ubaid@manprax.com').first(), course_key=course_id)
+        
         return {
             # identifiers
             'id': course_id,
@@ -37,7 +38,7 @@ class CourseOverviewField(serializers.RelatedField):
             'start_display': course_overview.start_display,
             'start_type': course_overview.start_type,
             'end': course_overview.end,
-            'dynamic_upgrade_deadline': enrollment.upgrade_deadline,
+            'dynamic_upgrade_deadline': enrollment.upgrade_deadline if enrollment else None,
 
             # notification info
             'subscription_id': course_overview.clean_id(padding_char='_'),
