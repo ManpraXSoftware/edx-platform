@@ -35,7 +35,26 @@
       // UI: course list
       .listing-courses {
         @extend %ui-no-list;
+        .program-unenroll{
+          border: 1px solid #0d4e6c;
+          color: #126f9a;
+          background: #ffff;
+          padding: 10px 17px;
+          border-radius: 4px;
+          text-decoration: none;
+          text-align: center;
+          text-transform: uppercase;
+          margin-top: 67px;
+          font-size: 22px;
 
+          &:hover{
+            border: 1px solid transparent;
+            background-color: #126f9a;
+            color: #ffff !important;
+            text-decoration: none !important;
+            cursor: pointer;
+          }
+        }
         .course-item {
           margin-bottom: $baseline;
           padding-bottom: $baseline;
@@ -1596,6 +1615,101 @@ a.fade-cover {
     margin-left: $baseline;
     margin-right: $baseline;
   }
+}
+
+
+.modal-box {
+  padding: 17px;
+  background-color: #fff;
+  max-width: 380px;
+  text-align: center;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  // box-shadow: 0 5px 10px rgb(2 0 0 / 27%);
+  border: 6px solid #343030;
+}
+// .modal-box button {
+//   width: 100%;
+//   max-width: 300px;
+//   font-size: 14px;
+//   font-weight: 400;
+//   color: #fff;
+//   padding: 4px 20px;
+//   border: 1px solid #000663;
+//   border-radius: 5px;
+//   cursor: pointer;
+//   box-shadow: inset 0 1px 0 0 #2592c0;
+//   background-image: -webkit-linear-gradient(top, #0075b4 0%,#004393 50%,#002a84 50%,#002f86 100%);
+//   background-image: linear-gradient(to bottom,#0075b4 0%,#004393 50%,#002a84 50%,#002f86 100%);
+//   padding: 7px 18px;
+//   text-align: center;
+// }
+// .modal-box .buttons {
+//   margin-top: 25px;
+// }
+// .modal-box button:hover {
+//   width: 100%;
+//   max-width: 300px;
+//   font-size: 14px;
+//   font-weight: 400;
+//   color:#000;
+//   padding: 4px 20px;
+//   border: 1px solid #000663;
+//   border-radius: 5px;
+//   cursor: pointer;
+//   box-shadow: inset 0 1px 0 0 #2592c0;
+//   background-image: -webkit-linear-gradient(top, #0075b4 0%,#004393 50%,#002a84 50%,#002f86 100%);
+//   background-image: linear-gradient(to bottom,#0075b4 0%,#004393 50%,#002a84 50%,#002f86 100%);
+//   padding: 7px 18px;
+//   text-align: center;
+// }
+.modal-box h4{
+  color: #767676;
+  padding: 11px;
+  // border-bottom: 1px solid #00003a63;
+}
+.outer-closebtn{
+  display: flex;
+}
+.outer-closebtn .closebtn{
+  border: 1px solid #363636;
+  color: #000;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 3px;
+  padding: 1px 11px;
+}
+/*modal*/
+.modal {
+display: none; /* Hidden by default */
+position: fixed; /* Stay in place */
+z-index: 1; /* Sit on top */
+padding-top: 100px; /* Location of the box */
+left: 0;
+top: 0;
+width: 100%; /* Full width */
+height: 100%; /* Full height */
+overflow: auto; /* Enable scroll if needed */
+background-color: rgb(0,0,0); /* Fallback color */
+background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+.close:hover,
+.close:focus {
+color: #000;
+text-decoration: none;
+cursor: pointer;
+}
+.close {
+  border: 2px solid #141414;
+  width: 31px;
+  height: 30px;
+  border-radius: 3px;
+  margin-left: auto;
+  float: right;
+  padding: 0px;
+  font-weight: 900;
 }
 
 .reasons_survey {

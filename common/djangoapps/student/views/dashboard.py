@@ -553,7 +553,7 @@ def get_dashboard_course_limit():
 @login_required
 @ensure_csrf_cookie
 @add_maintenance_banner
-def student_dashboard(request):
+def student_dashboard(request, program_uuid):
     """
     Provides the LMS dashboard view
 
@@ -568,6 +568,7 @@ def student_dashboard(request):
         The dashboard response.
 
     """
+    
     user = request.user
     if not UserProfile.objects.filter(user=user).exists():
         return redirect(reverse('account_settings'))
@@ -599,7 +600,24 @@ def student_dashboard(request):
     # Get the org whitelist or the org blacklist for the current site
     site_org_whitelist, site_org_blacklist = get_org_black_and_whitelist_for_site()
     course_enrollments = list(get_course_enrollments(user, site_org_whitelist, site_org_blacklist, course_limit))
+    # course_enrollments = [course_enrollment for course_enrollment in course_enrollments if str(course_enrollment.course.id)=='course-v1:manprax+iit_man+2022_T03']
+    import requests
+    
+    base_discovery_url = settings.FEATURES['base_discovery_url']
 
+    program_title_url = base_discovery_url+"extandedapi/getprogram/?program_uuid="+str(program_uuid)
+    program_title_response = requests.get(program_title_url)
+    program_title = ''
+    if program_title_response.status_code == 200:
+        program_title = program_title_response.json()[0]
+
+    url = base_discovery_url+"extandedapi/getprogramcourses/?program_uuid="+str(program_uuid)
+    response = requests.get(url)
+    # import pdb;pdb.set_trace()
+    if response.status_code == 200:
+        course_keys_in_program = response.json()
+        course_enrollments = [course_enrollment for course_enrollment in course_enrollments if str(course_enrollment.course.id) in course_keys_in_program]
+    # import pdb;pdb.set_trace()
     # Get the entitlements for the user and a mapping to all available sessions for that entitlement
     # If an entitlement has no available sessions, pass through a mock course overview object
     (course_entitlements,
@@ -726,9 +744,10 @@ def student_dashboard(request):
                     checkout_page_url = ecommerce_service.get_checkout_page_url(*skus)
                     program_data['completeProgramURL'] = checkout_page_url + '&bundle=' + program_data.get('uuid')
                     programs_data[program_uuid] = program_data
+                    
                 except:  # pylint: disable=bare-except
                     pass
-
+    
     # Construct a dictionary of course mode information
     # used to render the course list.  We re-use the course modes dict
     # we loaded earlier to avoid hitting the database.
@@ -841,6 +860,9 @@ def student_dashboard(request):
         'course_enrollments': course_enrollments,
         'course_entitlements': course_entitlements,
         'course_entitlement_available_sessions': course_entitlement_available_sessions,
+        # 'user_enrolled_programs':user_enrolled_programs,
+        'program_uuid': program_uuid,
+        'program_title': program_title,
         'unfulfilled_entitlement_pseudo_sessions': unfulfilled_entitlement_pseudo_sessions,
         'course_optouts': course_optouts,
         'staff_access': staff_access,
@@ -905,5 +927,5 @@ def student_dashboard(request):
     context.update({
         'resume_button_urls': resume_button_urls
     })
-
+    
     return render_to_response('dashboard.html', context)

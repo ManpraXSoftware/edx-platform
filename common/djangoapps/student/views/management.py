@@ -75,6 +75,7 @@ from util.db import outer_atomic
 from util.json_request import JsonResponse
 from xmodule.modulestore.django import modulestore
 
+
 log = logging.getLogger("edx.student")
 
 AUDIT_LOG = logging.getLogger("audit")
@@ -253,6 +254,71 @@ def _update_email_opt_in(request, org):
     if email_opt_in is not None:
         email_opt_in_boolean = email_opt_in == 'true'
         preferences_api.update_email_opt_in(request.user, org, email_opt_in_boolean)
+
+@transaction.non_atomic_requests
+@require_POST
+@outer_atomic(read_committed=True)
+def unenroll_program(request, check_access=True):
+    from lms.djangoapps.program_enrollments.models import ProgramEnrollment
+    user = request.user
+    post_data = request.POST.dict()
+    program_uuid = post_data['program_uuid']
+    # import pdb;pdb.set_trace()
+    base_discovery_url = settings.FEATURES['base_discovery_url']
+    url = base_discovery_url+"extandedapi/getprogramcourses/?program_uuid="+str(program_uuid)
+    response = requests.get(url)
+    # import pdb;pdb.set_trace()
+    if response.status_code == 200:
+        course_keys_in_program = response.json()
+        
+        not_enrolled_in_courses = list()
+        certificate_prevents = list()
+        for course_key in course_keys_in_program:
+            course_id = CourseKey.from_string(course_key)
+            enrollment = CourseEnrollment.get_enrollment(user, course_id)
+            # import pdb;pdb.set_trace()
+            if not enrollment:
+                not_enrolled_in_courses.append(course_key)
+                continue
+                # return HttpResponseBadRequest(_("You are not enrolled in this course"))
+
+            certificate_info = cert_info(user, enrollment.course_overview)
+            if certificate_info.get('status') in DISABLE_UNENROLL_CERT_STATES:
+                # return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from this course"))
+                certificate_prevents.append(course_key)
+                continue
+            
+            if certificate_info.get('status') in DISABLE_UNENROLL_CERT_STATES:
+                # return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from this course"))
+                certificate_prevents.append(course_key)
+                continue
+            
+            getcourse_all_programs_url = base_discovery_url+"extandedapi/getcourseprograms/?course_id="+str(course_id)
+            programs_course_maped_in = requests.get(getcourse_all_programs_url)
+            if programs_course_maped_in.status_code == 200:
+                course_maped_in_programs = programs_course_maped_in.json()
+                course_maped_in_programs.remove(program_uuid)
+
+                if len(course_maped_in_programs) and len(ProgramEnrollment.objects.filter(program_uuid__in=course_maped_in_programs,user=user)):
+                    continue
+                else:
+                    CourseEnrollment.unenroll(user, course_id)
+                    REFUND_ORDER.send(sender=None, course_enrollment=enrollment)
+            # CourseEnrollment.unenroll(user, course_id)
+            # REFUND_ORDER.send(sender=None, course_enrollment=enrollment)
+        if not_enrolled_in_courses:
+            return HttpResponseBadRequest(_("You are not enrolled in these courses {}".format(not_enrolled_in_courses)))
+        
+        if certificate_prevents:
+            return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from these courses {}".format(certificate_prevents)))
+        
+        program_enrollment = ProgramEnrollment.objects.filter(program_uuid=program_uuid,user=user).first()
+        if program_enrollment:
+            program_enrollment.delete()
+        return HttpResponse()
+    else:
+        return HttpResponseBadRequest(_("You are not enrolled in this Program"))
+    # return HttpResponse()
 
 
 @transaction.non_atomic_requests

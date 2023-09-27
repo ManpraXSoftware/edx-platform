@@ -25,7 +25,7 @@ from openedx.core.djangoapps.programs.utils import (
     get_program_marketing_url
 )
 from openedx.core.djangoapps.user_api.preferences.api import get_user_preferences
-
+import requests
 
 class ProgramsFragmentView(EdxFragmentView):
     """
@@ -46,11 +46,59 @@ class ProgramsFragmentView(EdxFragmentView):
             raise Http404
 
         meter = ProgramProgressMeter(request.site, user, mobile_only=mobile_only)
+        # import pdb;pdb.set_trace()
 
+        
+        if meter.programs:
+            from lms.djangoapps.program_enrollments.models import ProgramEnrollment
+            user_enrolled_programs = ProgramEnrollment.objects.filter(user=user).values('program_uuid')
+            user_enrolled_programs = [str(uuid['program_uuid']) for uuid in user_enrolled_programs]
+            
+            meter.programs = [program for program in meter.programs if program['uuid'] in user_enrolled_programs ]
+            # import pdb;pdb.set_trace()
+            url = "http://localhost:18000/explore-courses/enrolled-programs?username="+user.username+"&accept_language=en"
+            result = requests.get(url)
+
+            if result.status_code == 200:
+                if result.json():
+                    for meter_program in meter.programs:
+                        for result_program in result.json():
+                            if meter_program['uuid'] == result_program['program_uuid']:
+                                for program_topics in result_program['tags']:
+                                    meter_program['topics'].append(program_topics['tag_title'])
+
+
+        resume_block = dict()
+        from openedx.core.djangoapps.user_api.accounts.utils import retrieve_last_sitewide_block_completed
+        resume_block_url = retrieve_last_sitewide_block_completed(getattr(request.user, 'real_user', request.user))
+
+        resume_block['resume_block_url'] = resume_block_url
+
+        if resume_block_url:
+            course_id = resume_block_url.split('/')[4]
+            if course_id.startswith('course'):
+                url = "http://edx.devstack.discovery:18381/"+"extandedapi/getprogramusingcourseid/?course_id="+course_id
+                response = requests.get(url)
+
+                if response.status_code == 200:
+                    program_detail = response.json()
+                    if program_detail:
+                        
+                        resume_block['topics'] = program_detail['topics']
+                        resume_block['program_title'] = program_detail['program_title']
+                        resume_block['course_title'] = program_detail['course_title']
+                    
+
+                # import pdb;pdb.set_trace()
+                
+                
+
+        # import pdb;pdb.set_trace()
         context = {
             'marketing_url': get_program_marketing_url(programs_config, mobile_only),
             'programs': meter.engaged_programs,
-            'progress': meter.progress()
+            'progress': meter.progress(),
+            'resume_block' : resume_block
         }
         html = render_to_string('learner_dashboard/programs_fragment.html', context)
         programs_fragment = Fragment(html)
@@ -84,13 +132,14 @@ class ProgramDetailsFragmentView(EdxFragmentView):
     """
     def render_to_fragment(self, request, program_uuid, **kwargs):
         """View details about a specific program."""
+        
+        
         programs_config = kwargs.get('programs_config') or ProgramsApiConfig.current()
         if not programs_config.enabled or not request.user.is_authenticated:
             raise Http404
 
         meter = ProgramProgressMeter(request.site, request.user, uuid=program_uuid)
         program_data = meter.programs[0]
-
         if not program_data:
             raise Http404
 
@@ -149,6 +198,7 @@ class ProgramDetailsFragmentView(EdxFragmentView):
             'credit_pathways': credit_pathways,
         }
 
+        # import pdb;pdb.set_trace()
         html = render_to_string('learner_dashboard/program_details_fragment.html', context)
         program_details_fragment = Fragment(html)
         self.add_fragment_resource_urls(program_details_fragment)

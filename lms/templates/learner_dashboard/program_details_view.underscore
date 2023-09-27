@@ -40,6 +40,25 @@
             </a>
             <% } %>
     </div>
+    <div class="program-unenrollment">
+        <button type="button" onclick="unenroll(window.location.href.split('/')[5])" class="btn-brand btn cta-primary unenrollProgramButton">Unenroll Program</button>
+    </div>
+        <script>
+            function unenroll(program_uuid) {
+
+                $.ajax({type: "POST",url: "/unenroll_program",data: {'program_uuid':program_uuid},
+                    success: function(data){
+                        window.location.href = '/dashboard/programs/';
+                    },
+                    failure: function(data){
+                        console.log("failure");
+                        console.log(data);
+                    },
+                })
+
+            }
+        </script>
+
     <div class="course-list-headings">
         <% if (inProgressCount) { %>
             <div class="in-progress-group">

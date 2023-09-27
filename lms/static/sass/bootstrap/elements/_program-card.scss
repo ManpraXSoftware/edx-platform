@@ -10,7 +10,7 @@
 .program-card {
   flex: 0 0 98%;
   max-width: 98%;
-  border: 1px solid $gray-500;
+  // border: 1px solid $gray-500;
   border-bottom: none;
   margin-bottom: $baseline;
   position: relative;
@@ -28,8 +28,9 @@
   }
 
   @include media-breakpoint-up(lg) {
-    flex: 0 0 48%;
-    max-width: 48%;
+    // flex: 0 0 48%;
+    // max-width: 48%;
+    max-width: 100%;
   }
 
   .card-link {

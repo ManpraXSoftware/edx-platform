@@ -100,6 +100,7 @@ urlpatterns = [
     # TODO: Move lms specific student views out of common code
     url(r'^dashboard/?$', student_views.student_dashboard, name='dashboard'),
     url(r'^change_enrollment$', student_views.change_enrollment, name='change_enrollment'),
+    url(r'^unenroll_program$', student_views.unenroll_program, name='unenroll_program'),
 
     # Event tracking endpoints
     url(r'', include('track.urls')),

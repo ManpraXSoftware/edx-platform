@@ -250,7 +250,8 @@ def get_next_url_for_login_page(request):
     )
     if not redirect_to:
         try:
-            redirect_to = reverse('dashboard')
+            # redirect_to = reverse('dashboard')
+            redirect_to = reverse('program_listing_view')
         except NoReverseMatch:
             redirect_to = reverse('home')
 
