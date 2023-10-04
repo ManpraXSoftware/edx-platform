@@ -56,7 +56,7 @@ class ProgramsFragmentView(EdxFragmentView):
             
             meter.programs = [program for program in meter.programs if program['uuid'] in user_enrolled_programs ]
             # import pdb;pdb.set_trace()
-            url = "http://localhost:18000/explore-courses/enrolled-programs?username="+user.username+"&accept_language=en"
+            url = "https://staging-lms.visionempowertrust.org/explore-courses/enrolled-programs?username="+user.username+"&accept_language=en"
             result = requests.get(url)
 
             if result.status_code == 200:
