@@ -16,7 +16,13 @@ from openedx.core.djangolib.js_utils import (
     <div class="card-outer">
         <h4 class="card-outertext">Recently Accessed Course</h4>
          <div class="card-box">
-           <p style="display: inline;" class="program-topics"></p>
+           <p style="display: inline;" class="program-topics">
+            %if 'topics' in resume_block:
+                %for topic in resume_block['topics']:
+                    <span>${topic}</span>
+                %endfor
+            %endif
+            </p>
            <h5 class="cardbox-title">
                 <span>PROGRAM NAME - </span>
                 <span>${resume_block['program_title']}</span>
@@ -35,60 +41,6 @@ from openedx.core.djangolib.js_utils import (
     <div class="program-cards-container"></div>
     <!-- <div class="sidebar col col-last"></div> -->
 </div>
-<script>
-    let topicsPTag = $('.program-topics');
-    getTagsonload();
-
-    function getTagsonload(){
-        let topicHtml = getTags();
-
-        if(topicHtml.length > 140){
-            
-            topicHtml = topicHtml.substring(0, 140);
-            topicHtml += '<span><a onclick="expend()"> read more </a></span>';
-        }
-        topicsPTag.html(topicHtml);
-        console.log(topicHtml.length);
-
-    }
-
-    function getTags(){
-
-        
-        let topics = "${resume_block['topics']}";
-        topics = topics.replaceAll('&#39;','').split(',');
-        let topicHtml = ``;
-        $.each( topics, function( key, value ) {
-            
-            if(key ==0){
-                topicHtml += '<span>'+value.split('[')[1] +',</span>'
-                // console.log( key + ": " + value.split('[')[1] );
-            }
-            else if(key >= topics.length-1){
-                topicHtml += '<span>'+value.split(']')[0] +'</span>'
-                // console.log( key + ": " + value.split(']')[0] );
-            }
-
-            else{
-                topicHtml += '<span>'+value+',</span>'
-                // console.log( key + ": " + value);
-            }
-            
-        });
-        
-
-        return topicHtml;
-    } 
-    
-
-    function expend(){
-        let topicHtml = getTags();
-
-        topicHtml += '<span><a onclick="getTagsonload()"> read less </a></span>';
-        topicsPTag.html(topicHtml);
-        console.log(topicHtml.length);
-    }
-</script>
 <%block name="js_extra">
 <%static:webpack entry="ProgramListFactory">
 ProgramListFactory({
