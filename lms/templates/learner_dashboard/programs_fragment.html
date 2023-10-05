@@ -12,65 +12,24 @@ from openedx.core.djangolib.js_utils import (
 %>
 
 <div class="program-list-wrapper grid-container">
+    %if 'program_title' in resume_block:
     <div class="card-outer">
         <h4 class="card-outertext">Recently Accessed Course</h4>
          <div class="card-box">
-           <!-- <p><span>Tripura State Board Science Teacher Instruction kits,</span><span> Nigeriya</span><span>erisque enim ligula </span><span>venenatis dolor</span><span>venenatis dolor</span><span>venenatis dolor</span><span>venenatis dolor</span></p> -->
            <p style="display: inline;" class="program-topics"></p>
            <h5 class="cardbox-title">
                 <span>PROGRAM NAME - </span>
                 <span>${resume_block['program_title']}</span>
-                <!-- <span>Grade 4</span>
-                <span>Science(Teacher Tripura)</span>
-                <span id="dots1">...</span>
-                <span id="more1"><span>text 1 </span> 
-                <span>text 2</span> -->
+               
             </h5>
-           <!-- <a onclick="myFunction()" id="myBtn">Read more</a> -->
            <h3 class="card-text py-3">${resume_block['course_title']}</h3>
    
-           <!-- <div style="text-align:right"><a href="${resume_block['resume_block_url']}" class="btn continoue-btn">Continue</a></div> -->
            <div style="text-align:right" class="vcourse"><a href="${resume_block['resume_block_url']}" class="btn-border">Continue</a></div>
          </div>
        </div>
-    <!-- <div class="card-box">
-        <div class="card-body">
-          <p class="card-subtitle mb-2 text-muted">
-            %if resume_block['topics']:
-                %for topic in resume_block['topics']:
-                    ${topic}
-                %endfor
-            
-            %endif
-            Tripura State Board Science Teacher Instruction kits, N.. -->
-            <!-- </p>
-          <h5 class="card-title">PROGRAM NAME - ${resume_block['program_title']}</h5>
-          <h3 class="card-text py-3">${resume_block['course_title']}</h3>
-  
-          <div style="text-align:right"><a href="${resume_block['resume_block_url']}" class="btn continoue-btn">Continue</a></div>
-        </div>
-      </div> -->
-    <!-- <div class="">
-    %if resume_block['resume_block_url']:
-        
-        <div class="topics">
-            %if resume_block['topics']:
-                %for topic in resume_block['topics']:
-                    <p>${topic}</p>
-                %endfor
-            
-            %endif
-        </div>
-        <div class="program_title">
-            <h5>${resume_block['program_title']}</h5>
-        </div>
-        <div class="course_title">
-            <h5>${resume_block['course_title']}</h5>
-        </div>
-        <div class="mobile-nav-item dropdown-item dropdown-nav-item"><a href="${resume_block['resume_block_url']}" role="menuitem">continue</a></div>
-    %endif
-    </div> -->
-    <!-- <div class=""><p class="name">${resume_block}</p></div> -->
+       %endif
+    
+    
     <h4 class="program-heading">Your Enrolled programs</h4>
     <!-- <div class="program-cards-container col"></div> -->
     <div class="program-cards-container"></div>
