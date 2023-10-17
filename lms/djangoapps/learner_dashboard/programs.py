@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import get_language_bidi, ugettext_lazy as _
 from web_fragments.fragment import Fragment
+from django.conf import settings
 
 from lms.djangoapps.commerce.utils import EcommerceService
 from lms.djangoapps.learner_dashboard.utils import FAKE_COURSE_KEY, strip_course_id
@@ -55,10 +56,10 @@ class ProgramsFragmentView(EdxFragmentView):
             user_enrolled_programs = [str(uuid['program_uuid']) for uuid in user_enrolled_programs]
             
             meter.programs = [program for program in meter.programs if program['uuid'] in user_enrolled_programs ]
-            # import pdb;pdb.set_trace()
-            url = "https://staging-lms.visionempowertrust.org/explore-courses/enrolled-programs?username="+user.username+"&accept_language=en"
+            
+            url = settings.FEATURES['base_lms_url']+"explore-courses/enrolled-programs?username="+user.username+"&accept_language=en"
             result = requests.get(url)
-
+            
             if result.status_code == 200:
                 if result.json():
                     for meter_program in meter.programs:
@@ -77,7 +78,8 @@ class ProgramsFragmentView(EdxFragmentView):
         if resume_block_url:
             course_id = resume_block_url.split('/')[4]
             if course_id.startswith('course'):
-                url = "https://staging-courses.visionempowertrust.org/"+"extandedapi/getprogramusingcourseid/?course_id="+course_id
+                # url = "https://staging-courses.visionempowertrust.org/"+"extandedapi/getprogramusingcourseid/?course_id="+course_id
+                url = "http://edx.devstack.discovery:18381/"+"extandedapi/getprogramusingcourseid/?course_id="+course_id
                 
                 response = requests.get(url)
 

@@ -2,7 +2,7 @@
                
         <div class="cardarea">
                 <div class="cardarea-left g-0"><img srcset="<%- smallBannerUrl %>" style="height:
-                168.56px; width:283px;"></div>
+                182px; width:283px;"></div>
                 <div class="cardarea-right">
                     <h3 id="program-<%- uuid %>" class="title hd-3 card-text py-3"><%- gettext(title) %></h3>
                     <p>Vision Empower -

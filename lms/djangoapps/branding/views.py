@@ -43,7 +43,7 @@ def index(request):
         if configuration_helpers.get_value(
                 'ALWAYS_REDIRECT_HOMEPAGE_TO_DASHBOARD_FOR_AUTHENTICATED_USER',
                 settings.FEATURES.get('ALWAYS_REDIRECT_HOMEPAGE_TO_DASHBOARD_FOR_AUTHENTICATED_USER', True)):
-            return redirect('dashboard')
+            return redirect('program_listing_view')
 
     enable_mktg_site = configuration_helpers.get_value(
         'ENABLE_MKTG_SITE',

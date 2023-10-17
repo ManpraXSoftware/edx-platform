@@ -2561,7 +2561,7 @@ INSTALLED_APPS = [
     # Management of per-user schedules
     'openedx.core.djangoapps.schedules',
     'rest_framework_jwt',
-    'parler',
+    # 'parler',
     #course details from course decovery site
     'mx_course_discovery',
     #user import exoprt
@@ -2569,7 +2569,7 @@ INSTALLED_APPS = [
     #subodha_addin
     'subodha-addin.mx_user_info',
     'subodha-addin.mx_multilingual_meta',
-    
+    'parler'
 
 ]
 
@@ -3936,6 +3936,7 @@ PARLER_LANGUAGES = {
         {'code': 'te', },
         {'code': 'ta', },
         {'code': 'bn', },
+        # {'code': 'or', },
     ),
     'default': {
          'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],

@@ -16,7 +16,7 @@ from openedx.core.djangolib.js_utils import (
     <div class="card-outer">
         <h4 class="card-outertext">Recently Accessed Course</h4>
          <div class="card-box">
-           <p style="display: inline;" class="program-topics">
+           <p style="display: inline; color: #5e5e5e;" class="program-topics">
             %if 'topics' in resume_block:
                 %for topic in resume_block['topics']:
                     <span>${topic}</span>
@@ -35,12 +35,16 @@ from openedx.core.djangolib.js_utils import (
        </div>
        %endif
     
+    %if programs :
+        <h4 class="program-heading">Your Enrolled Programs</h4>
+    %endif
     
-    <h4 class="program-heading">Your Enrolled programs</h4>
     <!-- <div class="program-cards-container col"></div> -->
     <div class="program-cards-container"></div>
     <!-- <div class="sidebar col col-last"></div> -->
 </div>
+<script>
+</script>
 <%block name="js_extra">
 <%static:webpack entry="ProgramListFactory">
 ProgramListFactory({

@@ -1495,6 +1495,8 @@ INSTALLED_APPS = [
     # Management of per-user schedules
     'openedx.core.djangoapps.schedules',
     'rest_framework_jwt',
+    'parler',
+    'import_export',
     'mx_importcoursedocx.apps.CourseCreateScriptConfig',
 ]
 
