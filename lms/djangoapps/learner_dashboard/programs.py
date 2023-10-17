@@ -79,7 +79,7 @@ class ProgramsFragmentView(EdxFragmentView):
             course_id = resume_block_url.split('/')[4]
             if course_id.startswith('course'):
                 # url = "https://staging-courses.visionempowertrust.org/"+"extandedapi/getprogramusingcourseid/?course_id="+course_id
-                url = "http://edx.devstack.discovery:18381/"+"extandedapi/getprogramusingcourseid/?course_id="+course_id
+                url = settings.FEATURES['base_discovery_url']+"extandedapi/getprogramusingcourseid/?course_id="+course_id
                 
                 response = requests.get(url)
 
