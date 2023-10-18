@@ -268,8 +268,11 @@ def unenroll_program(request, check_access=True):
     url = base_discovery_url+"extandedapi/getprogramcourses/?program_uuid="+str(program_uuid)
     response = requests.get(url)
     # import pdb;pdb.set_trace()
+    log.info("________________ response code of course_keys_in_program is_________ {}".format(response.status_code))
     if response.status_code == 200:
         course_keys_in_program = response.json()
+        
+        log.info("________________ course_keys_in_program are_________ {}".format(course_keys_in_program))
         
         not_enrolled_in_courses = list()
         certificate_prevents = list()
@@ -279,6 +282,7 @@ def unenroll_program(request, check_access=True):
             # import pdb;pdb.set_trace()
             if not enrollment:
                 not_enrolled_in_courses.append(course_key)
+                log.info("________________ user {} not enrolled in course {}_________ {}".format(user,course_key))
                 continue
                 # return HttpResponseBadRequest(_("You are not enrolled in this course"))
 
@@ -286,6 +290,7 @@ def unenroll_program(request, check_access=True):
             if certificate_info.get('status') in DISABLE_UNENROLL_CERT_STATES:
                 # return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from this course"))
                 certificate_prevents.append(course_key)
+                log.info("________________ user {} prevents certificate in course {}_________ {}".format(user,course_key))
                 continue
             
             if certificate_info.get('status') in DISABLE_UNENROLL_CERT_STATES:
@@ -295,13 +300,24 @@ def unenroll_program(request, check_access=True):
             
             getcourse_all_programs_url = base_discovery_url+"extandedapi/getcourseprograms/?course_id="+str(course_id)
             programs_course_maped_in = requests.get(getcourse_all_programs_url)
+            
+            
+            log.info("________________ response code of course {} maped in programs_course_maped_in is_________ {}".format(str(course_id),programs_course_maped_in.status_code))
+            
             if programs_course_maped_in.status_code == 200:
                 course_maped_in_programs = programs_course_maped_in.json()
+
+                log.info("________________ course {} is maped in programs are_________ {}".format(str(course_id),course_maped_in_programs))
+                
                 course_maped_in_programs.remove(program_uuid)
 
                 if len(course_maped_in_programs) and len(ProgramEnrollment.objects.filter(program_uuid__in=course_maped_in_programs,user=user)):
+                    log.info("________________ course {} cannot be unenroll because it is maped in other programs like_________ {}".format(course_id, course_maped_in_programs))
                     continue
                 else:
+                    
+                    log.info("________________ course {} is unenrolled_________".format(course_id))
+
                     CourseEnrollment.unenroll(user, course_id)
                     REFUND_ORDER.send(sender=None, course_enrollment=enrollment)
             # CourseEnrollment.unenroll(user, course_id)
@@ -313,10 +329,12 @@ def unenroll_program(request, check_access=True):
             return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from these courses {}".format(certificate_prevents)))
         
         program_enrollment = ProgramEnrollment.objects.filter(program_uuid=program_uuid,user=user).first()
+        log.info("________________ program enrollment {} for user {} is deleted from program enrollment table _________".format(program_enrollment,user))
         if program_enrollment:
             program_enrollment.delete()
         return HttpResponse()
     else:
+        log.info("________________ User {} is not enrolled in this Program {}_________".format(user,program_uuid))
         return HttpResponseBadRequest(_("You are not enrolled in this Program"))
     # return HttpResponse()
 
