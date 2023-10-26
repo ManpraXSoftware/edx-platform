@@ -166,7 +166,7 @@ def retrieve_last_sitewide_block_completed(user):
         return
 
     lms_root = SiteConfiguration.get_value_for_org(candidate_course.org, "LMS_ROOT_URL", settings.LMS_ROOT_URL)
-
+    
     try:
         item = modulestore().get_item(candidate_block_key, depth=1)
     except ItemNotFoundError:
@@ -174,6 +174,25 @@ def retrieve_last_sitewide_block_completed(user):
 
     if not (lms_root and item):
         return
+
+    else:
+        from openedx.core.djangoapps.programs.models import LastReadCourse
+
+        user_last_read_course = LastReadCourse.objects.filter(user=user).first()
+        # import pdb;pdb.set_trace()
+        if user_last_read_course:
+            if not user_last_read_course.block_id:
+                user_last_read_course.block_id = str(candidate_block_key)
+                user_last_read_course.save()
+            else:
+                if user_last_read_course.block_id  != str(candidate_block_key):
+                    user_last_read_course.block_id = str(candidate_block_key)
+                    user_last_read_course.last_read_program_uuid = user_last_read_course.last_visited_program_uuid  if user_last_read_course.last_visited_program_uuid  else ''
+                    user_last_read_course.last_read_program = user_last_read_course.last_visited_program  if user_last_read_course.last_visited_program  else ''
+                    user_last_read_course.last_read_topics = user_last_read_course.last_visited_topics if user_last_read_course.last_visited_topics else []
+                    user_last_read_course.save()
+        else:
+            LastReadCourse.objects.create(user=user,block_id=str(candidate_block_key))
 
     return u"{lms_root}/courses/{course_key}/jump_to/{location}".format(
         lms_root=lms_root,

@@ -5,6 +5,7 @@ import six
 from config_models.models import ConfigurationModel
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 
 
 class ProgramsApiConfig(ConfigurationModel):
@@ -43,3 +44,22 @@ class CustomProgramsConfig(ConfigurationModel):  # pylint: disable=model-missing
 
     def __str__(self):
         return six.text_type(self.arguments)
+
+
+
+
+class LastReadCourse(models.Model):
+    user = models.ForeignKey(User, db_index=True, on_delete=models.CASCADE,blank=True)
+    block_id = models.CharField(max_length=255, blank=True)
+    last_read_program_uuid = models.CharField(max_length=255, blank=True)
+    last_read_program = models.CharField(max_length=255, blank=True)
+    last_read_topics = models.CharField(max_length=255, blank=True)
+    last_visited_program_uuid = models.CharField(max_length=255, blank=True)
+    last_visited_program = models.CharField(max_length=255, blank=True)
+    last_visited_topics = models.CharField(max_length=255, blank=True)
+    
+    class Meta(object):
+        app_label = 'programs'
+
+    def __str__(self):
+        return '{name}'.format(name=self.user.email)

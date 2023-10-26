@@ -26,6 +26,7 @@ from openedx.core.djangoapps.programs.utils import (
     get_program_marketing_url
 )
 from openedx.core.djangoapps.user_api.preferences.api import get_user_preferences
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 import requests
 
 class ProgramsFragmentView(EdxFragmentView):
@@ -77,19 +78,32 @@ class ProgramsFragmentView(EdxFragmentView):
 
         if resume_block_url:
             course_id = resume_block_url.split('/')[4]
+            
+            # import pdb;pdb.set_trace()
             if course_id.startswith('course'):
+                resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
+                from openedx.core.djangoapps.programs.models import LastReadCourse
+                # from lms.djangoapps.program_enrollments.models import ProgramEnrollment
+                user_last_read_course = LastReadCourse.objects.filter(user=user).first()
+                # import pdb;pdb.set_trace()
+                if user_last_read_course:
+                    if user_last_read_course.last_read_program:
+                        import ast            
+                        resume_block['topics'] = ast.literal_eval(user_last_read_course.last_read_topics)
+                        resume_block['program_title'] = user_last_read_course.last_read_program
+                    # resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
                 # url = "https://staging-courses.visionempowertrust.org/"+"extandedapi/getprogramusingcourseid/?course_id="+course_id
-                url = settings.FEATURES['base_discovery_url']+"extandedapi/getprogramusingcourseid/?course_id="+course_id
+                # url = settings.FEATURES['base_discovery_url']+"extandedapi/getprogramusingcourseid/?course_id="+course_id
                 
-                response = requests.get(url)
+                # response = requests.get(url)
 
-                if response.status_code == 200:
-                    program_detail = response.json()
-                    if program_detail:
+                # if response.status_code == 200:
+                #     program_detail = response.json()
+                #     if program_detail:
                         
-                        resume_block['topics'] = program_detail['topics']
-                        resume_block['program_title'] = program_detail['program_title']
-                        resume_block['course_title'] = program_detail['course_title']
+                #         resume_block['topics'] = program_detail['topics']
+                #         resume_block['program_title'] = program_detail['program_title']
+                #         resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
                     
 
                 # import pdb;pdb.set_trace()

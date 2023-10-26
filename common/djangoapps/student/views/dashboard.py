@@ -58,10 +58,12 @@ from student.models import (
 )
 from util.milestones_helpers import get_pre_requisite_courses_not_completed
 from xmodule.modulestore.django import modulestore
+import requests
 
 log = logging.getLogger("edx.student")
 
 experiments_namespace = WaffleFlagNamespace(name=u'student.experiments')
+
 
 
 def get_org_black_and_whitelist_for_site():
@@ -549,6 +551,42 @@ def get_dashboard_course_limit():
     course_limit = getattr(settings, 'DASHBOARD_COURSE_LIMIT', None)
     return course_limit
 
+def udateLastVisitedProgram(program_uuid,user):
+    base_discovery_url = settings.FEATURES['base_discovery_url']
+    url_visited_program = base_discovery_url+"extandedapi/getprogramandtags/?program_uuid="+str(program_uuid)
+    response_visited_program = requests.get(url_visited_program)
+    if response_visited_program.status_code == 200:
+        program_data = response_visited_program.json()
+
+        from openedx.core.djangoapps.programs.models import LastReadCourse
+
+        user_last_read_course = LastReadCourse.objects.filter(user=user).first()
+
+        if user_last_read_course:
+            if user_last_read_course.last_visited_program:
+                if user_last_read_course.last_visited_program != program_data['program_title']:
+                    user_last_read_course.last_visited_program_uuid=program_uuid
+                    user_last_read_course.last_visited_program = program_data['program_title']
+                    user_last_read_course.last_visited_topics = program_data['topics']
+                    
+                    user_last_read_course.save()
+            else:
+                user_last_read_course.last_visited_program_uuid=program_uuid
+                user_last_read_course.last_visited_program = program_data['program_title']
+                user_last_read_course.last_visited_topics = program_data['topics']
+                # user_last_read_course.last_read_program = program_data['program_title']
+                # user_last_read_course.last_read_topics = program_data['topics']
+                # user_last_read_course.last_read_program_uuid=program_uuid
+                
+                user_last_read_course.save()
+
+        else:
+            last_visited_user = LastReadCourse.objects.get_or_create(user=user,last_visited_program=program_data['program_title'],last_visited_topics=str(program_data['topics']),last_visited_program_uuid=program_uuid)
+            if not last_visited_user[0].last_read_program:
+                last_visited_user[0].last_read_program = last_visited_user[0].last_visited_program
+                last_visited_user[0].last_read_topics = last_visited_user[0].last_visited_topics
+                last_visited_user[0].save()
+
 
 @login_required
 @ensure_csrf_cookie
@@ -568,7 +606,7 @@ def student_dashboard(request, program_uuid):
         The dashboard response.
 
     """
-    
+    base_discovery_url = settings.FEATURES['base_discovery_url']
     user = request.user
     if not UserProfile.objects.filter(user=user).exists():
         return redirect(reverse('account_settings'))
@@ -601,9 +639,8 @@ def student_dashboard(request, program_uuid):
     site_org_whitelist, site_org_blacklist = get_org_black_and_whitelist_for_site()
     course_enrollments = list(get_course_enrollments(user, site_org_whitelist, site_org_blacklist, course_limit))
     # course_enrollments = [course_enrollment for course_enrollment in course_enrollments if str(course_enrollment.course.id)=='course-v1:manprax+iit_man+2022_T03']
-    import requests
     
-    base_discovery_url = settings.FEATURES['base_discovery_url']
+    
 
     program_title_url = base_discovery_url+"extandedapi/getprogram/?program_uuid="+str(program_uuid)
     program_title_response = requests.get(program_title_url)
@@ -617,7 +654,10 @@ def student_dashboard(request, program_uuid):
     if response.status_code == 200:
         course_keys_in_program = response.json()
         course_enrollments = [course_enrollment for course_enrollment in course_enrollments if str(course_enrollment.course.id) in course_keys_in_program]
-    # import pdb;pdb.set_trace()
+    
+    # update the lastreadcourse table with the name of currently visited program 
+    udateLastVisitedProgram(program_uuid,user)
+            
     # Get the entitlements for the user and a mapping to all available sessions for that entitlement
     # If an entitlement has no available sessions, pass through a mock course overview object
     (course_entitlements,

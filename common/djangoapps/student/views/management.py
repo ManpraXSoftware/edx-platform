@@ -47,7 +47,7 @@ from openedx.core.djangoapps.ace_common.template_context import get_base_templat
 from openedx.core.djangoapps.catalog.utils import get_programs_with_type
 from openedx.core.djangoapps.embargo import api as embargo_api
 from openedx.core.djangoapps.lang_pref import LANGUAGE_KEY
-from openedx.core.djangoapps.programs.models import ProgramsApiConfig
+from openedx.core.djangoapps.programs.models import ProgramsApiConfig, LastReadCourse
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from openedx.core.djangoapps.theming import helpers as theming_helpers
 from openedx.core.djangoapps.user_api.preferences import api as preferences_api
@@ -282,7 +282,7 @@ def unenroll_program(request, check_access=True):
             # import pdb;pdb.set_trace()
             if not enrollment:
                 not_enrolled_in_courses.append(course_key)
-                log.info("________________ user {} not enrolled in course {}_________ {}".format(user,course_key))
+                log.info("________________ user {} not enrolled in course {}_________".format(user,course_key))
                 continue
                 # return HttpResponseBadRequest(_("You are not enrolled in this course"))
 
@@ -290,7 +290,7 @@ def unenroll_program(request, check_access=True):
             if certificate_info.get('status') in DISABLE_UNENROLL_CERT_STATES:
                 # return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from this course"))
                 certificate_prevents.append(course_key)
-                log.info("________________ user {} prevents certificate in course {}_________ {}".format(user,course_key))
+                log.info("________________ user {} prevents certificate in course {}_________".format(user,course_key))
                 continue
             
             if certificate_info.get('status') in DISABLE_UNENROLL_CERT_STATES:
@@ -309,7 +309,8 @@ def unenroll_program(request, check_access=True):
 
                 log.info("________________ course {} is maped in programs are_________ {}".format(str(course_id),course_maped_in_programs))
                 
-                course_maped_in_programs.remove(program_uuid)
+                if program_uuid in course_maped_in_programs:
+                    course_maped_in_programs.remove(program_uuid)
 
                 if len(course_maped_in_programs) and len(ProgramEnrollment.objects.filter(program_uuid__in=course_maped_in_programs,user=user)):
                     log.info("________________ course {} cannot be unenroll because it is maped in other programs like_________ {}".format(course_id, course_maped_in_programs))
@@ -332,6 +333,10 @@ def unenroll_program(request, check_access=True):
         log.info("________________ program enrollment {} for user {} is deleted from program enrollment table _________".format(program_enrollment,user))
         if program_enrollment:
             program_enrollment.delete()
+        
+        user_last_read_program = LastReadCourse.objects.filter(last_read_program_uuid=str(program_uuid),user=user).first()
+        if user_last_read_program:
+            user_last_read_program.delete()
         return HttpResponse()
     else:
         log.info("________________ User {} is not enrolled in this Program {}_________".format(user,program_uuid))
