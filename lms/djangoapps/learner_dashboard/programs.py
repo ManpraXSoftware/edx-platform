@@ -112,8 +112,8 @@ class ProgramsFragmentView(EdxFragmentView):
 
         # import pdb;pdb.set_trace()
         context = {
-            # 'marketing_url': get_program_marketing_url(programs_config, mobile_only),
-            'marketing_url': 'https://staging-lms.visionempowertrust.org',
+            'marketing_url': get_program_marketing_url(programs_config, mobile_only),
+            # 'marketing_url': 'https://staging-lms.visionempowertrust.org',
             'programs': meter.engaged_programs,
             'progress': meter.progress(),
             'resume_block' : resume_block
