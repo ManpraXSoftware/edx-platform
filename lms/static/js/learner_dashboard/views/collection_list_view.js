@@ -13,6 +13,9 @@ class CollectionListView extends Backbone.View {
   }
 
   render() {
+    console.log(this.collection.length);
+    console.log(this.context.marketingUrl);
+
     if (!this.collection.length) {
       if (this.context.marketingUrl) {
         // Only show the advertising panel if the link is passed in
