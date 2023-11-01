@@ -324,10 +324,12 @@ def unenroll_program(request, check_access=True):
             # CourseEnrollment.unenroll(user, course_id)
             # REFUND_ORDER.send(sender=None, course_enrollment=enrollment)
         if not_enrolled_in_courses:
-            return HttpResponseBadRequest(_("You are not enrolled in these courses {}".format(not_enrolled_in_courses)))
+            # return HttpResponseBadRequest(_("You are not enrolled in these courses {}".format(not_enrolled_in_courses)))
+            log.info("________________ user {} not enrolled in these courses {}_________".format(user,not_enrolled_in_courses))
         
         if certificate_prevents:
-            return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from these courses {}".format(certificate_prevents)))
+            # return HttpResponseBadRequest(_("Your certificate prevents you from unenrolling from these courses {}".format(certificate_prevents)))
+            log.info("________________ user {} certificate prevents unenrolling from these courses {}".format(user,certificate_prevents))
         
         program_enrollment = ProgramEnrollment.objects.filter(program_uuid=program_uuid,user=user).first()
         log.info("________________ program enrollment {} for user {} is deleted from program enrollment table _________".format(program_enrollment,user))
