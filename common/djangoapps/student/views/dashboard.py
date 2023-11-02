@@ -583,6 +583,7 @@ def udateLastVisitedProgram(program_uuid,user):
         else:
             last_visited_user = LastReadCourse.objects.get_or_create(user=user,last_visited_program=program_data['program_title'],last_visited_topics=str(program_data['topics']),last_visited_program_uuid=program_uuid)
             if not last_visited_user[0].last_read_program:
+                last_visited_user[0].last_read_program_uuid = last_visited_user[0].last_visited_program_uuid
                 last_visited_user[0].last_read_program = last_visited_user[0].last_visited_program
                 last_visited_user[0].last_read_topics = last_visited_user[0].last_visited_topics
                 last_visited_user[0].save()
