@@ -3562,6 +3562,7 @@ LOGIN_REDIRECT_WHITELIST = []
 #   includes a paragraph that links to the honor code page (defined my MKTG_URLS["HONOR"]). This page might not be
 #   available for all Open edX platforms. In such cases, the "honor_code" registration field should be "hidden".
 REGISTRATION_EXTRA_FIELDS = {
+    'mobile_number':'required',
     'confirm_email': 'hidden',
     'level_of_education': 'optional',
     'gender': 'optional',
@@ -4179,6 +4180,19 @@ ACCOUNT_VISIBILITY_CONFIGURATION["admin_fields"] = (
         "phone_number",
         "activation_key",
         "pending_name_change",
+        "classes_taught",
+        "state",
+        "tag_label",
+        "certificate_count",
+        "mobile_number",
+        "association_with_bhartifound",
+        "you_want_see_inthis_app",
+        "dob",
+        "board",
+        "organisation",
+        "role",
+        "pincode",
+        "receive_update_on_whatsapp"
     ]
 )
 

@@ -29,7 +29,7 @@ from openedx.core.djangoapps.user_api.models import RetirementState, UserPrefere
 from openedx.core.djangoapps.user_api.serializers import ReadOnlyFieldsSerializerMixin
 from openedx.core.djangoapps.user_authn.views.registration_form import contains_html, contains_url
 from openedx.features.name_affirmation_api.utils import get_name_affirmation_service
-
+from lms.djangoapps.certificates.models import GeneratedCertificate
 from . import (
     ACCOUNT_VISIBILITY_PREF_KEY,
     ALL_USERS_VISIBILITY,
@@ -121,7 +121,9 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
         :return: Dict serialized account
         """
         try:
-            user_profile = user.profile
+            from mx_accounts.models import CustomUserProfile
+            # user_profile = user.profile
+            user_profile = CustomUserProfile.objects.get(user_id=user.id)
         except ObjectDoesNotExist:
             user_profile = None
             LOGGER.warning("user profile for the user [%s] does not exist", user.username)
@@ -137,6 +139,16 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
             activation_key = None
 
         accomplishments_shared = badges_enabled()
+
+        #btf cuser count of certificates
+        try:
+            certificate_count = GeneratedCertificate.eligible_certificates.filter(user=user).count()
+        except:
+            certificate_count = 0
+        try:
+            organisation = user_profile.organisation.name
+        except:
+            organisation = ''
         data = {
             "username": user.username,
             "url": self.context.get('request').build_absolute_uri(
@@ -200,6 +212,25 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
                     ).data,
                     "extended_profile": get_extended_profile(user_profile),
                     "phone_number": user_profile.phone_number,
+
+
+                    #btf Custom
+                    # tta_custom : custom fields for tta app
+                    # "city": user_profile.city,
+                    "classes_taught": user_profile.classes_taught,
+                    # "district": user_profile.district,
+                    "state": user_profile.state,
+                    "tag_label": user_profile.tag_label,
+                    "certificate_count": certificate_count,
+                    "mobile_number": user_profile.mobile_number,
+                    "association_with_bhartifound":user_profile.get_association_with_bhartifound_display(),
+                    "you_want_see_inthis_app": user_profile.you_want_see_inthis_app,
+                    "dob": user_profile.dob,
+                    "board": user_profile.board,
+                    "organisation":organisation,
+                    "role":user_profile.role.name if user_profile.role else '',
+                    "pincode":user_profile.pincode,
+                    "receive_update_on_whatsapp":user_profile.receive_update_on_whatsapp
                 }
             )
 
