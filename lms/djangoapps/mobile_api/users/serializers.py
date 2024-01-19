@@ -177,6 +177,29 @@ class UserSerializer(serializers.ModelSerializer):
             kwargs={'api_version': api_version, 'username': model.username},
             request=request
         )
+    
+    def get_mobile_number(self, model):
+        mobile_number = self.context.get('mobile_number')
+        return mobile_number
+    def get_classes_taught(self, model):
+        classes_taught = self.context.get('classes_taught')
+        return classes_taught
+    
+    def get_tag_label(self, model):
+        tag_label = self.context.get('tag_label')
+        return tag_label
+    
+    def get_is_google(self, model):
+        is_google = self.context.get('is_google')
+        return is_google
+    
+    # def get_district(self, model):
+    #     district = self.context.get('district')
+    #     return district
+    
+    def get_board(self, model):
+        board = self.context.get('board')
+        return board
 
     def get_school(self, model):
         board = self.context.get('school')
