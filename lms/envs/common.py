@@ -2569,7 +2569,8 @@ INSTALLED_APPS = [
     #subodha_addin
     'subodha-addin.mx_user_info',
     'subodha-addin.mx_multilingual_meta',
-    'parler'
+    'parler',
+    'subodha-addin',
 
 ]
 
