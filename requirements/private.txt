@@ -1,0 +1,3 @@
+django-import-export==1.2
+django-parler==2.2 
+mammoth==1.6.0
