@@ -59,6 +59,7 @@ from student.models import (
 from util.milestones_helpers import get_pre_requisite_courses_not_completed
 from xmodule.modulestore.django import modulestore
 import requests
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 
 log = logging.getLogger("edx.student")
 
@@ -652,10 +653,10 @@ def student_dashboard(request, program_uuid):
     url = base_discovery_url+"extandedapi/getprogramcourses/?program_uuid="+str(program_uuid)
     response = requests.get(url)
     # import pdb;pdb.set_trace()
+    course_keys_in_program = []
     if response.status_code == 200:
         course_keys_in_program = response.json()
         course_enrollments = [course_enrollment for course_enrollment in course_enrollments if str(course_enrollment.course.id) in course_keys_in_program]
-    
     # update the lastreadcourse table with the name of currently visited program 
     udateLastVisitedProgram(program_uuid,user)
             
@@ -674,7 +675,7 @@ def student_dashboard(request, program_uuid):
     monitoring_utils.accumulate('num_courses', len(course_enrollments))
 
     # Sort the enrollment pairs by the enrollment date
-    course_enrollments.sort(key=lambda x: x.created, reverse=True)
+    # course_enrollments.sort(key=lambda x: x.created, reverse=True)
 
     # Retrieve the course modes for each course
     enrolled_course_ids = [enrollment.course_id for enrollment in course_enrollments]
@@ -887,7 +888,7 @@ def student_dashboard(request, program_uuid):
         course_enrollments = [
             enr for enr in course_enrollments if entitlement.enrollment_course_run.course_id != enr.course_id
         ]
-
+    course_enrollments = [CourseEnrollment.objects.get(user=user, course=CourseOverview.objects.get(id=course_key)) for course_key in course_keys_in_program]
     context = {
         'urls': urls,
         'programs_data': programs_data,
