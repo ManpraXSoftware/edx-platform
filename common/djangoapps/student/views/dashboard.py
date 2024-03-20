@@ -888,7 +888,14 @@ def student_dashboard(request, program_uuid):
         course_enrollments = [
             enr for enr in course_enrollments if entitlement.enrollment_course_run.course_id != enr.course_id
         ]
-    course_enrollments = [CourseEnrollment.objects.get(user=user, course=CourseOverview.objects.get(id=course_key)) for course_key in course_keys_in_program]
+    course_enrollments = []
+    for course_key in course_keys_in_program:
+        try:
+            course_enrollment = CourseEnrollment.objects.get(user=user, course=CourseOverview.objects.get(id=course_key))
+            course_enrollments.append(course_enrollment)
+        except:
+            pass
+
     context = {
         'urls': urls,
         'programs_data': programs_data,
