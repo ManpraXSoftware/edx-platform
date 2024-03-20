@@ -108,7 +108,7 @@
      It can't be run through static.url because MathJax uses crazy url introspection to do lazy loading of
      MathJax extension libraries -->
 <script>
-  (function () {
+  (function (){
     var script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
     document.head.appendChild(script);
@@ -126,11 +126,11 @@
     //                .catch((err) => console.log('Typeset failed: ' + err.message)); 
     // return mathjax_promise; 
     // }
-  mathjax.typeset(function() { 
-      const main = document.querySelector('#main'); 
-      return main; 
-  }); 
-
+  // window.MathJax.typeset(function() { 
+  //     const main = document.querySelector('#main'); 
+  //     return main; 
+  // }); 
+    MathJax.typeset([document.querySelector('#main')])
 // document.head.appendChild(script2)
   })();
 </script>
