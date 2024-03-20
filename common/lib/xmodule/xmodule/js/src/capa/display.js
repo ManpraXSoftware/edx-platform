@@ -150,7 +150,7 @@
         Problem.prototype.bind = function() {
             var problemPrefix,
                 that = this;
-            if (typeof MathJax !== 'undefined' && MathJax !== null) {
+            if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null) {
                 var mathjaxElm = this.el.find('.problem > div');
                 MathJax.typesetPromise().then(function() {
                             // modify the DOM here
@@ -207,7 +207,7 @@
             }
             Collapsible.setCollapsibles(this.el);
             this.$('input.math').keyup(this.refreshMath);
-            if (typeof MathJax !== 'undefined' && MathJax !== null) 
+            if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null) 
             {
                 var mathjaxElm = this.$('input.math');
                 MathJax.typesetPromise().then(function() {
@@ -770,7 +770,7 @@
                     }
                     return results;
                 });
-                if (typeof MathJax !== 'undefined' && MathJax !== null) {
+                if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null) {
                     var mathjaxElm = that.el.find('.problem > div');
                 MathJax.typesetPromise().then(function() {
                             // modify the DOM here
@@ -844,7 +844,7 @@
             // MathJax preprocessor is loaded by 'setupInputTypes'
             preprocessorTag = 'inputtype_' + elid;
             mathjaxPreprocessor = this.inputtypeDisplays[preprocessorTag];
-            if (typeof MathJax !== 'undefined' && MathJax !== null && MathJax.Hub.getAllJax(target)[0]) {
+            if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null && MathJax.Hub.getAllJax(target)[0]) {
                 //jax = MathJax.Hub.getAllJax(target)[0];
                 eqn = $(element).val();
                 if (mathjaxPreprocessor) {
@@ -866,7 +866,7 @@
                 if (!exception.restart) {
                     throw exception;
                 }
-                if (typeof MathJax !== 'undefined' && MathJax !== null) {
+                if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null) {
                     MathJax.Callback.After([this.refreshMath, jax], exception.restart);
                 }
             }
