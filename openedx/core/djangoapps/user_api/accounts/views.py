@@ -395,8 +395,11 @@ class AccountViewSet(ViewSet):
         GET /api/user/v1/accounts/{username}/
         """
         try:
-            account_settings = get_account_settings(
-                request, [username], view=request.query_params.get('view'))
+            if username and username==request.user.username:
+                account_settings = get_account_settings(
+                    request, [username], view=request.query_params.get('view'))
+            else:
+                return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         except UserNotFound:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
