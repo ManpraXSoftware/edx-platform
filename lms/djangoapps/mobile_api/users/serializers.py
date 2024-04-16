@@ -166,6 +166,7 @@ class UserSerializer(serializers.ModelSerializer):
     pincode = serializers.SerializerMethodField()
     receive_update_on_whatsapp = serializers.SerializerMethodField()
     is_google = serializers.SerializerMethodField()
+    subscription = serializers.SerializerMethodField()
     
 
     def get_course_enrollments(self, model):
@@ -236,11 +237,23 @@ class UserSerializer(serializers.ModelSerializer):
         receive_update_on_whatsapp=self.context['receive_update_on_whatsapp']
         return receive_update_on_whatsapp
     
+    def get_subscription(self, model):
+        if model.subscription.all():
+            user_subscription = model.subscription.all().order_by("expiry_date").last()
+            return {
+                "id":user_subscription.subscription_type.id,
+                "subscription_name": user_subscription.subscription_type.subscription_name,
+                "subscription_details": user_subscription.subscription_type.subscription_details,
+                "subscription_subset":user_subscription.subscription_type.subscription_subset,
+                "expiry_date": user_subscription.expiry_date
+            }
+        return {}
+    
     class Meta:
         model = User
         fields = ('id', 'username', 'mobile_number', 'email', 'name', 'course_enrollments','classes_taught','school','state',
                   'tag_label','gender','board','medium','dob','you_want_see_inthis_app','association_with_bhartifound',
-                  'organisation', 'receive_update_on_whatsapp', 'role', 'pincode',"is_google")
+                  'organisation', 'receive_update_on_whatsapp', 'role', 'pincode',"is_google", "subscription")
         lookup_field = 'username'
         # For disambiguating within the drf-yasg swagger schema
         ref_name = 'mobile_api.User'
