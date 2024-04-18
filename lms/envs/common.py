@@ -1287,7 +1287,7 @@ LANGUAGES = [
     ('nb', u'Norsk bokmål'),  # Norwegian Bokmål
     ('ne', u'नेपाली'),  # Nepali
     ('nl-nl', u'Nederlands (Nederland)'),  # Dutch (Netherlands)
-    ('or', u'ଓଡ଼ିଆ'),  # Oriya
+    ('or', u'Oriya'),  # Oriya
     ('pl', u'Polski'),  # Polish
     ('pt-br', u'Português (Brasil)'),  # Portuguese (Brazil)
     ('pt-pt', u'Português (Portugal)'),  # Portuguese (Portugal)
@@ -3927,6 +3927,23 @@ GITHUB_REPO_ROOT = '/edx/var/edxapp/data'
 ##################### SUPPORT URL ############################
 SUPPORT_HOW_TO_UNENROLL_LINK = ''
 
+from django.conf import global_settings
+import django.conf.locale
+
+gettext = lambda s: s
+
+EXTRA_LANG_INFO = {
+    'or': {
+        'bidi': False,
+        'code': 'or',
+        'name': 'Oriya',
+        'name_local': u"Oriya",
+    },
+}
+
+LANG_INFO = dict(django.conf.locale.LANG_INFO, **EXTRA_LANG_INFO)
+django.conf.locale.LANG_INFO = LANG_INFO
+global_settings.LANGUAGES = global_settings.LANGUAGES + [("or", 'Oriya')]
 PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
 PARLER_LANGUAGES = {
     SITE_ID: (
@@ -3937,7 +3954,7 @@ PARLER_LANGUAGES = {
         {'code': 'te', },
         {'code': 'ta', },
         {'code': 'bn', },
-        # {'code': 'or', },
+        {'code': 'or', },
     ),
     'default': {
          'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
