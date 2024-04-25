@@ -12,7 +12,7 @@ from common.djangoapps.util.course import get_encoded_course_sharing_utm_params,
 from lms.djangoapps.certificates.api import certificate_downloadable_status
 from lms.djangoapps.courseware.access import has_access
 from openedx.features.course_duration_limits.access import get_user_course_expiration_date
-
+from datetime import datetime
 
 class CourseOverviewField(serializers.RelatedField):  # lint-amnesty, pylint: disable=abstract-method
     """
@@ -238,8 +238,8 @@ class UserSerializer(serializers.ModelSerializer):
         return receive_update_on_whatsapp
     
     def get_subscription(self, model):
-        if model.subscription.all():
-            user_subscription = model.subscription.all().order_by("expiry_date").last()
+        if model.subscription.filter(expiry_date__gte=datetime.today().date()):
+            user_subscription = model.subscription.filter(expiry_date__gte=datetime.today().date()).order_by("expiry_date").last()
             return {
                 "id":user_subscription.subscription_type.id,
                 "subscription_name": user_subscription.subscription_type.subscription_name,
