@@ -657,6 +657,11 @@ def render_html_view(request, course_id, certificate=None):  # pylint: disable=t
                 context['pass_date']=""
         except:
             context['pass_date'] = ""
+        if pass_date and (pass_date.date() > datetime(datetime.now().year, 4, 1).date()):
+            session_year = "{} - {}".format(datetime.now().year, datetime.now().year+1)
+        else:
+            session_year = "{} - {}".format(datetime.now().year-1, datetime.now().year)
+        context['session_year'] = session_year
 
         # Append badge info
         _update_badge_context(context, course, user)
