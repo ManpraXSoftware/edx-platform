@@ -572,7 +572,6 @@ class RegistrationView(APIView):
         data['mobile_number'] = data.get('username')
         data['version_expired_date'] = datetime.datetime.now()+datetime.timedelta(days=settings.POLICY_EXPIRED_DAYS)
         data['username'] = str(data.get('name').replace(' ','_'))+"_"+str(data.get('username'))[-5:]
-        log.info("_________________username : {} | mobile_number : {}".format(data['mobile_number'],data['username']))
         try:
             data = StudentRegistrationRequested.run_filter(form_data=data)
         except StudentRegistrationRequested.PreventRegistration as exc:
@@ -603,7 +602,8 @@ class RegistrationView(APIView):
             )  # setting the cookie to show account activation dialogue in platform and learning MFE
         mark_user_change_as_expected(user.id)
         PolicyAcceptance.objects.create(user=user, policy_version=data.get("version"),
-                accepted_date=datetime.datetime.now(),expired_date=datetime.datetime.now()+datetime.timedelta(days=settings.SUBSCRIPTION_EXPIRED_DAYS))
+                accepted_date=datetime.datetime.now(),expired_date=datetime.datetime.now()+datetime.timedelta(days=settings.POLICY_EXPIRED_DAYS))
+        
         return response
 
     def _handle_duplicate_email_username(self, request, data):
