@@ -38,6 +38,7 @@ class ProgramsFragmentView(EdxFragmentView):
         Render the program listing fragment.
         """
         user = request.user
+
         try:
             mobile_only = json.loads(request.GET.get('mobile_only', 'false'))
         except ValueError:
@@ -48,9 +49,6 @@ class ProgramsFragmentView(EdxFragmentView):
             raise Http404
 
         meter = ProgramProgressMeter(request.site, user, mobile_only=mobile_only)
-        # import pdb;pdb.set_trace()
-
-        
         if meter.programs:
             from lms.djangoapps.program_enrollments.models import ProgramEnrollment
             user_enrolled_programs = ProgramEnrollment.objects.filter(user=user).values('program_uuid')
@@ -58,7 +56,7 @@ class ProgramsFragmentView(EdxFragmentView):
             
             meter.programs = [program for program in meter.programs if program['uuid'] in user_enrolled_programs ]
             
-            url = settings.FEATURES['base_lms_url']+"explore-courses/enrolled-programs?username="+user.username+"&accept_language=en"
+            url = settings.FEATURES['base_lms_url']+"explore-courses/enrolled-programs?username="+user.username+"&accept_language="+request.COOKIES.get("django_language", 'en')
             result = requests.get(url)
             
             if result.status_code == 200:
@@ -66,6 +64,7 @@ class ProgramsFragmentView(EdxFragmentView):
                     for meter_program in meter.programs:
                         for result_program in result.json():
                             if meter_program['uuid'] == result_program['program_uuid']:
+                                meter_program['title'] = result_program['converted_program_title']
                                 for program_topics in result_program['tags']:
                                     meter_program['topics'].append(program_topics['tag_title'])
 
