@@ -84,7 +84,7 @@ from common.djangoapps.third_party_auth.saml import SAP_SUCCESSFACTORS_SAML_KEY
 from common.djangoapps.track import segment
 from common.djangoapps.util.db import outer_atomic
 from common.djangoapps.util.json_request import JsonResponse
-
+from mx_accounts.models import PolicyAcceptance
 from edx_django_utils.user import generate_password  # lint-amnesty, pylint: disable=wrong-import-order
 
 log = logging.getLogger("edx.student")
@@ -119,7 +119,7 @@ REGISTRATION_FAILURE_LOGGING_FLAG = LegacyWaffleFlag(
     waffle_namespace=LegacyWaffleFlagNamespace(name='registration'),
     flag_name='enable_failure_logging',
     module_name=__name__,
-)
+    )
 REAL_IP_KEY = 'openedx.core.djangoapps.util.ratelimit.real_ip'
 
 
@@ -570,8 +570,8 @@ class RegistrationView(APIView):
         data = request.POST.copy()
         self._handle_terms_of_service(data)
         data['mobile_number'] = data.get('username')
+        data['version_expired_date'] = datetime.datetime.now()+datetime.timedelta(days=settings.POLICY_EXPIRED_DAYS)
         data['username'] = str(data.get('name').replace(' ','_'))+"_"+str(data.get('username'))[-5:]
-        log.info("_________________username : {} | mobile_number : {}".format(data['mobile_number'],data['username']))
         try:
             data = StudentRegistrationRequested.run_filter(form_data=data)
         except StudentRegistrationRequested.PreventRegistration as exc:
@@ -601,6 +601,9 @@ class RegistrationView(APIView):
                 secure=request.is_secure()
             )  # setting the cookie to show account activation dialogue in platform and learning MFE
         mark_user_change_as_expected(user.id)
+        PolicyAcceptance.objects.create(user=user, policy_version=data.get("version"),
+                accepted_date=datetime.datetime.now(),expired_date=datetime.datetime.now()+datetime.timedelta(days=settings.POLICY_EXPIRED_DAYS))
+        
         return response
 
     def _handle_duplicate_email_username(self, request, data):

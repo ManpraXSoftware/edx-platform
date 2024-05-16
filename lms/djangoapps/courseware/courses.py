@@ -363,12 +363,12 @@ def get_course_about_section(request, course, section_key):
                 static_asset_path=course.static_asset_path,
                 course=course
             )
-
             html = ''
-
             if about_module is not None:
                 try:
                     html = about_module.render(STUDENT_VIEW).content
+                    if html.count('\n')==len(html):
+                        html = ''
                 except Exception:  # pylint: disable=broad-except
                     html = render_to_string('courseware/error-message.html', None)
                     log.exception(

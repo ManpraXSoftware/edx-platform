@@ -678,7 +678,7 @@ def do_create_account(form, custom_form=None):
     """
     # Check if ALLOW_PUBLIC_ACCOUNT_CREATION flag turned off to restrict user account creation
     if not configuration_helpers.get_value(
-            'ALLOW_PUBLIC_ACCOUNT_CREATION',
+           'ALLOW_PUBLIC_ACCOUNT_CREATION',
             settings.FEATURES.get('ALLOW_PUBLIC_ACCOUNT_CREATION', True)
     ):
         raise PermissionDenied()
@@ -735,7 +735,7 @@ def do_create_account(form, custom_form=None):
     registration.register(user)
     profile_fields = [
         "name", "level_of_education", "gender", "mailing_address", "country", "goals",
-        "year_of_birth",'mobile_number'
+        "year_of_birth",'mobile_number','version', 'version_expired_date'
     ]
     from mx_accounts.models import CustomUserProfile
     profile = CustomUserProfile(

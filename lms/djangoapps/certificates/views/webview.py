@@ -630,10 +630,11 @@ def render_html_view(request, course_id, certificate=None):  # pylint: disable=t
         # Append/Override the existing view context values with certificate specific values
         _update_certificate_context(context, course, course_overview, user_certificate, platform_name)
         from common.djangoapps.student.models import CourseEnrollment
+        from lms.djangoapps.grades.models import PersistentCourseGrade
         if preview_mode:
             context["enrollment_id"] = ''
         else:
-            context['enrollment_id'] = CourseEnrollment.objects.get(user=request.user.id,course_id=CourseKey.from_string(context["course_id"])).id
+            context['enrollment_id'] = CourseEnrollment.objects.get(user=user,course_id=course_id).id
         from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
         course_overview_instance = CourseOverview.objects.get(id=str(course.id))
         if course_overview_instance.effort:
@@ -644,6 +645,24 @@ def render_html_view(request, course_id, certificate=None):  # pylint: disable=t
             context["end_date"] = course_overview_instance.end.strftime("%d-%m-%Y")
         else:
             context["end_date"]=""
+        if course_overview_instance.display_number_with_default:
+            context["serial_number"]=str(course_overview_instance.display_number_with_default)+"__"+ str(context["enrollment_id"])
+        else:
+            context["serial_number"]="0000"
+        try:
+            pass_date = PersistentCourseGrade.objects.get(course_id=course_id, user_id=user_id).passed_timestamp
+            if pass_date:
+                context["pass_date"] = pass_date.strftime("%d-%m-%Y")
+            else:
+                context['pass_date']=""
+        except:
+            context['pass_date'] = ""
+        if pass_date and (pass_date.date() > datetime(datetime.now().year, 4, 1).date()):
+            session_year = "{} - {}".format(datetime.now().year, datetime.now().year+1)
+        else:
+            session_year = "{} - {}".format(datetime.now().year-1, datetime.now().year)
+        context['session_year'] = session_year
+
         # Append badge info
         _update_badge_context(context, course, user)
 

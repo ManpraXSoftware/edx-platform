@@ -9,7 +9,6 @@ from logging.handlers import SysLogHandler
 
 LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
 
-
 def get_logger_config(log_dir,  # lint-amnesty, pylint: disable=unused-argument
                       logging_env="no_env",
                       local_loglevel='INFO',
@@ -65,12 +64,12 @@ def get_logger_config(log_dir,  # lint-amnesty, pylint: disable=unused-argument
                 'level': 'INFO',
                 'class': 'logging.StreamHandler',
                 'formatter': 'standard',
-                'filters': ['userid_context', 'remoteip_context', 'custom_filter'],
+                'filters': ['userid_context', 'remoteip_context'],
                 'stream': sys.stderr,
             },
             'mail_admins': {
                 'level': 'ERROR',
-                'filters': ['require_debug_false','custom_filter'],
+                'filters': ['require_debug_false'],
                 'class': 'django.utils.log.AdminEmailHandler'
             },
             'local': {
@@ -78,7 +77,7 @@ def get_logger_config(log_dir,  # lint-amnesty, pylint: disable=unused-argument
                 'class': 'logging.handlers.SysLogHandler',
                 'address': '/dev/log',
                 'formatter': 'syslog_format',
-                'filters': ['userid_context', 'remoteip_context', 'custom_filter'],
+                'filters': ['userid_context', 'remoteip_context'],
                 'facility': SysLogHandler.LOG_LOCAL0,
             },
             'tracking': {
@@ -88,6 +87,7 @@ def get_logger_config(log_dir,  # lint-amnesty, pylint: disable=unused-argument
                 'facility': SysLogHandler.LOG_LOCAL1,
                 'formatter': 'raw',
             },
+            
         },
         'loggers': {
             'tracking': {
@@ -97,7 +97,7 @@ def get_logger_config(log_dir,  # lint-amnesty, pylint: disable=unused-argument
             },
             '': {
                 'handlers': ['console', 'local'],
-                'level': 'INFO',
+                'level': 'ERROR',
                 'propagate': False
             },
             'django.request': {
