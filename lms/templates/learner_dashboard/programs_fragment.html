@@ -11,7 +11,10 @@ from django.utils.translation import ugettext as _
 
 ##self.real_user = getattr(request.user, 'real_user', request.user)
 %>
-<h1 style="margin-top: 10px !important;" focusable="true" tabindex="0">${_("Dashboard")}</h1>
+<div class="sub_box">
+
+    <h1>${_("My Dashboard")}</h1>
+</div>
 <div class="program-list-wrapper grid-container">
     
     %if 'program_title' in resume_block:
