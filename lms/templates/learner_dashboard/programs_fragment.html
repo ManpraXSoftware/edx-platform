@@ -11,11 +11,11 @@ from django.utils.translation import ugettext as _
 
 ##self.real_user = getattr(request.user, 'real_user', request.user)
 %>
-<div class="sub_box">
+<div class="sub_box" style="padding: 10px 0 !important;" focusable="true" tabindex="0">
 
     <h1>${_("My Dashboard")}</h1>
 </div>
-<div class="program-list-wrapper grid-container">
+<div class="program-list-wrapper grid-container" style="padding: 5px !important;">
     
     %if 'program_title' in resume_block:
     <div class="card-outer">
