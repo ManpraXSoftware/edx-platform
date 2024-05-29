@@ -58,7 +58,6 @@ class ProgramsFragmentView(EdxFragmentView):
             
             url = settings.FEATURES['base_lms_url']+"explore-courses/enrolled-programs?username="+user.username+"&accept_language="+request.COOKIES.get("django_language", 'en')
             result = requests.get(url)
-            
             if result.status_code == 200:
                 if result.json():
                     for meter_program in meter.programs:
@@ -66,7 +65,8 @@ class ProgramsFragmentView(EdxFragmentView):
                             if meter_program['uuid'] == result_program['program_uuid']:
                                 meter_program['title'] = result_program['converted_program_title']
                                 for program_topics in result_program['tags']:
-                                    meter_program['topics'].append(program_topics['tag_title'])
+                                    if program_topics['tag_title'] not in meter_program['topics']:
+                                        meter_program['topics'].append(program_topics['tag_title'])
 
 
         resume_block = dict()
