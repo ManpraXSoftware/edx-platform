@@ -19,7 +19,7 @@ from django.utils.translation import ugettext as _
     
     %if 'program_title' in resume_block:
     <div class="card-outer">
-        <h4 class="card-outertext">Recently Accessed Course</h4>
+        <h4 class="card-outertext" tabindex="0">Recently Accessed Course</h4>
          <div class="card-box">
            <p style="display: inline; color: #5e5e5e;" class="program-topics">
             %if 'topics' in resume_block:
@@ -35,7 +35,7 @@ from django.utils.translation import ugettext as _
             </h5>
            <h3 class="card-text py-3">${resume_block['course_title']}</h3>
    
-           <div style="text-align:right" class="vcourse"><a href="${resume_block['resume_block_url']}" class="btn-border">Continue</a></div>
+           <div style="text-align:right" class="vcourse"><a href="${resume_block['resume_block_url']}" aria-label="${resume_block['course_title']} continue" class="btn-border">Continue</a></div>
          </div>
        </div>
        %endif
