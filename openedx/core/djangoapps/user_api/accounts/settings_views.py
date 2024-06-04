@@ -88,14 +88,14 @@ def account_settings_context(request):
     user = request.user
 
     year_of_birth_options = [(six.text_type(year), six.text_type(year)) for year in UserProfile.VALID_YEARS]
-    user_orders = []
-    # try:
-    #     user_orders = get_user_orders(user)
-    # except:  # pylint: disable=bare-except
-    #     log.exception('Error fetching order history from Otto.')
-    #     # Return empty order list as account settings page expect a list and
-    #     # it will be broken if exception raised
-    #     user_orders = []
+    # user_orders = []
+    try:
+        user_orders = get_user_orders(user)
+    except:  # pylint: disable=bare-except
+        log.exception('Error fetching order history from Otto.')
+        # Return empty order list as account settings page expect a list and
+        # it will be broken if exception raised
+        user_orders = []
 
     beta_language = {}
     dark_lang_config = DarkLangConfig.current()
@@ -139,7 +139,7 @@ def account_settings_context(request):
         'show_program_listing': ProgramsApiConfig.is_enabled(),
         'show_dashboard_tabs': True,
         'order_history': user_orders,
-        'disable_order_history_tab': True,
+        'disable_order_history_tab': should_redirect_to_order_history_microfrontend(),
         'enable_account_deletion': configuration_helpers.get_value(
             'ENABLE_ACCOUNT_DELETION', settings.FEATURES.get('ENABLE_ACCOUNT_DELETION', False)
         ),
