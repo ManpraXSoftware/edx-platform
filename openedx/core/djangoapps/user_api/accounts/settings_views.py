@@ -88,7 +88,6 @@ def account_settings_context(request):
     user = request.user
 
     year_of_birth_options = [(six.text_type(year), six.text_type(year)) for year in UserProfile.VALID_YEARS]
-    # user_orders = []
     try:
         user_orders = get_user_orders(user)
     except:  # pylint: disable=bare-except
