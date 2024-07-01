@@ -1244,7 +1244,11 @@ def create_xblock_info(  # lint-amnesty, pylint: disable=too-many-statements
                 xblock_info["hide_from_toc_message"] = False
 
             if not is_tagging_feature_disabled():
-                xblock_info["course_tags_count"] = _get_course_tags_count(course.id)
+                if is_library_block:
+                    xblock_info["course_tags_count"] = _get_course_tags_count(xblock.parent.course_key)
+                else:
+                    xblock_info["course_tags_count"] = _get_course_tags_count(course.id)
+
                 xblock_info["tag_counts_by_block"] = _get_course_block_tags(xblock.location.context_key)
 
             xblock_info[
