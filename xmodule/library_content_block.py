@@ -198,7 +198,7 @@ class LibraryContentBlock(
     )
     attempts = Integer(
         help=_("Number of attempts taken by the student"),
-        default=1,
+        default=0,
         scope=Scope.user_state
     )
     attempt_allowed = Integer(
@@ -206,7 +206,19 @@ class LibraryContentBlock(
         help=_("Defines the number of times a student can try to answer this problem."),
         values={"min": 1}, scope=Scope.settings
     )
-
+    search_prompt = String(
+        display_name=_("Search Prompt"),
+        help=_("Enter the Search Prompt to search about this course e.g. 'photosynthesis' "),
+        default="",
+        scope=Scope.settings,
+    )
+    chatgpt_prompt = String(
+        display_name=_("ChatGpt Prompt"),
+        help=_("Enter the ChatGpt Prompt to search about this course e.g. 'photosynthesis in plants' "),
+        default="",
+        scope=Scope.settings,
+    )
+   
     @property
     def source_library_key(self):
         """
@@ -427,10 +439,22 @@ class LibraryContentBlock(
 
         self.selected = []
         # Manprax
-        self.attempts += 1
+        # self.attempts += 1
         return Response(json.dumps(self.student_view({}).content))
     
     # Manprax
+    @XBlock.handler
+    def check_attempts(self, _, __):
+        """
+        Show Attempts made by a user.
+        """
+        if self.attempts < self.attempt_allowed:
+            attempt_allowed = {'attempt_allowed': True}
+        else:
+            attempt_allowed = {'attempt_allowed': False}
+
+        
+        return Response(json.dumps(attempt_allowed))
 
     @XBlock.handler
     def show_user_result(self, _, __):
@@ -443,27 +467,30 @@ class LibraryContentBlock(
         is_passed = False
         has_attempt = False
         user_id = self.get_user_id()
+        correct_count=0
+        total_possible=0
         user = User.objects.get(id = user_id)
         user_grade = CourseGradeFactory().read(user, course_key = self.location.course_key)
-
-        if not user_grade.passed and not self.attempts < self.attempt_allowed:
-            show_reset = False
-            has_attempt = False
-
-        if not user_grade.passed and self.attempts < self.attempt_allowed:
+        if self.attempts < self.attempt_allowed:
             show_reset = True
-            has_attempt = True
-        
         if user_grade.passed:
-            show_reset = False
             is_passed = True
-
-        # self.attempts += 1
-
+        test_val=[]
+        self.attempts += 1
+        for block_key, block_structure in user_grade.chapter_grades.items():
+            for a in dict(block_structure['sections'][0].problem_scores).keys():
+                if block_structure['sections'][0].problem_scores[a].earned == block_structure['sections'][0].problem_scores[a].possible:
+                    correct_count=correct_count+1
+                total_possible= total_possible+1
         param = {
             "show_reset": show_reset,
             "is_passed": is_passed,
-            "has_attempt": has_attempt
+            "attempt_number":self.attempts,
+            "has_attempt": has_attempt,
+            "search_prompt":self.search_prompt,
+            "chatgpt_prompt":self.chatgpt_prompt,
+            "total_correct":correct_count,
+            "total_possible":total_possible
         }
         return Response(json.dumps(param))
 
