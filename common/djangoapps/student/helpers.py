@@ -740,9 +740,10 @@ def do_create_account(form, custom_form=None):
 
     profile_fields = [
         "name", "level_of_education", "gender", "mailing_address", "city", "country", "goals",
-        "year_of_birth"
+        "year_of_birth",'mobile_number'
     ]
-    profile = UserProfile(
+    from mx_accounts.models import CustomUserProfile
+    profile = CustomUserProfile(
         user=user,
         **{key: form.cleaned_data.get(key) for key in profile_fields}
     )

@@ -194,6 +194,9 @@ def create_account_with_params(request, params):  # pylint: disable=too-many-sta
         set_custom_attribute('register_user_tpa', pipeline.running(request))
     extended_profile_fields = configuration_helpers.get_value('extended_profile_fields', [])
     # Can't have terms of service for certain SHIB users, like at Stanford
+    # added by manprax
+    registration_fields = getattr(settings, 'REGISTRATION_EXTRA_FIELDS', {})
+    # ______end_______
     tos_required = (
         extra_fields.get('terms_of_service') != 'hidden' or
         extra_fields.get('honor_code') != 'hidden'
@@ -577,6 +580,12 @@ class RegistrationView(APIView):
 
         data = request.POST.copy()
         self._handle_terms_of_service(data)
+
+        # added by manprax
+        data['mobile_number'] = data.get('username')
+        data['username'] = str(data.get('name').replace(' ','_'))+"_"+str(data.get('username'))[-5:]
+        log.info("_________________username : {} | mobile_number : {}".format(data['mobile_number'],data['username']))
+        # _______end_______
 
         if is_auto_generated_username_enabled() and 'username' not in data:
             data['username'] = get_auto_generated_username(data)

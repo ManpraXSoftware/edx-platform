@@ -63,7 +63,6 @@ from openedx.core.djangoapps.site_configuration import helpers as configuration_
 from openedx.core.djangoapps.xmodule_django.models import NoneToEmptyManager
 from openedx.core.djangolib.model_mixins import DeletableByUserValue
 from openedx.core.toggles import ENTRANCE_EXAMS
-
 log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore  # pylint: disable=invalid-name
@@ -491,64 +490,45 @@ class UserProfile(models.Model):
     mailing_address = models.TextField(blank=True, null=True)
     city = models.TextField(blank=True, null=True)
     country = CountryField(blank=True, null=True)
-    COUNTRY_WITH_STATES = 'US'
-    STATE_CHOICES = (
-        ('AL', 'Alabama'),
-        ('AK', 'Alaska'),
-        ('AZ', 'Arizona'),
-        ('AR', 'Arkansas'),
-        ('AA', 'Armed Forces Americas'),
-        ('AE', 'Armed Forces Europe'),
-        ('AP', 'Armed Forces Pacific'),
-        ('CA', 'California'),
-        ('CO', 'Colorado'),
-        ('CT', 'Connecticut'),
-        ('DE', 'Delaware'),
-        ('DC', 'District Of Columbia'),
-        ('FL', 'Florida'),
-        ('GA', 'Georgia'),
-        ('HI', 'Hawaii'),
-        ('ID', 'Idaho'),
-        ('IL', 'Illinois'),
-        ('IN', 'Indiana'),
-        ('IA', 'Iowa'),
-        ('KS', 'Kansas'),
-        ('KY', 'Kentucky'),
-        ('LA', 'Louisiana'),
-        ('ME', 'Maine'),
-        ('MD', 'Maryland'),
-        ('MA', 'Massachusetts'),
-        ('MI', 'Michigan'),
-        ('MN', 'Minnesota'),
-        ('MS', 'Mississippi'),
-        ('MO', 'Missouri'),
-        ('MT', 'Montana'),
-        ('NE', 'Nebraska'),
-        ('NV', 'Nevada'),
-        ('NH', 'New Hampshire'),
-        ('NJ', 'New Jersey'),
-        ('NM', 'New Mexico'),
-        ('NY', 'New York'),
-        ('NC', 'North Carolina'),
-        ('ND', 'North Dakota'),
-        ('OH', 'Ohio'),
-        ('OK', 'Oklahoma'),
-        ('OR', 'Oregon'),
-        ('PA', 'Pennsylvania'),
-        ('RI', 'Rhode Island'),
-        ('SC', 'South Carolina'),
-        ('SD', 'South Dakota'),
-        ('TN', 'Tennessee'),
-        ('TX', 'Texas'),
-        ('UT', 'Utah'),
-        ('VT', 'Vermont'),
-        ('VA', 'Virginia'),
-        ('WA', 'Washington'),
-        ('WV', 'West Virginia'),
-        ('WI', 'Wisconsin'),
-        ('WY', 'Wyoming'),
-    )
-    state = models.CharField(blank=True, null=True, max_length=2, choices=STATE_CHOICES)
+    COUNTRY_WITH_STATES = 'INDIA'
+    STATE_LIST = (
+        ('AP',gettext_noop('Andhra Pradesh')),
+        ('AR',gettext_noop('Arunachal Pradesh')),
+        ('AS',gettext_noop('Assam')),
+        ('BR',gettext_noop('Bihar')),
+        ('CG',gettext_noop('Chhattisgarh')),
+        ('CHGH',gettext_noop('Chandigarh')),
+        ('DN',gettext_noop('Dadra and Nagar Haveli')),
+        ('DD',gettext_noop('Daman and Diu')),
+        ('DL',gettext_noop('Delhi')),
+        ('GA',gettext_noop('Goa')),
+        ('GJ',gettext_noop('Gujarat')),
+        ('HR',gettext_noop('Haryana')),
+        ('HP',gettext_noop('Himachal Pradesh')),
+        ('JK',gettext_noop('Jammu and Kashmir')),
+        ('JH',gettext_noop('Jharkhand')),
+        ('KA',gettext_noop('Karnataka')),
+        ('KL',gettext_noop('Kerala')),
+        ('MP',gettext_noop('Madhya Pradesh')),
+        ('MH',gettext_noop('Maharashtra')),
+        ('MN',gettext_noop('Manipur')),
+        ('ML',gettext_noop('Meghalaya')),
+        ('MZ',gettext_noop('Mizoram')),
+        ('NL',gettext_noop('Nagaland')),
+        ('OD',gettext_noop('Odisha')),
+        ('PB',gettext_noop('Punjab')),
+        ('PY',gettext_noop('Pondicherry')),
+        ('RJ',gettext_noop('Rajasthan')),
+        ('SK',gettext_noop('Sikkim')),
+        ('TN',gettext_noop('Tamil Nadu')),
+        ('TS',gettext_noop('Telangana')),
+        ('TR',gettext_noop('Tripura')),
+        ('UP',gettext_noop('Uttar Pradesh')),
+        ('UK',gettext_noop('Uttarakhand')),
+        ('WB',gettext_noop('West Bengal'))
+        )
+    state = models.CharField(blank=True, null=True, max_length=6, db_index=True,
+        choices=STATE_LIST)
     goals = models.TextField(blank=True, null=True)
     bio = models.CharField(blank=True, null=True, max_length=3000, db_index=False)
     profile_image_uploaded_at = models.DateTimeField(null=True, blank=True)
