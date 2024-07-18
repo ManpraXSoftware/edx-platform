@@ -37,6 +37,8 @@ from xmodule.x_module import (
     XModuleToXBlockMixin,
     shim_xmodule_js,
 )
+from xmodule.modulestore.django import modulestore
+
 
 # Make '_' a no-op so we can scrape strings. Using lambda instead of
 #  `django.utils.translation.ugettext_noop` because Django cannot be imported in this file
@@ -139,13 +141,28 @@ class LibraryContentBlock(
         display_name=_("Mode"),
         help=_("Determines how content is drawn from the library"),
         default="random",
+        # Manprax
         values=[
-            {"display_name": _("Choose n at random"), "value": "random"}
+            {"display_name": _("Random"), "value": "random"},
+            {"display_name": _("Ratio"), "value": "ratio"}
             # Future addition: Choose a new random set of n every time the student refreshes the block, for self tests
             # Future addition: manually selected blocks
         ],
         scope=Scope.settings,
     )
+    # mode_test = String(
+    #     display_name=_("Mode tet"),
+    #     help=_("Determines how content is drawn from the library"),
+    #     default="random",
+    #     # Manprax
+    #     values=[
+    #         {"display_name": _("Random"), "value": "random"},
+    #         {"display_name": _("Ratio"), "value": "ratio"}
+    #         # Future addition: Choose a new random set of n every time the student refreshes the block, for self tests
+    #         # Future addition: manually selected blocks
+    #     ],
+    #     scope=Scope.settings,
+    # )
     max_count = Integer(
         display_name=_("Count"),
         help=_("Enter the number of components to display to each student. Set it to -1 to display all components."),
@@ -165,6 +182,13 @@ class LibraryContentBlock(
         default=[],
         scope=Scope.user_state,
     )
+
+    already_selected = List(
+        # This is a list of (block_type, block_id) tuples used to record
+        # which random/first set of matching blocks was selected per user
+        default=[],
+        scope=Scope.user_state,
+    )
     # This cannot be called `show_reset_button`, because children blocks inherit this as a default value.
     allow_resetting_children = Boolean(
         display_name=_("Show Reset Button"),
@@ -174,6 +198,37 @@ class LibraryContentBlock(
         default=False
     )
 
+    # Manprax 
+
+    ratio = String(
+        display_name=_("Ratio"),
+        help=_("Enter the ratio e.g. Hard:Medium:Low"),
+        default="1:4:5",
+        scope=Scope.settings,
+    )
+    attempts = Integer(
+        help=_("Number of attempts taken by the student"),
+        default=0,
+        scope=Scope.user_state
+    )
+    attempt_allowed = Integer(
+        display_name=_("Maximum Attempts Allowed"),
+        help=_("Defines the number of times a student can try to answer this problem."),
+        values={"min": 1}, scope=Scope.settings
+    )
+    search_prompt = String(
+        display_name=_("Search Prompt"),
+        help=_("Enter the Search Prompt to search about this course e.g. 'photosynthesis' "),
+        default="",
+        scope=Scope.settings,
+    )
+    chatgpt_prompt = String(
+        display_name=_("ChatGpt Prompt"),
+        help=_("Enter the ChatGpt Prompt to search about this course e.g. 'photosynthesis in plants' "),
+        default="",
+        scope=Scope.settings,
+    )
+   
     @property
     def source_library_key(self):
         """
@@ -187,7 +242,7 @@ class LibraryContentBlock(
             return LibraryLocatorV2.from_string(self.source_library_id)
 
     @classmethod
-    def make_selection(cls, selected, children, max_count, mode):
+    def make_selection(cls, selected, children, max_count, attempts, attempt_allowed, ratio, mode,already_selected):
         """
         Dynamically selects block_ids indicating which of the possible children are displayed to the current user.
 
@@ -217,12 +272,26 @@ class LibraryContentBlock(
         if invalid_block_keys:
             selected_keys -= invalid_block_keys
 
+        current_ratio = "1:4:5"
+        try:
+            if attempts <= attempt_allowed:
+                split_ratio = ratio.split(",")
+                # current_ratio = split_ratio[attempts]
+        except Exception as err:
+            logger.error("{}".format(err))
         # If max_count has been decreased, we may have to drop some previously selected blocks:
         overlimit_block_keys = set()
-        if len(selected_keys) > max_count:
+        if len(selected_keys) > max_count and mode == "random":
             num_to_remove = len(selected_keys) - max_count
             overlimit_block_keys = set(rand.sample(list(selected_keys), num_to_remove))
             selected_keys -= overlimit_block_keys
+        
+        # Manprax 
+        # If max_count has been decreased, we may have to drop some previously selected blocks and mode is ratio
+        if len(selected_keys) > max_count and current_ratio and mode == "ratio":
+            mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected)
+            added_block_keys = mx_valid_block_keys
+            selected_keys = added_block_keys
 
         # Do we have enough blocks now?
         num_to_add = max_count - len(selected_keys)
@@ -235,6 +304,14 @@ class LibraryContentBlock(
                 num_to_add = min(len(pool), num_to_add)
                 added_block_keys = set(rand.sample(list(pool), num_to_add))
                 # We now have the correct n random children to show for this user.
+
+            # Manprax 
+            # If mode is ratio and need to show extra block to User.
+            elif current_ratio and mode == "ratio":
+                mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected)
+                added_block_keys = mx_valid_block_keys
+                selected_keys = added_block_keys
+
             else:
                 raise NotImplementedError("Unsupported mode.")
             selected_keys |= added_block_keys
@@ -334,7 +411,12 @@ class LibraryContentBlock(
         if max_count < 0:
             max_count = len(self.children)
 
-        block_keys = self.make_selection(self.selected, self.children, max_count, "random")  # pylint: disable=no-member
+
+        # from lms.djangoapps.courseware.models import StudentModule
+
+        # block_keys = self.make_selection(self.selected, self.children, max_count, "random")  # pylint: disable=no-member
+        # Manprax
+        block_keys = self.make_selection(self.selected, self.children, max_count, self.attempts, self.attempt_allowed, self.ratio, self.mode,self.already_selected)  # pylint: disable=no-member
 
         # Publish events for analytics purposes:
         lib_tools = self.get_tools()
@@ -349,7 +431,7 @@ class LibraryContentBlock(
             # Save our selections to the user state, to ensure consistency:
             selected = block_keys['selected']
             self.selected = selected  # TODO: this doesn't save from the LMS "Progress" page.
-
+        self.already_selected.extend(self.selected)
         return self.selected
 
     @XBlock.handler
@@ -371,7 +453,63 @@ class LibraryContentBlock(
                 block.save()
 
         self.selected = []
+        # Manprax
+        # self.attempts += 1
         return Response(json.dumps(self.student_view({}).content))
+    
+    # Manprax
+    @XBlock.handler
+    def check_attempts(self, _, __):
+        """
+        Show Attempts made by a user.
+        """
+        if self.attempts < self.attempt_allowed:
+            attempt_allowed = {'attempt_allowed': True}
+        else:
+            attempt_allowed = {'attempt_allowed': False}
+
+        
+        return Response(json.dumps(attempt_allowed))
+
+    @XBlock.handler
+    def show_user_result(self, _, __):
+        """
+        Show results to User.
+        """
+        from lms.djangoapps.grades.api import CourseGradeFactory
+        from django.contrib.auth.models import User
+        show_reset = False
+        is_passed = False
+        has_attempt = True
+        user_id = self.get_user_id()
+        correct_count=0
+        total_possible=0
+        user = User.objects.get(id = user_id)
+        user_grade = CourseGradeFactory().read(user, course_key = self.location.course_key)
+        if self.attempts < self.attempt_allowed:
+            show_reset = True
+        if user_grade.passed:
+            is_passed = True
+        test_val=[]
+        self.attempts += 1
+        
+        for block_key, block_structure in user_grade.chapter_grades.items():
+            logger.info("_________________ counter log".format(dict(block_structure['sections'][0].problem_scores).keys()))
+            for a in dict(block_structure['sections'][0].problem_scores).keys():
+                if block_structure['sections'][0].problem_scores[a].earned == block_structure['sections'][0].problem_scores[a].possible:
+                    correct_count=correct_count+1
+                total_possible= total_possible+1
+        param = {
+            "show_reset": show_reset,
+            "is_passed": is_passed,
+            "attempt_number":self.attempts,
+            "has_attempt": has_attempt,
+            "search_prompt":self.search_prompt,
+            "chatgpt_prompt":self.chatgpt_prompt,
+            "total_correct":correct_count,
+            "total_possible":total_possible
+        }
+        return Response(json.dumps(param))
 
     def _get_selected_child_blocks(self):
         """
@@ -485,7 +623,7 @@ class LibraryContentBlock(
         # Add the mode field to non_editable_metadata_fields so that it doesn't
         # render in the edit form.
         non_editable_fields.extend([
-            LibraryContentBlock.mode,
+            # LibraryContentBlock.mode,
             LibraryContentBlock.source_library_version,
         ])
         return non_editable_fields
@@ -843,3 +981,65 @@ class LibrarySummary:
         Always returns the raw 'library' field from the key.
         """
         return self.location.library_key.library
+    
+
+# Manprax
+def get_block_based_ratio(ratio, max_count, children,already_selected):
+    get_ratio = ratio.split(":")
+    hard = medium = low = ""
+    total_hard = total_medium = total_low = 0
+
+    # Get hard, medium, low value for ratio 
+    try:
+        hard = int(get_ratio[0])
+        medium = int(get_ratio[1])
+        low = int(get_ratio[2])
+    except Exception as err:
+        logger.error("{}".format(err))
+        pass
+
+    # calculate total number of hard, medium, low from given ratio.
+    try:
+        total_hard = int((hard*max_count*10)/100) if hard else ""
+        total_medium = int((medium*max_count*10)/100) if medium else ""
+        total_low = int((low*max_count*10)/100) if low else ""
+    except Exception as err:
+        logger.error("{}".format(err))
+        pass
+    count_hard = count_medium = count_low =0
+
+    mx_valid_block_keys = set()
+    # For hard xblock 
+    for get_children in children:
+        vertical_block = modulestore().get_item(get_children)
+        weight = int(vertical_block.weight)
+        
+        if weight == 3 and count_hard < total_hard:
+            count_hard += 1
+            block = (get_children.block_type, get_children.block_id)
+            mx_valid_block_keys.add(tuple(block))
+    # If we have to show 5 hard xblock but only 3 is present, Then 5- 3 = 2 Xblock from medium will be added. 
+    remaining_hard = total_hard - count_hard
+    total_medium += remaining_hard
+    # For medium xblock
+    for get_children in children:
+        vertical_block = modulestore().get_item(get_children)
+        weight = int(vertical_block.weight)
+        if weight == 2 and count_medium < total_medium:
+            count_medium += 1
+            block = (get_children.block_type, get_children.block_id)
+            mx_valid_block_keys.add(tuple(block))
+    
+    # If we have to show 5 medium xblock but only 3 is present, Then 5- 3 = 2 Xblock from low will be added. 
+    remaining_medium = total_medium - count_medium
+    total_low += remaining_medium
+    # For low xblock
+    for get_children in children:
+        vertical_block = modulestore().get_item(get_children)
+        weight = int(vertical_block.weight)
+        if weight == 1 and count_low < total_low:
+            count_low += 1
+            block = (get_children.block_type, get_children.block_id)
+            mx_valid_block_keys.add(tuple(block))
+
+    return mx_valid_block_keys

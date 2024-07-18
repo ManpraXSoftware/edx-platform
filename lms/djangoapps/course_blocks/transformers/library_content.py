@@ -98,9 +98,19 @@ class ContentLibraryTransformer(FilteringTransformerMixin, BlockStructureTransfo
                     if usage_key in library_children:
                         selected.append(selected_block)
 
+
+                # Manprax
+                library_block = modulestore().get_item(block_key)
+                ratio = library_block.ratio
+                attempts = library_block.attempts
+                attempt_allowed = library_block.attempt_allowed
+                already_selected = library_block.already_selected
+
+
                 # Update selected
                 previous_count = len(selected)
-                block_keys = LibraryContentBlock.make_selection(selected, library_children, max_count, mode)
+                
+                block_keys = LibraryContentBlock.make_selection(selected, library_children, max_count, attempts, attempt_allowed, ratio, mode,already_selected)
                 selected = block_keys['selected']
 
                 # Save back any changes
