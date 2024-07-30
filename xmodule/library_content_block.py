@@ -272,13 +272,11 @@ class LibraryContentBlock(
         if invalid_block_keys:
             selected_keys -= invalid_block_keys
 
-        
+        current_ratio = "1:4:5"
         try:
             if attempts <= attempt_allowed:
                 split_ratio = ratio.split(",")
                 current_ratio = split_ratio[attempts]
-            else:
-                current_ratio = "1:4:5"
         except Exception as err:
             logger.error("{}".format(err))
         # If max_count has been decreased, we may have to drop some previously selected blocks:
