@@ -431,7 +431,9 @@ class LibraryContentBlock(
             # Save our selections to the user state, to ensure consistency:
             selected = block_keys['selected']
             self.selected = selected  # TODO: this doesn't save from the LMS "Progress" page.
-        self.already_selected.extend(self.selected)
+        for select in self.selected:
+            self.already_selected.append(select[1])
+
         return self.selected
 
     @XBlock.handler
@@ -494,7 +496,6 @@ class LibraryContentBlock(
         self.attempts += 1
         
         for block_key, block_structure in user_grade.chapter_grades.items():
-            logger.info("_________________ counter log".format(dict(block_structure['sections'][0].problem_scores).keys()))
             for a in dict(block_structure['sections'][0].problem_scores).keys():
                 if block_structure['sections'][0].problem_scores[a].earned == block_structure['sections'][0].problem_scores[a].possible:
                     correct_count=correct_count+1
@@ -985,6 +986,7 @@ class LibrarySummary:
 
 # Manprax
 def get_block_based_ratio(ratio, max_count, children,already_selected):
+    from openedx_tagging.core.tagging.models import ObjectTag
     get_ratio = ratio.split(":")
     hard = medium = low = ""
     total_hard = total_medium = total_low = 0
@@ -1010,11 +1012,14 @@ def get_block_based_ratio(ratio, max_count, children,already_selected):
 
     mx_valid_block_keys = set()
     # For hard xblock 
+    all_problem_objects = ObjectTag.objects.filter(taxonomy__name = 'Complexities')
+    all_hard_objects = all_problem_objects.filter(_value='Hard')
+    all_medium_objects = all_problem_objects.filter(_value='Medium')
+    all_easy_objects = all_problem_objects.filter(_value='Easy')
     for get_children in children:
-        vertical_block = modulestore().get_item(get_children)
-        weight = int(vertical_block.weight)
-        
-        if weight == 3 and count_hard < total_hard:
+        problem_library_id= 'lib-'+str(get_children)
+        # if weight == 3 and count_hard < total_hard and problem_library_id in all_hard_objects:
+        if count_hard < total_hard and problem_library_id in all_hard_objects and str(get_children.block_id) not in already_selected:
             count_hard += 1
             block = (get_children.block_type, get_children.block_id)
             mx_valid_block_keys.add(tuple(block))
@@ -1023,9 +1028,9 @@ def get_block_based_ratio(ratio, max_count, children,already_selected):
     total_medium += remaining_hard
     # For medium xblock
     for get_children in children:
-        vertical_block = modulestore().get_item(get_children)
-        weight = int(vertical_block.weight)
-        if weight == 2 and count_medium < total_medium:
+        problem_library_id= 'lib-'+str(get_children)
+        # if weight == 2 and count_medium < total_medium and problem_library_id in all_medium_objects:
+        if count_medium < total_medium and problem_library_id in all_medium_objects and str(get_children.block_id) not in already_selected:
             count_medium += 1
             block = (get_children.block_type, get_children.block_id)
             mx_valid_block_keys.add(tuple(block))
@@ -1035,11 +1040,14 @@ def get_block_based_ratio(ratio, max_count, children,already_selected):
     total_low += remaining_medium
     # For low xblock
     for get_children in children:
-        vertical_block = modulestore().get_item(get_children)
-        weight = int(vertical_block.weight)
-        if weight == 1 and count_low < total_low:
-            count_low += 1
+        problem_library_id= 'lib-'+str(get_children)
+        # if weight == 1 and count_low < total_low and problem_library_id in all_medium_objects:
+        if count_low < total_low :
             block = (get_children.block_type, get_children.block_id)
-            mx_valid_block_keys.add(tuple(block))
-
+            if problem_library_id in all_easy_objects and str(get_children.block_id) not in already_selected:
+                count_low += 1
+                mx_valid_block_keys.add(tuple(block))
+            else:
+                count_low += 1
+                mx_valid_block_keys.add(tuple(block))
     return mx_valid_block_keys
