@@ -202,7 +202,7 @@ class LibraryContentBlock(
 
     ratio = String(
         display_name=_("Ratio"),
-        help=_("Enter the ratio e.g. Hard:Medium:Low"),
+        help=_("Enter the ratio e.g. Hard:Medium:Low if ration is not provided then the default ration would be 1:4:5"),
         default="1:4:5",
         scope=Scope.settings,
     )
@@ -272,11 +272,13 @@ class LibraryContentBlock(
         if invalid_block_keys:
             selected_keys -= invalid_block_keys
 
-        current_ratio = "1:4:5"
+        
         try:
             if attempts <= attempt_allowed:
                 split_ratio = ratio.split(",")
-                # current_ratio = split_ratio[attempts]
+                current_ratio = split_ratio[attempts]
+            else:
+                current_ratio = "1:4:5"
         except Exception as err:
             logger.error("{}".format(err))
         # If max_count has been decreased, we may have to drop some previously selected blocks:
@@ -480,7 +482,7 @@ class LibraryContentBlock(
         """
         from lms.djangoapps.grades.api import CourseGradeFactory
         from django.contrib.auth.models import User
-        show_reset = False
+        show_reset = True
         is_passed = False
         has_attempt = True
         user_id = self.get_user_id()
@@ -488,8 +490,6 @@ class LibraryContentBlock(
         total_possible=0
         user = User.objects.get(id = user_id)
         user_grade = CourseGradeFactory().read(user, course_key = self.location.course_key)
-        if self.attempts < self.attempt_allowed:
-            show_reset = True
         if user_grade.passed:
             is_passed = True
         test_val=[]
