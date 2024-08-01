@@ -228,6 +228,12 @@ class LibraryContentBlock(
         default="",
         scope=Scope.settings,
     )
+    result_summary = String(
+        display_name=_("result summary of html block"),
+        help=_("Enter the html content of the result summary"),
+        default="<h1>Result<h1>",
+        scope=Scope.settings,
+    )
    
     @property
     def source_library_key(self):
@@ -506,7 +512,8 @@ class LibraryContentBlock(
             "search_prompt":self.search_prompt,
             "chatgpt_prompt":self.chatgpt_prompt,
             "total_correct":correct_count,
-            "total_possible":total_possible
+            "total_possible":total_possible,
+            "result_summary":self.result_summary
         }
         return Response(json.dumps(param))
 
