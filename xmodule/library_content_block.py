@@ -248,7 +248,7 @@ class LibraryContentBlock(
             return LibraryLocatorV2.from_string(self.source_library_id)
 
     @classmethod
-    def make_selection(cls, selected, children, max_count, attempts, attempt_allowed, ratio, mode,already_selected):
+    def make_selection(cls, selected, children, max_count, attempts, attempt_allowed, ratio, mode,already_selected,block_parent_id,course_id):
         """
         Dynamically selects block_ids indicating which of the possible children are displayed to the current user.
 
@@ -295,7 +295,7 @@ class LibraryContentBlock(
         # Manprax 
         # If max_count has been decreased, we may have to drop some previously selected blocks and mode is ratio
         if len(selected_keys) > max_count and current_ratio and mode == "ratio":
-            mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected)
+            mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected,block_parent_id,course_id)
             added_block_keys = mx_valid_block_keys
             selected_keys = added_block_keys
 
@@ -314,7 +314,7 @@ class LibraryContentBlock(
             # Manprax 
             # If mode is ratio and need to show extra block to User.
             elif current_ratio and mode == "ratio":
-                mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected)
+                mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected,block_parent_id,course_id)
                 added_block_keys = mx_valid_block_keys
                 selected_keys = added_block_keys
 
@@ -422,7 +422,7 @@ class LibraryContentBlock(
 
         # block_keys = self.make_selection(self.selected, self.children, max_count, "random")  # pylint: disable=no-member
         # Manprax
-        block_keys = self.make_selection(self.selected, self.children, max_count, self.attempts, self.attempt_allowed, self.ratio, self.mode,self.already_selected)  # pylint: disable=no-member
+        block_keys = self.make_selection(self.selected, self.children, max_count, self.attempts, self.attempt_allowed, self.ratio, self.mode,self.already_selected,self.parent,self.course_id)  # pylint: disable=no-member
 
         # Publish events for analytics purposes:
         lib_tools = self.get_tools()
@@ -990,10 +990,14 @@ class LibrarySummary:
     
 
 # Manprax
-def get_block_based_ratio(ratio, max_count, children,already_selected):
+def get_block_based_ratio(ratio, max_count, children,already_selected,block_parent_id,course_id):
     from openedx_tagging.core.tagging.models import ObjectTag
+    from xmodule.modulestore.django import modulestore
     get_ratio = ratio.split(":")
     hard = medium = low = ""
+    complexity_hard = 'Hard'
+    complexity_medium = 'Medium'
+    complexity_low = 'Low'
     total_hard = total_medium = total_low = 0
 
     # Get hard, medium, low value for ratio 
@@ -1013,46 +1017,92 @@ def get_block_based_ratio(ratio, max_count, children,already_selected):
     except Exception as err:
         logger.error("{}".format(err))
         pass
-    count_hard = count_medium = count_low =0
+    count_hard = count_medium = count_low = remaining_count =0
 
     mx_valid_block_keys = set()
-    # For hard xblock 
-    all_problem_objects = ObjectTag.objects.filter(taxonomy__name = 'Complexities')
-    all_hard_objects = all_problem_objects.filter(_value='Hard')
-    all_medium_objects = all_problem_objects.filter(_value='Medium')
-    all_easy_objects = all_problem_objects.filter(_value='Easy')
+    course_competency = []
+    # For hard xblock
+    all_tag_objects = ObjectTag.objects.all()
+
+    try:
+        quiz_competency = all_tag_objects.get(object_id =str(block_parent_id),taxonomy__name='Competencies')
+    except:
+        quiz_competency= []
+    if not quiz_competency:
+        try:
+            quiz_competency = all_tag_objects.get(object_id =str(course_id),taxonomy__name='Competencies')
+        except:
+            quiz_competency=[]
+    all_probelm_blocks_list=[]
+
     for get_children in children:
-        problem_library_id= 'lib-'+str(get_children)
-        # if weight == 3 and count_hard < total_hard and problem_library_id in all_hard_objects:
-        if count_hard < total_hard and problem_library_id in all_hard_objects and str(get_children.block_id) not in already_selected:
-            count_hard += 1
-            block = (get_children.block_type, get_children.block_id)
-            mx_valid_block_keys.add(tuple(block))
-    # If we have to show 5 hard xblock but only 3 is present, Then 5- 3 = 2 Xblock from medium will be added. 
-    remaining_hard = total_hard - count_hard
-    total_medium += remaining_hard
-    # For medium xblock
-    for get_children in children:
-        problem_library_id= 'lib-'+str(get_children)
-        # if weight == 2 and count_medium < total_medium and problem_library_id in all_medium_objects:
-        if count_medium < total_medium and problem_library_id in all_medium_objects and str(get_children.block_id) not in already_selected:
-            count_medium += 1
-            block = (get_children.block_type, get_children.block_id)
-            mx_valid_block_keys.add(tuple(block))
+        problem_library = modulestore().get_block_original_usage(get_children)
+        problem_library_id= str(problem_library[0])
+        try:
+            competency_name = all_tag_objects.get(object_id=problem_library_id , taxonomy__name='Competencies')._value
+        except:
+            competency_name=''
+        try:
+            complexity_name = all_tag_objects.get(object_id=problem_library_id , taxonomy__name='Complexities')._value
+        except:
+            #considering a problem low if no complexity is defined
+            complexity_name='low'
+        if quiz_competency and competency_name == quiz_competency._value:
+            problem_block_dict ={
+                'block_type':get_children.block_type,
+                'block_id':get_children.block_id,
+                'competency_name':competency_name,
+                'complexity_name':complexity_name,
+            }
+            all_probelm_blocks_list.append(problem_block_dict)
+        
+    # competency_problem_clock = [comptency for comptency in all_probelm_blocks_list if comptency['competency_name'] == quiz_competency]
+    random.shuffle(all_probelm_blocks_list)
+    # select hard problems first
     
-    # If we have to show 5 medium xblock but only 3 is present, Then 5- 3 = 2 Xblock from low will be added. 
-    remaining_medium = total_medium - count_medium
-    total_low += remaining_medium
-    # For low xblock
-    for get_children in children:
-        problem_library_id= 'lib-'+str(get_children)
-        # if weight == 1 and count_low < total_low and problem_library_id in all_medium_objects:
-        if count_low < total_low :
-            block = (get_children.block_type, get_children.block_id)
-            if problem_library_id in all_easy_objects and str(get_children.block_id) not in already_selected:
-                count_low += 1
+    def select_problem_blocks(count_problem,complexity,total_count):
+        for select_problem in all_probelm_blocks_list:
+            if count_problem < total_count and select_problem['complexity_name'] == complexity and select_problem['block_id'] not in already_selected:
+                count_problem=+1
+                block = (select_problem['block_type'],select_problem['block_id'])
                 mx_valid_block_keys.add(tuple(block))
+        return count_problem
+    
+    def already_select_problems(count_problem,complexity,total_count):
+        for select_problem in all_probelm_blocks_list:
+            if complexity:
+                if count_problem < total_count and select_problem['complexity_name'] == complexity:
+                    count_problem=+1
+                    block = (select_problem['block_type'],select_problem['block_id'])
+                    mx_valid_block_keys.add(tuple(block))
             else:
-                count_low += 1
-                mx_valid_block_keys.add(tuple(block))
+                if count_problem < total_count:
+                    count_problem=+1
+                    block = (select_problem['block_type'],select_problem['block_id'])
+                    mx_valid_block_keys.add(tuple(block))
+        return count_problem
+    
+    if len(set(already_selected)) < len(all_probelm_blocks_list):
+        count_hard = select_problem_blocks(count_hard,complexity_hard,total_hard)
+        remaining_hard = total_hard - count_hard
+        total_medium += remaining_hard
+        count_medium = select_problem_blocks(count_medium,complexity_medium,total_medium)
+        remaining_medium = total_medium - count_medium
+        total_low += remaining_medium
+        count_low = select_problem_blocks(count_low,complexity_low,total_low)
+        if total_low - count_low > 0:
+            already_select_problems(remaining_count,'',total_low-count_low)
+
+    else:
+        count_hard = already_select_problems(count_hard,complexity_hard,total_hard)
+        remaining_hard = total_hard - count_hard
+        total_medium += remaining_hard
+        count_medium = already_select_problems(count_medium,complexity_medium,total_medium)
+        remaining_medium = total_medium - count_medium
+        total_low += remaining_medium
+        count_low = already_select_problems(count_low,complexity_low,total_low)
+        if total_low - count_low > 0:
+            already_select_problems(remaining_count,'',total_low)
+
+
     return mx_valid_block_keys
