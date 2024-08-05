@@ -105,12 +105,14 @@ class ContentLibraryTransformer(FilteringTransformerMixin, BlockStructureTransfo
                 attempts = library_block.attempts
                 attempt_allowed = library_block.attempt_allowed
                 already_selected = library_block.already_selected
+                block_parent_id = library_block.parent
+                course_id = library_block.course_id
 
 
                 # Update selected
                 previous_count = len(selected)
                 
-                block_keys = LibraryContentBlock.make_selection(selected, library_children, max_count, attempts, attempt_allowed, ratio, mode,already_selected)
+                block_keys = LibraryContentBlock.make_selection(selected, library_children, max_count, attempts, attempt_allowed, ratio, mode,already_selected,block_parent_id,course_id)
                 selected = block_keys['selected']
 
                 # Save back any changes
