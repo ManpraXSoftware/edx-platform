@@ -422,6 +422,8 @@ class LibraryContentBlock(
 
         # block_keys = self.make_selection(self.selected, self.children, max_count, "random")  # pylint: disable=no-member
         # Manprax
+        #resetting the grade to reset the selected answers for the blocks
+        self.runtime.publish(self, 'grade', {'value': None, 'max_value': None})
         block_keys = self.make_selection(self.selected, self.children, max_count, self.attempts, self.attempt_allowed, self.ratio, self.mode,self.already_selected,self.parent,self.course_id)  # pylint: disable=no-member
 
         # Publish events for analytics purposes:
@@ -453,7 +455,7 @@ class LibraryContentBlock(
         if not self.allow_resetting_children:
             return Response('"Resetting selected children" is not allowed for this XBlock',
                             status=status.HTTP_400_BAD_REQUEST)
-        self.runtime.publish(self, 'grade', {'value': None, 'max_value': None})
+        
         for block_type, block_id in self.selected_children():
             block = self.runtime.get_block(self.location.course_key.make_usage_key(block_type, block_id))
             if hasattr(block, 'reset_problem'):
