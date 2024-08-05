@@ -453,7 +453,7 @@ class LibraryContentBlock(
         if not self.allow_resetting_children:
             return Response('"Resetting selected children" is not allowed for this XBlock',
                             status=status.HTTP_400_BAD_REQUEST)
-
+        self.runtime.publish(self, 'grade', {'value': None, 'max_value': None})
         for block_type, block_id in self.selected_children():
             block = self.runtime.get_block(self.location.course_key.make_usage_key(block_type, block_id))
             if hasattr(block, 'reset_problem'):
