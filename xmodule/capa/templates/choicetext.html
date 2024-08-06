@@ -54,11 +54,7 @@ from openedx.core.djangolib.markup import HTML
     </fieldset>
         <input class= "choicetextvalue" type="hidden"  name="input_${id}{}" id="input_${id}" value="${value|h}" />
 
-    <div class="indicator-container">
-    % if input_type == 'checkbox' or not element_checked:
-        <%include file="status_span.html" args="status=status, status_id=id"/>
-    % endif
-    </div>
+    
 
     % if show_correctness == "never" and (value or status not in ['unsubmitted']):
     <div class="capa_alert">${_(submitted_message)}</div>

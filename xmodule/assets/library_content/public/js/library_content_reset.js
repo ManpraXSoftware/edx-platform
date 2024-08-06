@@ -15,4 +15,27 @@ function LibraryContentReset(runtime, element) {
       },
     });
   });
+
+  // Manprax
+
+  $('.check-result-btn', element).click((e) => {
+    e.preventDefault();
+    $.post({
+      url: runtime.handlerUrl(element, 'show_user_result'),
+      success(data) {
+        if(data.show_reset == true && data.has_attempt == true) {
+          document.getElementById("showmsg").innerHTML = "Unfortunately you do not qualify. Please reset the problem and re submit the problem.";
+          document.getElementById("showmsg").style.display = "block";
+          document.getElementById("btnproblemreset").style.display = "block";
+        }
+
+        if(data.show_reset == false && data.is_passed == true) {
+          document.getElementById("showmsg").innerHTML = "Congratulations, you have passed.";
+          document.getElementById("showmsg").style.display = "block";
+        }
+        
+      },
+    });
+  });
+  
 }

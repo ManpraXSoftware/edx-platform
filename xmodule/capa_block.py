@@ -217,7 +217,7 @@ class ProblemBlock(
         help=_("Defines when to show whether a learner's answer to the problem is correct. "
                "Configured on the subsection."),
         scope=Scope.settings,
-        default=ShowCorrectness.ALWAYS,
+        default=ShowCorrectness.NEVER,
         values=[
             {"display_name": _("Always"), "value": ShowCorrectness.ALWAYS},
             {"display_name": _("Never"), "value": ShowCorrectness.NEVER},
@@ -354,6 +354,7 @@ class ProblemBlock(
         Return the student view.
         """
         # self.score is initialized in self.lcp but in this method is accessed before self.lcp so just call it first.
+        # self.show_correctness= ShowCorrectness.NEVER
         try:
             self.lcp
         except Exception as err:  # lint-amnesty, pylint: disable=broad-except
@@ -563,7 +564,7 @@ class ProblemBlock(
             ProblemBlock.force_save_button,
             ProblemBlock.markdown,
             ProblemBlock.use_latex_compiler,
-            ProblemBlock.show_correctness,
+            # ProblemBlock.show_correctness,
 
             # Temporarily remove the ability to see MATLAB API key in Studio, as
             # a pre-cursor to removing it altogether.
