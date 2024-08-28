@@ -4287,7 +4287,10 @@ ACCOUNT_VISIBILITY_CONFIGURATION["admin_fields"] = (
         "organisation",
         "role",
         "pincode",
-        "receive_update_on_whatsapp"
+        "receive_update_on_whatsapp",
+        "district",
+        "block",
+        "cluster"
     ]
 )
 
@@ -5608,3 +5611,4 @@ SURVEY_REPORT_CHECK_THRESHOLD = 6
 # .. setting_default: empty dictionary
 # .. setting_description: Dictionary with additional information that you want to share in the report.
 SURVEY_REPORT_EXTRA_DATA = {}
+

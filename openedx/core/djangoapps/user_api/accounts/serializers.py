@@ -225,7 +225,10 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
                     "organisation":organisation,
                     "role":user_profile.role.name if user_profile.role else '',
                     "pincode":user_profile.pincode,
-                    "receive_update_on_whatsapp":user_profile.receive_update_on_whatsapp
+                    "receive_update_on_whatsapp":user_profile.receive_update_on_whatsapp,
+                    "district":user_profile.district,
+                    "block":user_profile.block,
+                    "cluster":user_profile.cluster
                 }
             )
 
