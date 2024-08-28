@@ -63,10 +63,13 @@ class ProgramsFragmentView(EdxFragmentView):
                 if result.json():
                     for meter_program in meter.programs:
                         for result_program in result.json():
-                            if (result_program['program_language'] == "") or (result_program['program_language'] == None):
+                            try:
+                                if (result_program['program_language'] == "") or (result_program['program_language'] == None):
+                                    meter_program['program_language']="English"
+                                else:
+                                    meter_program['program_language']=settings.LANGUAGE_DICT[result_program['program_language']]
+                            except:
                                 meter_program['program_language']="English"
-                            else:
-                                meter_program['program_language']=settings.LANGUAGE_DICT[result_program['program_language']]
                             if meter_program['uuid'] == result_program['program_uuid']:
                                 meter_program['title'] = result_program['converted_program_title']
                                 for program_topics in result_program['tags']:
