@@ -25,6 +25,8 @@ from openedx.core.djangoapps.programs.utils import (
     get_certificates,
     get_program_marketing_url
 )
+from xmodule.modulestore.django import modulestore
+from opaque_keys.edx.keys import CourseKey
 from openedx.core.djangoapps.user_api.preferences.api import get_user_preferences
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 import requests
@@ -53,7 +55,6 @@ class ProgramsFragmentView(EdxFragmentView):
             from lms.djangoapps.program_enrollments.models import ProgramEnrollment
             user_enrolled_programs = ProgramEnrollment.objects.filter(user=user).values('program_uuid')
             user_enrolled_programs = [str(uuid['program_uuid']) for uuid in user_enrolled_programs]
-            
             meter.programs = [program for program in meter.programs if program['uuid'] in user_enrolled_programs ]
             
             url = settings.FEATURES['base_lms_url']+"explore-courses/enrolled-programs?username="+user.username+"&accept_language="+request.COOKIES.get("django_language", 'en')
@@ -62,6 +63,10 @@ class ProgramsFragmentView(EdxFragmentView):
                 if result.json():
                     for meter_program in meter.programs:
                         for result_program in result.json():
+                            if (result_program['program_language'] == "") or (result_program['program_language'] == None):
+                                meter_program['program_language']="English"
+                            else:
+                                meter_program['program_language']=settings.LANGUAGE_DICT[result_program['program_language']]
                             if meter_program['uuid'] == result_program['program_uuid']:
                                 meter_program['title'] = result_program['converted_program_title']
                                 for program_topics in result_program['tags']:
@@ -72,7 +77,6 @@ class ProgramsFragmentView(EdxFragmentView):
         resume_block = dict()
         from openedx.core.djangoapps.user_api.accounts.utils import retrieve_last_sitewide_block_completed
         resume_block_url = retrieve_last_sitewide_block_completed(getattr(request.user, 'real_user', request.user))
-
         resume_block['resume_block_url'] = resume_block_url
 
         if resume_block_url:
@@ -81,6 +85,7 @@ class ProgramsFragmentView(EdxFragmentView):
             # import pdb;pdb.set_trace()
             if course_id.startswith('course'):
                 resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
+                resume_block['course_language'] = modulestore().get_course(CourseKey.from_string(course_id)).language
                 from openedx.core.djangoapps.programs.models import LastReadCourse
                 # from lms.djangoapps.program_enrollments.models import ProgramEnrollment
                 user_last_read_course = LastReadCourse.objects.filter(user=user).first()
@@ -109,7 +114,6 @@ class ProgramsFragmentView(EdxFragmentView):
                 
                 
 
-        # import pdb;pdb.set_trace()
         context = {
             'marketing_url': get_program_marketing_url(programs_config, mobile_only),
             # 'marketing_url': 'https://staging-lms.visionempowertrust.org',

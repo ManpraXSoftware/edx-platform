@@ -18,7 +18,8 @@ from django.utils.translation import ugettext as _
 <div class="program-list-wrapper grid-container" style="padding: 5px !important;">
     
     %if 'program_title' in resume_block:
-    <div class="card-outer">
+    <div class="card-outer" id="resume_course">
+        <p id="course_lang" lang=${resume_block['course_language']} hidden>${resume_block['course_language']}</p>
         <h4 class="card-outertext" tabindex="0">Recently Accessed Course</h4>
          <div class="card-box">
            <p style="display: inline; color: #5e5e5e;" class="program-topics">
@@ -57,7 +58,14 @@ from django.utils.translation import ugettext as _
             }
             
         }
-        });
+        var course_language = document.getElementById("course_lang").getAttribute("lang")
+        if(course_language == $(".myLang").val() ||  course_language =="en") {
+            document.getElementById("resume_course").removeAttribute("hidden")
+        }
+        else{
+            document.getElementById("resume_course").setAttribute("hidden","hidden")
+        }
+    });
     
 </script>
 <%block name="js_extra">

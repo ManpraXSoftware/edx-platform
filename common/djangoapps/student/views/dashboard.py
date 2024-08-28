@@ -888,6 +888,7 @@ def student_dashboard(request, program_uuid):
         course_enrollments = [
             enr for enr in course_enrollments if entitlement.enrollment_course_run.course_id != enr.course_id
         ]
+    course_languages = {course_key:modulestore().get_course(CourseKey.from_string(course_key)).language if modulestore().get_course(CourseKey.from_string(course_key)) else "en" for course_key in course_keys_in_program}
     course_enrollments = []
     for course_key in course_keys_in_program:
         try:
@@ -952,6 +953,7 @@ def student_dashboard(request, program_uuid):
         # TODO START: clean up as part of REVEM-199 (START)
         'course_info': get_dashboard_course_info(user, course_enrollments),
         # TODO START: clean up as part of REVEM-199 (END)
+        "course_languages":course_languages
     }
 
     context_from_plugins = get_plugins_view_context(

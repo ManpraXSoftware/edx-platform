@@ -8,7 +8,9 @@
                     <p>Vision Empower -
                         <%- topics%>
                     </p>
-                    
+                    <p>Program Language -
+                        <%- program_language%>
+                    </p>
                     <div class="vcourse-p">
                         <div class="blank"></div>
                         <div class="vcourse"><a href="<%- detailUrl %>" class="btn-border" type="button">View Program</a></div>
