@@ -89,6 +89,11 @@ class ProgramsFragmentView(EdxFragmentView):
             if course_id.startswith('course'):
                 resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
                 resume_block['course_language'] = modulestore().get_course(CourseKey.from_string(course_id)).language
+                try:
+                    resume_block['course_language_name'] = settings.LANGUAGE_DICT[modulestore().get_course(CourseKey.from_string(course_id)).language]
+                except:
+                    resume_block['course_language_name'] = settings.LANGUAGE_DICT['en']
+                
                 from openedx.core.djangoapps.programs.models import LastReadCourse
                 # from lms.djangoapps.program_enrollments.models import ProgramEnrollment
                 user_last_read_course = LastReadCourse.objects.filter(user=user).first()

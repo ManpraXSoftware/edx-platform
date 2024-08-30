@@ -39,7 +39,7 @@ from django.conf import settings
            %if resume_block['course_language'] == '':
            <p>Course Language: ${settings.LANGUAGE_DICT['en']}</p>
            %else:
-           <p>Course Language: ${settings.LANGUAGE_DICT[resume_block['course_language']]}</p>
+           <p>Course Language: ${resume_block['course_language_name']}</p>
            %endif
            <div style="text-align:right" class="vcourse"><a href="${resume_block['resume_block_url']}" aria-label="${resume_block['course_title']} continue course" class="btn-border" btn-type="resume">Continue</a></div>
          </div>
