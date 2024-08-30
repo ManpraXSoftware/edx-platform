@@ -63,14 +63,14 @@ class ProgramsFragmentView(EdxFragmentView):
                 if result.json():
                     for meter_program in meter.programs:
                         for result_program in result.json():
-                            try:
-                                if (result_program['program_language'] == "") or (result_program['program_language'] == None):
-                                    meter_program['program_language']="English"
-                                else:
-                                    meter_program['program_language']=settings.LANGUAGE_DICT[result_program['program_language']]
-                            except:
-                                meter_program['program_language']="English"
                             if meter_program['uuid'] == result_program['program_uuid']:
+                                try:
+                                    if (result_program['program_language'] == "") or (result_program['program_language'] == None):
+                                        meter_program['program_language']="English"
+                                    else:
+                                        meter_program['program_language']=settings.LANGUAGE_DICT[result_program['program_language']]
+                                except:
+                                    meter_program['program_language']="English"
                                 meter_program['title'] = result_program['converted_program_title']
                                 for program_topics in result_program['tags']:
                                     if program_topics['tag_title'] not in meter_program['topics']:
@@ -97,26 +97,8 @@ class ProgramsFragmentView(EdxFragmentView):
                     if user_last_read_course.last_read_program:
                         import ast            
                         resume_block['topics'] = ast.literal_eval(user_last_read_course.last_read_topics)
-                        resume_block['program_title'] = user_last_read_course.last_read_program
-                    # resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
-                # url = "https://staging-courses.visionempowertrust.org/"+"extandedapi/getprogramusingcourseid/?course_id="+course_id
-                # url = settings.FEATURES['base_discovery_url']+"extandedapi/getprogramusingcourseid/?course_id="+course_id
+                        resume_block['program_title'] = user_last_read_course.last_read_program                
                 
-                # response = requests.get(url)
-
-                # if response.status_code == 200:
-                #     program_detail = response.json()
-                #     if program_detail:
-                        
-                #         resume_block['topics'] = program_detail['topics']
-                #         resume_block['program_title'] = program_detail['program_title']
-                #         resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
-                    
-
-                # import pdb;pdb.set_trace()
-                
-                
-
         context = {
             'marketing_url': get_program_marketing_url(programs_config, mobile_only),
             # 'marketing_url': 'https://staging-lms.visionempowertrust.org',

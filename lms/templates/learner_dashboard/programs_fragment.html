@@ -8,6 +8,7 @@ from openedx.core.djangolib.js_utils import (
     dump_js_escaped_json, js_escaped_string
 )
 from django.utils.translation import ugettext as _
+from django.conf import settings
 
 ##self.real_user = getattr(request.user, 'real_user', request.user)
 %>
@@ -19,7 +20,7 @@ from django.utils.translation import ugettext as _
     
     %if 'program_title' in resume_block:
     <div class="card-outer" id="resume_course">
-        <p id="course_lang" lang=${resume_block['course_language']} hidden>${resume_block['course_language']}</p>
+        <p id="course_lang" lang="${resume_block['course_language']}" hidden="hidden">${resume_block['course_language']}</p>
         <h4 class="card-outertext" tabindex="0">Recently Accessed Course</h4>
          <div class="card-box">
            <p style="display: inline; color: #5e5e5e;" class="program-topics">
@@ -35,7 +36,11 @@ from django.utils.translation import ugettext as _
                
             </h5>
            <h3 class="card-text py-3">${resume_block['course_title']}</h3>
-   
+           %if resume_block['course_language'] == '':
+           <p>Course Language: ${settings.LANGUAGE_DICT['en']}</p>
+           %else:
+           <p>Course Language: ${settings.LANGUAGE_DICT[resume_block['course_language']]}</p>
+           %endif
            <div style="text-align:right" class="vcourse"><a href="${resume_block['resume_block_url']}" aria-label="${resume_block['course_title']} continue course" class="btn-border" btn-type="resume">Continue</a></div>
          </div>
        </div>
@@ -59,7 +64,7 @@ from django.utils.translation import ugettext as _
             
         }
         var course_language = document.getElementById("course_lang").getAttribute("lang")
-        if(course_language == $(".myLang").val() ||  course_language =="en") {
+        if(course_language == $(".myLang").val() ||  course_language =="en" || course_language == '') {
             document.getElementById("resume_course").removeAttribute("hidden")
         }
         else{
