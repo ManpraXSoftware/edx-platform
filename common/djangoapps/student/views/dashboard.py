@@ -888,7 +888,17 @@ def student_dashboard(request, program_uuid):
         course_enrollments = [
             enr for enr in course_enrollments if entitlement.enrollment_course_run.course_id != enr.course_id
         ]
+    course_languages = {}
     course_languages = {course_key:modulestore().get_course(CourseKey.from_string(course_key)).language if modulestore().get_course(CourseKey.from_string(course_key)) else "en" for course_key in course_keys_in_program}
+    for course_key in course_keys_in_program:
+        if modulestore().get_course(CourseKey.from_string(course_key)):
+            try:
+                language_name = settings.LANGUAGE_DICT[modulestore().get_course(CourseKey.from_string(course_key)).language]
+                course_languages[course_key] = modulestore().get_course(CourseKey.from_string(course_key)).language
+            except:
+                course_languages[course_key] = "en"
+        else:
+            course_languages[course_key] = "en"
     course_enrollments = []
     for course_key in course_keys_in_program:
         try:
