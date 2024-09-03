@@ -55,6 +55,13 @@ from django.conf import settings
     <!-- <div class="sidebar col col-last"></div> -->
 </div>
 <script>
+    var course_language = document.getElementById("course_lang").getAttribute("lang")
+    if(course_language == localStorage.getItem("lang") ||  course_language =="en" || course_language == '') {
+        document.getElementById("resume_course").removeAttribute("hidden")
+    }
+    else{
+        document.getElementById("resume_course").setAttribute("hidden","hidden")
+    }
     window.addEventListener('load', function () {
         var elements = document.getElementsByClassName('btn-border');
         for (var i = 0; i < elements.length; i++) {
@@ -62,13 +69,6 @@ from django.conf import settings
                 elements[i].setAttribute("aria-label",$("#program-"+elements[i].href.split("/")[4]).html()+" view program")
             }
             
-        }
-        var course_language = document.getElementById("course_lang").getAttribute("lang")
-        if(course_language == $(".myLang").val() ||  course_language =="en" || course_language == '') {
-            document.getElementById("resume_course").removeAttribute("hidden")
-        }
-        else{
-            document.getElementById("resume_course").setAttribute("hidden","hidden")
         }
     });
     
