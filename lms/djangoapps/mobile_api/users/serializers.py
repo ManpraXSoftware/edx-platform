@@ -13,18 +13,23 @@ from openedx.features.course_duration_limits.access import get_user_course_expir
 from openedx.features.course_duration_limits.models import CourseDurationLimitConfig
 from student.models import CourseEnrollment, User
 from util.course import get_encoded_course_sharing_utm_params, get_link_for_about_page
-
+from opaque_keys.edx.keys import CourseKey
+from xmodule.modulestore.django import modulestore
 
 class CourseOverviewField(serializers.RelatedField):
     """
     Custom field to wrap a CourseOverview object. Read-only.
-    """
+    """    
     def to_representation(self, course_overview):
         course_id = six.text_type(course_overview.id)
         request = self.context.get('request')
         api_version = self.context.get('api_version')
         enrollment = CourseEnrollment.get_enrollment(user=self.context.get('request').user, course_key=course_id)
         # enrollment = CourseEnrollment.get_enrollment(user=User.objects.filter(username='ubaid@manprax.com').first(), course_key=course_id)
+        try:
+            language = modulestore().get_course(CourseKey.from_string(course_id)).language
+        except:
+            language = 'en'
         
         return {
             # identifiers
@@ -82,6 +87,7 @@ class CourseOverviewField(serializers.RelatedField):
             # field present in case API parsers expect it, but this API is now
             # removed.
             'video_outline': None,
+            "language": language
         }
 
 
