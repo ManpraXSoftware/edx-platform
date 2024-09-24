@@ -234,6 +234,12 @@ class LibraryContentBlock(
         default="<h1>Result<h1>",
         scope=Scope.settings,
     )
+    course_connected=String(
+        display_name=_("course connected"),
+        help=_("Enter the course_id of the course to be connected to this quiz"),
+        default="",
+        scope=Scope.settings,
+    )
    
     @property
     def source_library_key(self):
@@ -450,17 +456,20 @@ class LibraryContentBlock(
         This resets the state of all `selected` children and then clears the `selected` field
         so that the new blocks are randomly chosen for this user.
         """
-        if not self.allow_resetting_children:
-            return Response('"Resetting selected children" is not allowed for this XBlock',
-                            status=status.HTTP_400_BAD_REQUEST)
+        # if not self.allow_resetting_children:
+        #     return Response('"Resetting selected children" is not allowed for this XBlock',
+        #                     status=status.HTTP_400_BAD_REQUEST)
         #resetting the grade to reset the selected answers for the blocks
+        
         self.runtime.publish(self, 'grade', {'value': None, 'max_value': None})
         for block_type, block_id in self.selected_children():
             block = self.runtime.get_block(self.location.course_key.make_usage_key(block_type, block_id))
+            logger.info("__________________________________ block.get_score :{} \n \n \n\n\n ".format(block.get_score))
+            logger.info("__________________________________ __________________________________________________________________")
             if hasattr(block, 'reset_problem'):
                 block.reset_problem(None)
                 block.save()
-
+        self.attempts += 1
         self.selected = []
         # Manprax
         # self.attempts += 1
@@ -487,6 +496,9 @@ class LibraryContentBlock(
         """
         from lms.djangoapps.grades.api import CourseGradeFactory
         from django.contrib.auth.models import User
+        from mx_catalog.models import Content
+        from mx_catalog.views import get_course
+        from mx_catalog.serializers import ContentDetailSerializer
         show_reset = True
         is_passed = False
         has_attempt = True
@@ -498,13 +510,22 @@ class LibraryContentBlock(
         if user_grade.passed:
             is_passed = True
         test_val=[]
-        self.attempts += 1
+        course_content_data=[]
         
         for block_key, block_structure in user_grade.chapter_grades.items():
             for a in dict(block_structure['sections'][0].problem_scores).keys():
                 if block_structure['sections'][0].problem_scores[a].earned == block_structure['sections'][0].problem_scores[a].possible:
                     correct_count=correct_count+1
                 total_possible= total_possible+1
+        
+        if self.course_connected:
+            try:
+                course_content_mapped =  Content.objects.get(source_id = self.course_connected)
+                serializer = ContentDetailSerializer(course_content_mapped)
+                course_content_data = serializer.data
+            except:
+                course_content_data=[]
+        course_data = get_course(self.course_id,user)
         param = {
             "show_reset": show_reset,
             "is_passed": is_passed,
@@ -514,7 +535,9 @@ class LibraryContentBlock(
             "chatgpt_prompt":self.chatgpt_prompt,
             "total_correct":correct_count,
             "total_possible":total_possible,
-            "result_summary":self.result_summary
+            "course_content_data":course_content_data,
+            "result_summary":self.result_summary,
+            "course_data":course_data
         }
         return Response(json.dumps(param))
 
@@ -1025,17 +1048,32 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
     # For hard xblock
     all_tag_objects = ObjectTag.objects.all()
 
+    # Fetch particular quiz competency if does not exist check competency of the course
     try:
         quiz_competency = all_tag_objects.get(object_id =str(block_parent_id),taxonomy__name='Competencies')
     except:
         quiz_competency= []
+    # if quiz_competency(competency of the unit block) does not exist check competency of the course
     if not quiz_competency:
         try:
             quiz_competency = all_tag_objects.get(object_id =str(course_id),taxonomy__name='Competencies')
         except:
             quiz_competency=[]
     all_probelm_blocks_list=[]
+    
+    ''''
+    Added By Manprax
+    Fetch all the blocks in the question bank(library) with quiz selected competency
+    
+    This adds the list of the problem all_probelm_blocks_list :
+    {
+        block_type : Type of block eg. problem, library etc.
+        block_id : block_id of the content present in the course(Not the block_id defined in the library ).
+        competency_name : Competency name of the block(problem)
+        Complexity_name : Complexity of the block i.e Hard, Medium, Low.
+    }
 
+    '''
     for get_children in children:
         problem_library = modulestore().get_block_original_usage(get_children)
         problem_library_id= str(problem_library[0])
@@ -1056,11 +1094,10 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
                 'complexity_name':complexity_name,
             }
             all_probelm_blocks_list.append(problem_block_dict)
-        
+    ''' End of adding '''
     # competency_problem_clock = [comptency for comptency in all_probelm_blocks_list if comptency['competency_name'] == quiz_competency]
     random.shuffle(all_probelm_blocks_list)
     # select hard problems first
-    
     def select_problem_blocks(count_problem,complexity,total_count):
         for select_problem in all_probelm_blocks_list:
             if count_problem < total_count and select_problem['complexity_name'] == complexity and select_problem['block_id'] not in already_selected:
