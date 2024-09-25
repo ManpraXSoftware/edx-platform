@@ -38,7 +38,7 @@ from xmodule.x_module import (
     shim_xmodule_js,
 )
 from xmodule.modulestore.django import modulestore
-
+from xmodule.signals import RESULT_VIEWED
 
 # Make '_' a no-op so we can scrape strings. Using lambda instead of
 #  `django.utils.translation.ugettext_noop` because Django cannot be imported in this file
@@ -541,6 +541,12 @@ class LibraryContentBlock(
             "result_summary":self.result_summary,
             "course_data":course_data
         }
+        RESULT_VIEWED.send(sender=CourseGradeFactory,
+                        instance=user_grade,
+                        user_id=user_id,
+                        content_key=self.location.course_key,
+                        target=total_possible
+                        )
         return Response(json.dumps(param))
 
     def _get_selected_child_blocks(self):
