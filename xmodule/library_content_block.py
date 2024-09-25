@@ -505,6 +505,7 @@ class LibraryContentBlock(
         user_id = self.get_user_id()
         correct_count=0
         total_possible=0
+        course_data = ""
         user = User.objects.get(id = user_id)
         user_grade = CourseGradeFactory().read(user, course_key = self.location.course_key)
         if user_grade.passed:
@@ -523,9 +524,10 @@ class LibraryContentBlock(
                 course_content_mapped =  Content.objects.get(source_id = self.course_connected)
                 serializer = ContentDetailSerializer(course_content_mapped)
                 course_content_data = serializer.data
+                course_data = get_course(self.course_connected,user)
             except:
                 course_content_data=[]
-        course_data = get_course(self.course_id,user)
+                course_data =""
         param = {
             "show_reset": show_reset,
             "is_passed": is_passed,
