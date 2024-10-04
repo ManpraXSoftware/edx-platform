@@ -157,7 +157,7 @@ def attach_program_detail_url(programs, mobile_only=False):
             path_id = detail_fragment_url.replace('/dashboard/', '')
             detail_url = f'edxapp://enrolled_program_info?path_id={path_id}'
         else:
-            detail_url = reverse('program_details_view', kwargs={'program_uuid': program['uuid']})
+            detail_url = reverse('dashboard', kwargs={'program_uuid': program['uuid']})
 
         program['detail_url'] = detail_url
 

@@ -22,6 +22,7 @@ from openedx.core.djangolib.oauth2_retirement_utils import retire_dot_oauth2_mod
 from xmodule.modulestore.django import modulestore  # lint-amnesty, pylint: disable=wrong-import-order
 
 from ..models import UserRetirementStatus
+from mx_course_discovery.models import LastReadCourse
 
 ENABLE_SECONDARY_EMAIL_FEATURE_SWITCH = 'enable_secondary_email_feature'
 LOGGER = logging.getLogger(__name__)
@@ -178,6 +179,23 @@ def retrieve_last_sitewide_block_completed(user):
 
     if not (lms_root and item):
         return
+    
+    else:
+
+        user_last_read_course = LastReadCourse.objects.filter(user=user).first()
+        if user_last_read_course:
+            if not user_last_read_course.block_id:
+                user_last_read_course.block_id = str(candidate_block_key)
+                user_last_read_course.save()
+            else:
+                if user_last_read_course.block_id  != str(candidate_block_key):
+                    user_last_read_course.block_id = str(candidate_block_key)
+                    user_last_read_course.last_read_program_uuid = user_last_read_course.last_visited_program_uuid  if user_last_read_course.last_visited_program_uuid  else ''
+                    user_last_read_course.last_read_program = user_last_read_course.last_visited_program  if user_last_read_course.last_visited_program  else ''
+                    user_last_read_course.last_read_topics = user_last_read_course.last_visited_topics if user_last_read_course.last_visited_topics else []
+                    user_last_read_course.save()
+        else:
+            LastReadCourse.objects.create(user=user,block_id=str(candidate_block_key))
 
     return "{lms_root}/courses/{course_key}/jump_to/{location}".format(
         lms_root=lms_root,

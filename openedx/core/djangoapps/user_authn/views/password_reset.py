@@ -608,13 +608,12 @@ def password_change_request_handler(request):
         # Prefer logged-in user's email
         email = user.email if user.is_authenticated else request.POST.get('email')
     AUDIT_LOG.info("Password reset initiated for email %s.", email)
-
-    if getattr(request, 'limited', False) and not request_from_support_tools:
-        AUDIT_LOG.warning("Password reset rate limit exceeded for email %s.", email)
-        return HttpResponse(
-            _("Your previous request is in progress, please try again in a few moments."),
-            status=403
-        )
+    # if getattr(request, 'limited', False) and not request_from_support_tools:
+    #     AUDIT_LOG.warning("Password reset rate limit exceeded for email %s.", email)
+    #     return HttpResponse(
+    #         _("Your previous request is in progress, please try again in a few moments."),
+    #         status=403
+    #     )
 
     if email:
         try:

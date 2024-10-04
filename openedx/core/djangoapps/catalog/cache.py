@@ -29,3 +29,9 @@ PROGRAMS_BY_TYPE_SLUG_CACHE_KEY_TPL = 'programs-by-type-slug-{site_id}-{program_
 
 # Template used to create cache keys for organization to program uuids.
 PROGRAMS_BY_ORGANIZATION_CACHE_KEY_TPL = 'organization-programs-{org_key}'
+
+# Template used to create cache keys for individual course runs to program uuids.
+SUBJECT_PROGRAMS_CACHE_KEY_TPL = 'subject-programs-{subject}'
+
+# Template used to create cache keys for individual course runs to program uuids.
+TOPIC_PROGRAMS_CACHE_KEY_TPL = 'topic-programs-{topic}'

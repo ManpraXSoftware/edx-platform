@@ -38,7 +38,12 @@ from openedx.core.djangoapps.programs.utils import (
 )
 from openedx.core.djangoapps.user_api.preferences.api import get_user_preferences
 from openedx.core.djangolib.markup import HTML
-
+import requests
+from openedx.core.djangoapps.user_api.accounts.utils import retrieve_last_sitewide_block_completed
+from mx_course_discovery.models import LastReadCourse
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+from xmodule.modulestore.django import modulestore
+from opaque_keys.edx.keys import CourseKey
 
 class ProgramsFragmentView(EdxFragmentView):
     """
@@ -60,6 +65,51 @@ class ProgramsFragmentView(EdxFragmentView):
             raise Http404
 
         meter = ProgramProgressMeter(request.site, user, mobile_only=mobile_only)
+        if meter.programs:
+            from lms.djangoapps.program_enrollments.models import ProgramEnrollment
+            user_enrolled_programs = ProgramEnrollment.objects.filter(user=user).values('program_uuid')
+            user_enrolled_programs = [str(uuid['program_uuid']) for uuid in user_enrolled_programs]
+            meter.programs = [program for program in meter.programs if program['uuid'] in user_enrolled_programs ]
+            
+            url = settings.FEATURES['base_lms_url']+"explore-courses/enrolled-programs?username="+user.username+"&accept_language="+request.COOKIES.get("django_language", 'en')
+            result = requests.get(url)
+            if result.status_code == 200:
+                if result.json():
+                    for meter_program in meter.programs:
+                        for result_program in result.json():
+                            if meter_program['uuid'] == result_program['program_uuid']:
+                                try:
+                                    if (result_program['program_language'] == "") or (result_program['program_language'] == None):
+                                        meter_program['program_language']="English"
+                                    else:
+                                        meter_program['program_language']=settings.LANGUAGE_DICT[result_program['program_language']]
+                                except:
+                                    meter_program['program_language']="English"
+                                meter_program['title'] = result_program['converted_program_title']
+                                for program_topics in result_program['tags']:
+                                    if program_topics['tag_title'] not in meter_program['topics']:
+                                        meter_program['topics'].append(program_topics['tag_title'])
+
+        resume_block = dict()
+        resume_block_url = retrieve_last_sitewide_block_completed(getattr(request.user, 'real_user', request.user))
+        resume_block['resume_block_url'] = resume_block_url
+
+        if resume_block_url:
+            course_id = resume_block_url.split('/')[4]
+            if course_id.startswith('course'):
+                resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
+                resume_block['course_language'] = modulestore().get_course(CourseKey.from_string(course_id)).language
+                try:
+                    resume_block['course_language_name'] = settings.LANGUAGE_DICT[modulestore().get_course(CourseKey.from_string(course_id)).language]
+                except:
+                    resume_block['course_language_name'] = settings.LANGUAGE_DICT['en']
+                
+                user_last_read_course = LastReadCourse.objects.filter(user=user).first()
+                if user_last_read_course:
+                    if user_last_read_course.last_read_program:
+                        import ast            
+                        resume_block['topics'] = ast.literal_eval(user_last_read_course.last_read_topics)
+                        resume_block['program_title'] = user_last_read_course.last_read_program                
         is_user_b2c_subscriptions_enabled = b2c_subscriptions_enabled(mobile_only)
         programs_subscription_data = (
             get_programs_subscription_data(user)
@@ -75,7 +125,7 @@ class ProgramsFragmentView(EdxFragmentView):
             if is_user_b2c_subscriptions_enabled
             else {}
         )
-
+        
         context = {
             'marketing_url': get_program_marketing_url(programs_config, mobile_only),
             'programs': meter.engaged_programs,
@@ -84,7 +134,8 @@ class ProgramsFragmentView(EdxFragmentView):
             'subscription_upsell_data': subscription_upsell_data,
             'user_preferences': get_user_preferences(user),
             'is_user_b2c_subscriptions_enabled': is_user_b2c_subscriptions_enabled,
-            'mobile_only': bool(mobile_only)
+            'mobile_only': bool(mobile_only),
+            'resume_block' : resume_block
         }
         html = render_to_string('learner_dashboard/programs_fragment.html', context)
         programs_fragment = Fragment(html)

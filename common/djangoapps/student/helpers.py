@@ -296,7 +296,7 @@ def get_next_url_for_login_page(request, include_host=False):
             # If redirect url isn't set, reverse to dashboard
             if not redirect_to:
                 # Tries reversing the LMS dashboard if the url doesn't exist
-                redirect_to = reverse('dashboard')
+                redirect_to = reverse('program_listing_view')
 
         elif settings.ROOT_URLCONF == 'cms.urls':
             redirect_to = reverse('home')

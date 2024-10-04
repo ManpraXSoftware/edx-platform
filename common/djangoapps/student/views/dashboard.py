@@ -65,6 +65,8 @@ from common.djangoapps.student.models import (
 )
 from common.djangoapps.util.milestones_helpers import get_pre_requisite_courses_not_completed
 from xmodule.modulestore.django import modulestore  # lint-amnesty, pylint: disable=wrong-import-order
+import requests
+from mx_course_discovery.models import LastReadCourse
 
 log = logging.getLogger("edx.student")
 
@@ -497,11 +499,43 @@ def check_for_unacknowledged_notices(context):
 
     return notice_url
 
+def udateLastVisitedProgram(program_uuid,user):
+    base_discovery_url = settings.FEATURES['base_discovery_url']
+    url_visited_program = base_discovery_url+"extandedapi/getprogramandtags/?program_uuid="+str(program_uuid)
+    response_visited_program = requests.get(url_visited_program)
+    if response_visited_program.status_code == 200:
+        program_data = response_visited_program.json()
+
+        user_last_read_course = LastReadCourse.objects.filter(user=user).first()
+
+        if user_last_read_course:
+            if user_last_read_course.last_visited_program:
+                if user_last_read_course.last_visited_program != program_data['program_title']:
+                    user_last_read_course.last_visited_program_uuid=program_uuid
+                    user_last_read_course.last_visited_program = program_data['program_title']
+                    user_last_read_course.last_visited_topics = program_data['topics']
+                    
+                    user_last_read_course.save()
+            else:
+                user_last_read_course.last_visited_program_uuid=program_uuid
+                user_last_read_course.last_visited_program = program_data['program_title']
+                user_last_read_course.last_visited_topics = program_data['topics']
+                
+                user_last_read_course.save()
+
+        else:
+            last_visited_user = LastReadCourse.objects.get_or_create(user=user,last_visited_program=program_data['program_title'],last_visited_topics=str(program_data['topics']),last_visited_program_uuid=program_uuid)
+            if not last_visited_user[0].last_read_program:
+                last_visited_user[0].last_read_program_uuid = last_visited_user[0].last_visited_program_uuid
+                last_visited_user[0].last_read_program = last_visited_user[0].last_visited_program
+                last_visited_user[0].last_read_topics = last_visited_user[0].last_visited_topics
+                last_visited_user[0].save()
+
 
 @login_required
 @ensure_csrf_cookie
 @add_maintenance_banner
-def student_dashboard(request):  # lint-amnesty, pylint: disable=too-many-statements
+def student_dashboard(request, program_uuid):  # lint-amnesty, pylint: disable=too-many-statements
     """
     Provides the LMS dashboard view
 
@@ -554,7 +588,21 @@ def student_dashboard(request):  # lint-amnesty, pylint: disable=too-many-statem
     # Get the org whitelist or the org blacklist for the current site
     site_org_whitelist, site_org_blacklist = get_org_black_and_whitelist_for_site()
     course_enrollments = list(get_course_enrollments(user, site_org_whitelist, site_org_blacklist, course_limit))
+    
+    program_title_url = settings.FEATURES['base_discovery_url']+"extandedapi/getprogram/?program_uuid="+str(program_uuid)
+    program_title_response = requests.get(program_title_url)
+    program_title = ''
+    if program_title_response.status_code == 200:
+        program_title = program_title_response.json()[0]
 
+    url = settings.FEATURES['base_discovery_url']+"extandedapi/getprogramcourses/?program_uuid="+str(program_uuid)
+    response = requests.get(url)
+    course_keys_in_program = []
+    if response.status_code == 200:
+        course_keys_in_program = response.json()
+        course_enrollments = [course_enrollment for course_enrollment in course_enrollments if str(course_enrollment.course.id) in course_keys_in_program]
+    # update the lastreadcourse table with the name of currently visited program 
+    udateLastVisitedProgram(program_uuid,user)
     # Get the entitlements for the user and a mapping to all available sessions for that entitlement
     # If an entitlement has no available sessions, pass through a mock course overview object
     (course_entitlements,
@@ -842,6 +890,10 @@ def student_dashboard(request):  # lint-amnesty, pylint: disable=too-many-statem
         'disable_unenrollment': disable_unenrollment,
         # TODO: clean when experiment(Merchandise 2U LOBs - Dashboard) would be stop. [VAN-1097]
         'is_enterprise_user': is_enterprise_learner(user),
+        "block_courses":[],
+        'program_uuid': program_uuid,
+        'program_title': program_title,
+        'username': user.username
     }
 
     # Include enterprise learner portal metadata and messaging

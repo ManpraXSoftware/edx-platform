@@ -16,6 +16,7 @@ from openedx.core.djangoapps.content.course_overviews.models import \
     CourseOverview  # lint-amnesty, pylint: disable=unused-import
 from openedx.core.djangoapps.models.course_details import CourseDetails
 from openedx.core.lib.api.fields import AbsoluteURLField
+from xmodule.modulestore.django import modulestore
 
 
 class _MediaSerializer(serializers.Serializer):  # pylint: disable=abstract-method
@@ -119,6 +120,7 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
 
     # 'course_id' is a deprecated field, please use 'id' instead.
     course_id = serializers.CharField(source='id', read_only=True)
+    language = serializers.SerializerMethodField()
 
     def get_hidden(self, course_overview):
         """
@@ -137,6 +139,12 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
             urllib.parse.urlencode({'course_id': course_overview.id}),
         ])
         return self.context['request'].build_absolute_uri(base_url)
+    
+    def get_language(self, course_overview):
+        try:
+            return modulestore().get_course(course_overview.id).language
+        except:
+            return "en"
 
 
 class CourseDetailSerializer(CourseSerializer):  # pylint: disable=abstract-method

@@ -16,10 +16,10 @@ def get_base_template_context(site):
     """
     # When on LMS and a dashboard is available, use that as the dashboard url.
     # Otherwise, use the home url instead.
-    try:
-        dashboard_url = reverse('dashboard')
-    except NoReverseMatch:
-        dashboard_url = reverse('home')
+    # try:
+    #     dashboard_url = reverse('dashboard')
+    # except NoReverseMatch:
+    #     dashboard_url = reverse('home')
 
     if hasattr(site, 'configuration'):
         site_configuration_values = site.configuration.site_values
@@ -29,7 +29,7 @@ def get_base_template_context(site):
     return {
         # Platform information
         'homepage_url': marketing_link('ROOT'),
-        'dashboard_url': dashboard_url,
+        'dashboard_url': "dashboard_url",
         'template_revision': getattr(settings, 'EDX_PLATFORM_REVISION', None),
         'platform_name': get_config_value_from_site_or_settings(
             'PLATFORM_NAME',

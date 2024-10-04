@@ -638,6 +638,7 @@ def login_user(request, api_version='v1'):  # pylint: disable=too-many-statement
         response = JsonResponse({
             'success': True,
             'redirect_url': redirect_url,
+            "username":user.username
         })
 
         # Ensure that the external marketing site can
