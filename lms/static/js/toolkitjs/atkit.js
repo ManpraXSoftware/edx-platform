@@ -987,7 +987,7 @@
 
 			if(AtKit.internal.__invoked){
 				//If the toolbar buttons have already been rendered
-				if (typeof(options.insertAfter) !== "undefined") {
+				if (options && options.insertAfter && typeof(options.insertAfter) !== "undefined") {
 					API.$( renderButton(identifier) ).insertAfter('#'+options.insertAfter);
 				}
 				else {
@@ -1058,7 +1058,9 @@
 
 		// Add plugin to rendering queue.
 		API.addPlugin = function(identifier){
-			AtKit.internal.plugins[identifier]["payload"]();
+			if (AtKit.internal.plugins[identifier] != undefined){
+				AtKit.internal.plugins[identifier]["payload"]();
+			}
 		}
 
 		// Register a plugin (called by plugin)
