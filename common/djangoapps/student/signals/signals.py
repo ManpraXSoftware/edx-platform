@@ -67,3 +67,5 @@ def emit_course_access_role_removed(user, course_id, org_key, role):
             role=role,
         )
     )
+
+CELEBRATION_UPDATED = Signal()
