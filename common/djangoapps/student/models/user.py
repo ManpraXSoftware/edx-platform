@@ -1795,6 +1795,7 @@ class UserCelebration(TimeStampedModel):
 
         cls._update_streak(celebration, last_day_of_streak, streak_length)
 
+        CELEBRATION_UPDATED.send(cls,user_celebration=user.celebration)
         return streak_length_to_celebrate
 
 
