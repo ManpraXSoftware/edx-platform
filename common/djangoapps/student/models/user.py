@@ -29,6 +29,7 @@ from .course_enrollment import (
     ManualEnrollmentAudit,
     segment
 )
+from common.djangoapps.student.signals import CELEBRATION_UPDATED
 
 from config_models.models import ConfigurationModel
 from django.apps import apps
