@@ -421,7 +421,7 @@ class LibraryContentBlock(
         """
         max_count = self.max_count
         if max_count < 0:
-            max_count = len(self.children)
+            max_count = 10
 
 
         # from lms.djangoapps.courseware.models import StudentModule
@@ -505,13 +505,12 @@ class LibraryContentBlock(
         user_id = self.get_user_id()
         correct_count=0
         total_possible=0
-        course_data = ""
+        course_data = None
         user = User.objects.get(id = user_id)
         user_grade = CourseGradeFactory().read(user, course_key = self.location.course_key)
         if user_grade.passed:
             is_passed = True
         test_val=[]
-        course_content_data=[]
         
         for block_key, block_structure in user_grade.chapter_grades.items():
             for a in dict(block_structure['sections'][0].problem_scores).keys():
@@ -521,13 +520,10 @@ class LibraryContentBlock(
         
         if self.course_connected:
             try:
-                course_content_mapped =  Content.objects.get(source_id = self.course_connected)
-                serializer = ContentDetailSerializer(course_content_mapped)
-                course_content_data = serializer.data
+                course_content_mapped =  Content.objects.get(source_identity = self.course_connected)
                 course_data = get_course(self.course_connected,user)
             except:
-                course_content_data=[]
-                course_data =""
+                course_data =None
         param = {
             "show_reset": show_reset,
             "is_passed": is_passed,
@@ -537,7 +533,6 @@ class LibraryContentBlock(
             "chatgpt_prompt":self.chatgpt_prompt,
             "total_correct":correct_count,
             "total_possible":total_possible,
-            "course_content_data":course_content_data,
             "result_summary":self.result_summary,
             "course_data":course_data
         }
@@ -1026,12 +1021,11 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
     from openedx_tagging.core.tagging.models import ObjectTag
     from xmodule.modulestore.django import modulestore
     get_ratio = ratio.split(":")
-    hard = medium = low = ""
+    hard = medium = low = 0
     complexity_hard = 'Hard'
     complexity_medium = 'Medium'
-    complexity_low = 'Low'
+    complexity_low = 'Easy'
     total_hard = total_medium = total_low = 0
-
     # Get hard, medium, low value for ratio 
     try:
         hard = int(get_ratio[0])
@@ -1043,9 +1037,9 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
 
     # calculate total number of hard, medium, low from given ratio.
     try:
-        total_hard = int((hard*max_count*10)/100) if hard else ""
-        total_medium = int((medium*max_count*10)/100) if medium else ""
-        total_low = int((low*max_count*10)/100) if low else ""
+        total_hard = int((hard*max_count)/(hard+medium+low)) if hard else 0
+        total_medium = int((medium*max_count)/(hard+medium+low)) if medium else 0
+        total_low = int((low*max_count)/(hard+medium+low)) if low else 0
     except Exception as err:
         logger.error("{}".format(err))
         pass
@@ -1068,7 +1062,7 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
         except:
             quiz_competency=[]
     all_probelm_blocks_list=[]
-    
+    logger.info("total_hard : {} \n total_medium : {} \n total_low : {}".format(total_hard,total_medium,total_low))
     ''''
     Added By Manprax
     Fetch all the blocks in the question bank(library) with quiz selected competency
@@ -1093,7 +1087,7 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
             complexity_name = all_tag_objects.get(object_id=problem_library_id , taxonomy__name='Complexities')._value
         except:
             #considering a problem low if no complexity is defined
-            complexity_name='low'
+            complexity_name='Easy'
         if quiz_competency and competency_name == quiz_competency._value:
             problem_block_dict ={
                 'block_type':get_children.block_type,
@@ -1109,7 +1103,7 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
     def select_problem_blocks(count_problem,complexity,total_count):
         for select_problem in all_probelm_blocks_list:
             if count_problem < total_count and select_problem['complexity_name'] == complexity and select_problem['block_id'] not in already_selected:
-                count_problem=+1
+                count_problem+=1
                 block = (select_problem['block_type'],select_problem['block_id'])
                 mx_valid_block_keys.add(tuple(block))
         return count_problem
@@ -1118,16 +1112,15 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
         for select_problem in all_probelm_blocks_list:
             if complexity:
                 if count_problem < total_count and select_problem['complexity_name'] == complexity:
-                    count_problem=+1
+                    count_problem+=1
                     block = (select_problem['block_type'],select_problem['block_id'])
                     mx_valid_block_keys.add(tuple(block))
             else:
                 if count_problem < total_count:
-                    count_problem=+1
+                    count_problem+=1
                     block = (select_problem['block_type'],select_problem['block_id'])
                     mx_valid_block_keys.add(tuple(block))
         return count_problem
-    
     if len(set(already_selected)) < len(all_probelm_blocks_list):
         count_hard = select_problem_blocks(count_hard,complexity_hard,total_hard)
         remaining_hard = total_hard - count_hard
@@ -1149,6 +1142,5 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
         count_low = already_select_problems(count_low,complexity_low,total_low)
         if total_low - count_low > 0:
             already_select_problems(remaining_count,'',total_low)
-
 
     return mx_valid_block_keys
