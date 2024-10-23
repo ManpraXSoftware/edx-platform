@@ -326,14 +326,13 @@ class LibraryContentBlock(
 
             else:
                 raise NotImplementedError("Unsupported mode.")
-            selected_keys |= added_block_keys
+            # selected_keys |= added_block_keys
 
         if any((invalid_block_keys, overlimit_block_keys, added_block_keys)):
-            selected = list(selected_keys)
-            random.shuffle(selected)
-
+            selected_keys = list(selected_keys)
+            random.shuffle(selected_keys)
         return {
-            'selected': selected,
+            'selected': selected_keys,
             'invalid': invalid_block_keys,
             'overlimit': overlimit_block_keys,
             'added': added_block_keys,
@@ -1142,5 +1141,12 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
         count_low = already_select_problems(count_low,complexity_low,total_low)
         if total_low - count_low > 0:
             already_select_problems(remaining_count,'',total_low)
-
+    if max_count - len(mx_valid_block_keys) > 0:
+        minimum_ratio = min(hard, medium, low)
+        if minimum_ratio == hard:
+            count_quiz = select_problem_blocks(0,complexity_hard,(max_count - len(mx_valid_block_keys)))
+        elif minimum_ratio == medium:
+            select_problem_blocks(0,complexity_medium,(max_count - len(mx_valid_block_keys)))
+        else:
+            select_problem_blocks(0,complexity_low,(max_count - len(mx_valid_block_keys)))
     return mx_valid_block_keys
