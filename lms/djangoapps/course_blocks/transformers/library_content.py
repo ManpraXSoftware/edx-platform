@@ -74,6 +74,7 @@ class ContentLibraryTransformer(FilteringTransformerMixin, BlockStructureTransfo
                 block_structure.set_transformer_block_field(child_key, cls, 'block_analytics_summary', summary)
 
     def transform_block_filters(self, usage_info, block_structure):
+        from gamification.models.trackers import AttemptRecord
         all_library_children = set()
         all_selected_children = set()
         for block_key in block_structure:
@@ -100,11 +101,21 @@ class ContentLibraryTransformer(FilteringTransformerMixin, BlockStructureTransfo
 
 
                 # Manprax
+                try:
+                    attempts = AttemptRecord.objects.get(user__id=self.get_user_id(),course_id=(self.location.course_key))
+                except:
+                    attempts = []
+                if attempts:
+                    attempt_number = attempts.attempt_number
+                    already_selected = attempts.already_selected.raplace('][}{','').split(',')
+                else:
+                    attempt_number=1
+                    already_selected=[]
                 library_block = modulestore().get_item(block_key)
                 ratio = library_block.ratio
-                attempts = library_block.attempts
+                attempts = attempt_number
                 attempt_allowed = library_block.attempt_allowed
-                already_selected = library_block.already_selected
+                already_selected = already_selected
                 block_parent_id = library_block.parent
                 course_id = library_block.course_id
 
@@ -235,7 +246,6 @@ class ContentLibraryOrderTransformer(BlockStructureTransformer):
                 continue
 
             library_children = block_structure.get_children(block_key)
-
             if library_children:
                 state_dict = get_student_module_as_dict(usage_info.user, usage_info.course_key, block_key)
                 current_children_blocks = {block.block_id for block in library_children}
