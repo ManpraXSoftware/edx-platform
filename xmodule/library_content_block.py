@@ -1060,6 +1060,14 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
         total_hard = int((hard*max_count)/(hard+medium+low)) if hard else 0
         total_medium = int((medium*max_count)/(hard+medium+low)) if medium else 0
         total_low = int((low*max_count)/(hard+medium+low)) if low else 0
+        if max_count > (total_hard+total_medium+total_low):
+            min_rat_complexity = min(hard,medium,low)
+            if hard == min_rat_complexity:
+                total_hard = total_hard+ (max_count-(total_hard+total_medium+total_low))
+            elif medium == min_rat_complexity:
+                total_medium = total_medium+ (max_count-(total_hard+total_medium+total_low))
+            elif low == min_rat_complexity:
+                total_low = total_low+ (max_count-(total_hard+total_medium+total_low))
     except Exception as err:
         logger.error("{}".format(err))
         pass
@@ -1162,12 +1170,4 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
         count_low = already_select_problems(count_low,complexity_low,total_low)
         if total_low - count_low > 0:
             already_select_problems(remaining_count,'',total_low)
-    if max_count - len(mx_valid_block_keys) > 0:
-        minimum_ratio = min(hard, medium, low)
-        if minimum_ratio == hard:
-            count_quiz = select_problem_blocks(0,complexity_hard,(max_count - len(mx_valid_block_keys)))
-        elif minimum_ratio == medium:
-            select_problem_blocks(0,complexity_medium,(max_count - len(mx_valid_block_keys)))
-        else:
-            select_problem_blocks(0,complexity_low,(max_count - len(mx_valid_block_keys)))
     return mx_valid_block_keys
