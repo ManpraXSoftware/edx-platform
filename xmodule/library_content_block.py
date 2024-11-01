@@ -183,12 +183,6 @@ class LibraryContentBlock(
         scope=Scope.user_state,
     )
 
-    already_selected = List(
-        # This is a list of (block_type, block_id) tuples used to record
-        # which random/first set of matching blocks was selected per user
-        default=[],
-        scope=Scope.user_state,
-    )
     # This cannot be called `show_reset_button`, because children blocks inherit this as a default value.
     allow_resetting_children = Boolean(
         display_name=_("Show Reset Button"),
@@ -205,11 +199,6 @@ class LibraryContentBlock(
         help=_("Enter the ratio e.g. Hard:Medium:Low if ration is not provided then the default ration would be 1:4:5"),
         default="1:4:5",
         scope=Scope.settings,
-    )
-    attempts = Integer(
-        help=_("Number of attempts taken by the student"),
-        default=0,
-        scope=Scope.user_state
     )
     attempt_allowed = Integer(
         display_name=_("Maximum Attempts Allowed"),
@@ -286,7 +275,7 @@ class LibraryContentBlock(
 
         current_ratio = "1:4:5"
         try:
-            if attempts <= attempt_allowed:
+            if attempt_allowed and attempts <= attempt_allowed:
                 split_ratio = ratio.split(",")
                 current_ratio = split_ratio[attempts]
         except Exception as err:
@@ -326,13 +315,13 @@ class LibraryContentBlock(
 
             else:
                 raise NotImplementedError("Unsupported mode.")
-            # selected_keys |= added_block_keys
+            selected_keys |= added_block_keys
 
         if any((invalid_block_keys, overlimit_block_keys, added_block_keys)):
-            selected_keys = list(selected_keys)
-            random.shuffle(selected_keys)
+            selected = list(selected_keys)
+            random.shuffle(selected)
         return {
-            'selected': selected_keys,
+            'selected': selected,
             'invalid': invalid_block_keys,
             'overlimit': overlimit_block_keys,
             'added': added_block_keys,
@@ -421,13 +410,22 @@ class LibraryContentBlock(
         max_count = self.max_count
         if max_count < 0:
             max_count = 10
-
-
+        from gamification.models.trackers import AttemptRecord
+        from django.contrib.auth.models import User
+        user = User.objects.get(id=self.get_user_id())
+        attempt,created = AttemptRecord.objects.get_or_create(user=user, course_id = str(self.location.course_key))
+        if not attempt.attempt_number:
+            attempt.attempt_number = 1
+        if attempt.already_selected:
+            already_selected = attempt.already_selected.replace('][}{','').split(',')
+        else:
+            already_selected=[]
+        attempt.save()
         # from lms.djangoapps.courseware.models import StudentModule
 
         # block_keys = self.make_selection(self.selected, self.children, max_count, "random")  # pylint: disable=no-member
         # Manprax
-        block_keys = self.make_selection(self.selected, self.children, max_count, self.attempts, self.attempt_allowed, self.ratio, self.mode,self.already_selected,self.parent,self.course_id)  # pylint: disable=no-member
+        block_keys = self.make_selection(self.selected, self.children, max_count, attempt.attempt_number, self.attempt_allowed, self.ratio, self.mode,already_selected,self.parent,self.course_id)  # pylint: disable=no-member
 
         # Publish events for analytics purposes:
         lib_tools = self.get_tools()
@@ -442,9 +440,12 @@ class LibraryContentBlock(
             # Save our selections to the user state, to ensure consistency:
             selected = block_keys['selected']
             self.selected = selected  # TODO: this doesn't save from the LMS "Progress" page.
+        
+        already_selected=set(already_selected)
         for select in self.selected:
-            self.already_selected.append(select[1])
-
+            already_selected.add(select[1])
+        attempt.already_selected= str(already_selected)
+        attempt.save()
         return self.selected
 
     @XBlock.handler
@@ -459,19 +460,24 @@ class LibraryContentBlock(
         #     return Response('"Resetting selected children" is not allowed for this XBlock',
         #                     status=status.HTTP_400_BAD_REQUEST)
         #resetting the grade to reset the selected answers for the blocks
-        
+        from gamification.models.trackers import AttemptRecord
         self.runtime.publish(self, 'grade', {'value': None, 'max_value': None})
         for block_type, block_id in self.selected_children():
             block = self.runtime.get_block(self.location.course_key.make_usage_key(block_type, block_id))
-            logger.info("__________________________________ block.get_score :{} \n \n \n\n\n ".format(block.get_score))
-            logger.info("__________________________________ __________________________________________________________________")
             if hasattr(block, 'reset_problem'):
                 block.reset_problem(None)
                 block.save()
-        self.attempts += 1
+        
         self.selected = []
         # Manprax
-        # self.attempts += 1
+        try:
+            attempts = AttemptRecord.objects.get(user__id=self.get_user_id(),course_id=(self.location.course_key))
+        except:
+            attempts = []
+
+        if attempts:
+            attempts.attempt_number += 1
+            attempts.save()
         return Response(json.dumps(self.student_view({}).content))
     
     # Manprax
@@ -498,6 +504,7 @@ class LibraryContentBlock(
         from mx_catalog.models import Content
         from mx_catalog.views import get_course
         from mx_catalog.serializers import ContentDetailSerializer
+        from gamification.models.trackers import AttemptRecord
         show_reset = True
         is_passed = False
         has_attempt = True
@@ -511,11 +518,16 @@ class LibraryContentBlock(
             is_passed = True
         test_val=[]
         
-        for block_key, block_structure in user_grade.chapter_grades.items():
-            for a in dict(block_structure['sections'][0].problem_scores).keys():
-                if block_structure['sections'][0].problem_scores[a].earned == block_structure['sections'][0].problem_scores[a].possible:
-                    correct_count=correct_count+1
-                total_possible= total_possible+1
+        # for block_key, block_structure in user_grade.chapter_grades.items():
+        #     for a in dict(block_structure['sections'][0].problem_scores).keys():
+        #         if block_structure['sections'][0].problem_scores[a].earned == block_structure['sections'][0].problem_scores[a].possible:
+        #             correct_count=correct_count+1
+        #         total_possible= total_possible+1
+        
+        for block,problem in user_grade.problem_scores.items():
+            if problem.earned == problem.possible:
+                correct_count=correct_count+1
+            total_possible= total_possible+1
         
         if self.course_connected:
             try:
@@ -523,10 +535,18 @@ class LibraryContentBlock(
                 course_data = get_course(self.course_connected,user)
             except:
                 course_data =None
+        try:
+            attempts = AttemptRecord.objects.get(user__id=self.get_user_id(),course_id=(self.location.course_key))
+        except:
+            attempts = []
+        if attempts:
+            attempt_number = attempts.attempt_number
+        else:
+            attempt_number= 1
         param = {
             "show_reset": show_reset,
             "is_passed": is_passed,
-            "attempt_number":self.attempts,
+            "attempt_number":attempt_number,
             "has_attempt": has_attempt,
             "search_prompt":self.search_prompt,
             "chatgpt_prompt":self.chatgpt_prompt,
@@ -535,6 +555,7 @@ class LibraryContentBlock(
             "result_summary":self.result_summary,
             "course_data":course_data
         }
+        
         RESULT_VIEWED.send(sender=CourseGradeFactory,
                         instance=user_grade,
                         user_id=user_id,
