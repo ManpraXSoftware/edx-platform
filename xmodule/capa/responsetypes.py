@@ -263,7 +263,7 @@ class LoncapaResponse(six.with_metaclass(abc.ABCMeta, object)):
         tree.set('tabindex', '-1')
         tree.set('aria-label', response_label)
         tree.set('role', 'group')
-
+        
         if self.xml.get('multiple_inputtypes'):
             # add <div> to wrap all inputtypes
             content = etree.SubElement(tree, 'div')
@@ -286,7 +286,14 @@ class LoncapaResponse(six.with_metaclass(abc.ABCMeta, object)):
             # call provided procedure to do the rendering
             item_xhtml = renderer(item)
             if item_xhtml is not None:
-                content.append(item_xhtml)
+                if item.tag == 'p':
+                    new_div = etree.Element("div")
+                    new_div.set('class','top_head')
+                    new_div.set('style','padding: 61px 62px;background-color: #FFFAE0;')
+                    new_div.append(item_xhtml)
+                    content.append(new_div)
+                else:
+                    content.append(item_xhtml)
         tree.tail = self.xml.tail
 
         # Add a <div> for the message at the end of the response

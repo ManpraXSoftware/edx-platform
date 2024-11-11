@@ -155,7 +155,7 @@ div.problem-progress {
 // +Problem - Base
 // ====================
 div.problem {
-  padding-top: $baseline;
+  padding-top: None;
 
   @media print {
     display: block;
@@ -311,6 +311,7 @@ div.problem {
       width: $baseline*1.1;
       height: $baseline*1.1;
       z-index: 1;
+      padding: 0px 62px;
     }
 
     legend {
@@ -699,6 +700,7 @@ div.problem {
 
   p {
     margin-bottom: lh();
+    
   }
 
   table {
@@ -1744,4 +1746,8 @@ div.problem .annotation-input {
 .problems-wrapper .loading-spinner {
   text-align: center;
   color: $gray-d1;
+}
+.xmodule_display.xmodule_ProblemBlock div.problem p .question{
+  padding-top: None;
+  background-color: #FFFAE0;
 }
