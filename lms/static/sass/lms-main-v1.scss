@@ -4,3 +4,14 @@
 
 @import 'build-base-v1';
 @import 'build-lms-v1'; // shared app style assets/rendering
+
+.container, section.outside-app, .view-profile .profile-self .wrapper-profile-field-account-privacy .u-field-account_privacy, .view-profile .wrapper-profile-sections, .view-profile .badge-set-display, .main-container, .find-courses{
+    padding-left: None;
+    padding-right: None;
+}
+
+
+@media (min-width: 768px){
+.content-wrapper{
+    padding: unset !important;
+}}

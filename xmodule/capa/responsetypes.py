@@ -289,7 +289,7 @@ class LoncapaResponse(six.with_metaclass(abc.ABCMeta, object)):
                 if item.tag == 'p':
                     new_div = etree.Element("div")
                     new_div.set('class','top_head')
-                    new_div.set('style','padding: 61px 62px;background-color: #FFFAE0;margin-bottom: 20px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px')
+                    new_div.set('style','padding: 30px 30px;background-color: #FFFAE0;margin-bottom: 20px;border-bottom-left-radius: 30px;border-bottom-right-radius: 30px')
                     new_div.append(item_xhtml)
                     content.append(new_div)
                 else:

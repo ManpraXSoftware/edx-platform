@@ -38,3 +38,16 @@
 .course-wrapper main{
     padding: None;
 }
+
+.content-wrapper{
+    margin: None;
+    padding:None
+}
+
+.container, section.outside-app, .view-profile .profile-self .wrapper-profile-field-account-privacy .u-field-account_privacy, .view-profile .wrapper-profile-sections, .view-profile .badge-set-display, .main-container, .find-courses {
+
+    max-width: None;
+    padding-left: None !important;
+    padding-right: None !important;
+    margin: 0 auto;
+}

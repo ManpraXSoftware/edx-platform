@@ -5,11 +5,7 @@ from openedx.core.djangolib.markup import HTML, Text
 %>
 
 <%namespace name='static' file='static_content.html'/>
-<h3 class="hd hd-3 problem-header" id="${ short_id }-problem-title" aria-describedby="${ id }-problem-progress" tabindex="-1">
-  ${ problem['name'] }
-</h3>
 
-<div class="problem-progress" id="${ id }-problem-progress"></div>
 
 <div class="problem">
   ${ HTML(problem['html']) }
@@ -25,6 +21,10 @@ from openedx.core.djangolib.markup import HTML, Text
        />
       </div>
     % endif
+
+    <h3 class="hd hd-3 problem-header" id="${ short_id }-problem-title" aria-describedby="${ id }-problem-progress" tabindex="-1" style="background: #E4952266; font-size: 69%;">
+      ${ problem['name'] }
+    </h3>
 
     <div class="problem-action-buttons-wrapper">
       % if demand_hint_possible:
@@ -51,8 +51,21 @@ from openedx.core.djangolib.markup import HTML, Text
       </span>
       % endif
     </div>
-    <div class="submit-attempt-container">
-      <button type="button" class="submit btn-brand" data-submitting="${ submit_button_submitting }" data-value="${ submit_button }" data-should-enable-submit-button="${ should_enable_submit_button }" aria-describedby="submission_feedback_${short_id}" ${'' if should_enable_submit_button else 'disabled'}>
+    <script type="text/javascript">
+      function sendQuizSubmissionResponse() {
+        if (window.flutter_inappwebview) {
+          document.getElementById("submit-btn-brand").click();
+          var message = {
+            "success": true
+          }
+          window.flutter_inappwebview.callHandler('sendQuizSubmissionResponse',message);
+        } else {
+          console.log(message);
+        }
+      }
+  </script>
+    <div class="submit-attempt-container" style="display: none;" >
+      <button id = "submit-btn-brand" type="button" class="submit btn-brand" data-submitting="${ submit_button_submitting }" data-value="${ submit_button }" data-should-enable-submit-button="${ should_enable_submit_button }" aria-describedby="submission_feedback_${short_id}" ${'' if should_enable_submit_button else 'disabled'}>
           <span class="submit-label">${ submit_button }</span>
       </button>
 
