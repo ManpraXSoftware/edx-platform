@@ -417,7 +417,11 @@ class LibraryContentBlock(
         if not attempt.attempt_number:
             attempt.attempt_number = 1
         if attempt.already_selected:
-            already_selected = attempt.already_selected.replace('][}{','').split(',')
+            replace_string =['}','[','{', '\'','\"','\\',' ']
+            clean_already_selected = attempt.already_selected
+            for c in replace_string:
+                clean_already_selected=clean_already_selected.replace(c,'')
+            already_selected = clean_already_selected.split(',')
         else:
             already_selected=[]
         attempt.save()
