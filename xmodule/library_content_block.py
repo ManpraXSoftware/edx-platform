@@ -277,7 +277,7 @@ class LibraryContentBlock(
         try:
             if attempt_allowed and attempts <= attempt_allowed:
                 split_ratio = ratio.split(",")
-                current_ratio = split_ratio[attempts]
+                current_ratio = split_ratio[attempts-1]
         except Exception as err:
             logger.error("{}".format(err))
         # If max_count has been decreased, we may have to drop some previously selected blocks:
