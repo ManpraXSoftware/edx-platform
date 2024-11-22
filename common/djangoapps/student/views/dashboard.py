@@ -554,8 +554,9 @@ def student_dashboard(request, program_uuid):  # lint-amnesty, pylint: disable=t
     if not UserProfile.objects.filter(user=user).exists():
         return redirect(reverse('account_settings'))
 
-    if learner_home_mfe_enabled():
-        return redirect(settings.LEARNER_HOME_MICROFRONTEND_URL)
+    # Manprax
+    # if learner_home_mfe_enabled():
+    #     return redirect(settings.LEARNER_HOME_MICROFRONTEND_URL)
 
     platform_name = configuration_helpers.get_value("platform_name", settings.PLATFORM_NAME)
 
