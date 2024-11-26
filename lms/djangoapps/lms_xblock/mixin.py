@@ -259,4 +259,7 @@ class LmsBlockMixin(XBlockMixin):
         if not completion_service.can_mark_block_complete_on_view(self):
             raise JsonHandlerError(400, "Block not configured for completion on view.")
         self.runtime.publish(self, "completion", data)
+        from lms.djangoapps.lms_xblock.signals import LMS_XBLOCK_COMPLETION_PUBLISHED
+        from completion.models import BlockCompletion
+        LMS_XBLOCK_COMPLETION_PUBLISHED.send(sender=BlockCompletion,completion=data.get("completion"),mixin=self)
         return {'result': 'ok'}
