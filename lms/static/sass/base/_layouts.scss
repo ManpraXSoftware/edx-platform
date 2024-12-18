@@ -45,7 +45,8 @@ body.view-in-course {
   }
 
   // content area wrapper
-  .container {
+  // .container {
+  .container:not(footer .container) {
     max-width: none;
     min-width: initial;
     width: auto;

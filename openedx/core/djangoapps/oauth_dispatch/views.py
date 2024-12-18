@@ -20,7 +20,8 @@ from openedx.core.djangoapps.oauth_dispatch.dot_overrides import views as dot_ov
 from openedx.core.djangoapps.oauth_dispatch.jwt import create_jwt_token_dict
 from openedx.core.djangoapps.oauth_dispatch.toggles import DISABLE_JWT_FOR_MOBILE
 from openedx.core.lib.mobile_utils import is_request_from_mobile_app
-
+import logging
+log = logging.getLogger("")
 
 class _DispatchingView(View):
     """
@@ -90,6 +91,8 @@ def _get_token_type(request):
     return token_type
 
 
+
+
 @method_decorator(
     ratelimit(
         key='openedx.core.djangoapps.util.ratelimit.real_ip', rate=settings.RATELIMIT_RATE,
@@ -102,7 +105,11 @@ class AccessTokenView(_DispatchingView):
     """
     dot_view = dot_views.TokenView
 
+    log.info("inside AccessTokenView")
+
     def dispatch(self, request, *args, **kwargs):
+        log.info("inside AccessTokenView dispatch")
+
         response = super().dispatch(request, *args, **kwargs)
         monitoring_utils.set_custom_attribute('oauth_grant_type', request.POST.get('grant_type', 'not-supplied'))
         token_type = _get_token_type(request)
@@ -178,3 +185,101 @@ class RevokeTokenView(_DispatchingView):
         its associated refresh_token.
     """
     dot_view = dot_views.RevokeTokenView
+
+
+
+
+def _get_token_type(request):
+    """
+    Get the token_type for the request.
+
+    - Respects the HTTP_X_TOKEN_TYPE header if the token_type parameter is not supplied.
+    - Adds `oauth_token_type` custom attribute for monitoring.
+    """
+    default_token_type = request.META.get('HTTP_X_TOKEN_TYPE', 'no_token_type_supplied')
+    token_type = request.POST.get('token_type', default_token_type).lower()
+    monitoring_utils.set_custom_attribute('oauth_token_type', token_type)
+    return token_type
+
+
+
+from openedx.core.djangoapps.oauth_dispatch.adapters import DOTAdapter
+from oauth2_provider.models import AccessToken, RefreshToken, Application
+from django.utils.timezone import now
+import datetime
+import secrets
+
+
+def generate_secure_token(length=40):
+    """
+    Generate a secure random token.
+    
+    Args:
+        length (int): The length of the token to generate. Default is 40.
+    
+    Returns:
+        str: A securely generated random token.
+    """
+    return secrets.token_urlsafe(length)[:length]
+
+def generate_access_token(client_id, client_secret, grant_type="client_credentials", token_type="jwt"):
+    """
+    Generate an access token programmatically without using HttpRequest or RequestFactory.
+
+    Args:
+        client_id (str): The client ID for the OAuth application.
+        client_secret (str): The client secret for the OAuth application.
+        grant_type (str): The grant type, default is 'client_credentials'.
+        token_type (str): The token type, default is 'jwt'.
+
+    Returns:
+        dict: A dictionary containing access token data or an error message.
+    """
+    # Validate the client_id and client_secret
+
+    try:
+        application = Application.objects.get(client_id=client_id, client_secret=client_secret)
+    except Application.DoesNotExist:
+        return {"error": "Invalid client_id or client_secret"}
+
+    # Simulate a token request
+    if grant_type != "client_credentials":
+        return {"error": "Unsupported grant type. Only 'client_credentials' is supported."}
+
+    # Generate AccessToken directly
+    access_token = AccessToken.objects.create(
+        user=application.user,
+        scope="read write email profile user_id",
+        expires=now() + datetime.timedelta(seconds=3600),  # 1-hour validity
+        token=generate_secure_token(),  # Replace with a generated unique token
+        application=application,
+    )
+
+    # Optional: Generate RefreshToken (not used in client_credentials)
+    # RefreshToken.objects.create(
+    #     user=application.user,
+    #     token="refresh-token-sample",  # Replace with a generated unique token
+    #     application=application,
+    #     access_token=access_token,
+    # )
+
+
+    response_data = {
+        "access_token": access_token.token,
+        "token_type": "Bearer",
+        "expires_in": 3600,
+        "scope": access_token.scope,
+    }
+
+    # Handle JWT tokens if requested
+    if token_type == "jwt" and not DISABLE_JWT_FOR_MOBILE.is_enabled():
+        adapter = DOTAdapter()
+        jwt_token_dict = create_jwt_token_dict(
+            response_data,
+            adapter,
+            use_asymmetric_key=False,  # Set to True if asymmetric JWT is needed
+        )
+        return jwt_token_dict
+
+    return response_data
+
