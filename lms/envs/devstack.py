@@ -413,7 +413,7 @@ FEATURES.update({
 })
 
 ENABLE_MKTG_SITE = os.environ.get('ENABLE_MARKETING_SITE', False)
-MARKETING_SITE_ROOT = os.environ.get('MARKETING_SITE_ROOT', 'http://localhost:8080')
+MARKETING_SITE_ROOT = os.environ.get('MARKETING_SITE_ROOT', 'http://apps.local.edly.io:8080/explore-courses/')
 
 MKTG_URLS = {
     'ABOUT': '/about',
