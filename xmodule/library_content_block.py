@@ -243,7 +243,7 @@ class LibraryContentBlock(
             return LibraryLocatorV2.from_string(self.source_library_id)
 
     @classmethod
-    def make_selection(cls, selected, children, max_count, attempts, attempt_allowed, ratio, mode,already_selected,block_parent_id,course_id):
+    def make_selection(cls, selected, children, max_count, attempts, attempt_allowed, ratio, mode,already_selected,block_parent_id,course_id,user):
         """
         Dynamically selects block_ids indicating which of the possible children are displayed to the current user.
 
@@ -290,7 +290,7 @@ class LibraryContentBlock(
         # Manprax 
         # If max_count has been decreased, we may have to drop some previously selected blocks and mode is ratio
         if len(selected_keys) > max_count and current_ratio and mode == "ratio":
-            mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected,block_parent_id,course_id)
+            mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected,block_parent_id,course_id,user)
             added_block_keys = mx_valid_block_keys
             selected_keys = added_block_keys
 
@@ -309,7 +309,7 @@ class LibraryContentBlock(
             # Manprax 
             # If mode is ratio and need to show extra block to User.
             elif current_ratio and mode == "ratio":
-                mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected,block_parent_id,course_id)
+                mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected,block_parent_id,course_id,user)
                 added_block_keys = mx_valid_block_keys
                 selected_keys = added_block_keys
 
@@ -429,7 +429,7 @@ class LibraryContentBlock(
 
         # block_keys = self.make_selection(self.selected, self.children, max_count, "random")  # pylint: disable=no-member
         # Manprax
-        block_keys = self.make_selection(self.selected, self.children, max_count, attempt.attempt_number, self.attempt_allowed, self.ratio, self.mode,already_selected,self.parent,self.course_id)  # pylint: disable=no-member
+        block_keys = self.make_selection(self.selected, self.children, max_count, attempt.attempt_number, self.attempt_allowed, self.ratio, self.mode,already_selected,self.parent,self.course_id,user)  # pylint: disable=no-member
 
         # Publish events for analytics purposes:
         lib_tools = self.get_tools()
@@ -1041,7 +1041,7 @@ class LibrarySummary:
     
 
 # Manprax
-def get_block_based_ratio(ratio, max_count, children,already_selected,block_parent_id,course_id):
+def get_block_based_ratio(ratio, max_count, children,already_selected,block_parent_id,course_id,user):
     from openedx_tagging.core.tagging.models import ObjectTag
     from xmodule.modulestore.django import modulestore
     get_ratio = ratio.split(":")
@@ -1093,8 +1093,18 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
             quiz_competency = all_tag_objects.get(object_id =str(course_id),taxonomy__name='Competencies')
         except:
             quiz_competency=[]
+    # Fetch particular quiz state if does not exist check competency of the course
+    try:
+        quiz_state = all_tag_objects.get(object_id =str(block_parent_id),taxonomy__name='State')
+    except:
+        quiz_state= []
+    # if quiz_state(competency of the unit block) does not exist check state of the course
+    if not quiz_state:
+        try:
+            quiz_state = all_tag_objects.get(object_id =str(course_id),taxonomy__name='State')
+        except:
+            quiz_state=[]
     all_probelm_blocks_list=[]
-    logger.info("total_hard : {} \n total_medium : {} \n total_low : {}".format(total_hard,total_medium,total_low))
     ''''
     Added By Manprax
     Fetch all the blocks in the question bank(library) with quiz selected competency
@@ -1115,19 +1125,36 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
             competency_name = all_tag_objects.get(object_id=problem_library_id , taxonomy__name='Competencies')._value
         except:
             competency_name=''
+        
+        try:
+            state_name = all_tag_objects.get(object_id=problem_library_id , taxonomy__name='State')._value
+        except:
+            state_name=''
         try:
             complexity_name = all_tag_objects.get(object_id=problem_library_id , taxonomy__name='Complexities')._value
         except:
             #considering a problem low if no complexity is defined
             complexity_name='Easy'
-        if quiz_competency and competency_name == quiz_competency._value:
-            problem_block_dict ={
-                'block_type':get_children.block_type,
-                'block_id':get_children.block_id,
-                'competency_name':competency_name,
-                'complexity_name':complexity_name,
-            }
-            all_probelm_blocks_list.append(problem_block_dict)
+        if not user.profile.state:
+            if quiz_competency and competency_name == quiz_competency._value:
+                problem_block_dict ={
+                    'block_type':get_children.block_type,
+                    'block_id':get_children.block_id,
+                    'competency_name':competency_name,
+                    'complexity_name':complexity_name,
+                    'state':state_name
+                }
+                all_probelm_blocks_list.append(problem_block_dict)
+        else:
+            if quiz_competency and competency_name == quiz_competency._value and user.profile.state == state_name:
+                problem_block_dict ={
+                    'block_type':get_children.block_type,
+                    'block_id':get_children.block_id,
+                    'competency_name':competency_name,
+                    'complexity_name':complexity_name,
+                    'state':state_name
+                }
+                all_probelm_blocks_list.append(problem_block_dict)
     ''' End of adding '''
     # competency_problem_clock = [comptency for comptency in all_probelm_blocks_list if comptency['competency_name'] == quiz_competency]
     random.shuffle(all_probelm_blocks_list)
