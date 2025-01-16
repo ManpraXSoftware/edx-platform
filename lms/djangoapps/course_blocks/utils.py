@@ -7,7 +7,6 @@ import json
 
 from lms.djangoapps.courseware.models import StudentModule
 
-
 def get_student_module_as_dict(user, course_key, block_key):
     """
     Get the student module as a dict for the given user for the given block.
@@ -31,8 +30,7 @@ def get_student_module_as_dict(user, course_key, block_key):
         )
     except StudentModule.DoesNotExist:
         student_module = None
-
-    if student_module:
+    if student_module and student_module.state:
         return json.loads(student_module.state)
     else:
         return {}
