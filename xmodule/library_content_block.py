@@ -1135,7 +1135,7 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
         except:
             #considering a problem low if no complexity is defined
             complexity_name='Easy'
-        if not user.profile.state:
+        if not (user.profile.state and state_name):
             if quiz_competency and competency_name == quiz_competency._value:
                 problem_block_dict ={
                     'block_type':get_children.block_type,
