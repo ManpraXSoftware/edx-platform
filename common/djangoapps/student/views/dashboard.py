@@ -835,6 +835,17 @@ def student_dashboard(request, program_uuid):  # lint-amnesty, pylint: disable=t
         if fbe_is_on:
             enrollments_fbe_is_on.append(course_key)
 
+    course_languages = {}
+    course_languages = {course_key:modulestore().get_course(CourseKey.from_string(course_key)).language if modulestore().get_course(CourseKey.from_string(course_key)) else "en" for course_key in course_keys_in_program}
+    for course_key in course_keys_in_program:
+        if modulestore().get_course(CourseKey.from_string(course_key)):
+            try:
+                language_name = settings.LANGUAGE_DICT[modulestore().get_course(CourseKey.from_string(course_key)).language]
+                course_languages[course_key] = modulestore().get_course(CourseKey.from_string(course_key)).language
+            except:
+                course_languages[course_key] = "en"
+        else:
+            course_languages[course_key] = "en"
     context = {
         'urls': urls,
         'programs_data': programs_data,
@@ -894,7 +905,8 @@ def student_dashboard(request, program_uuid):  # lint-amnesty, pylint: disable=t
         "block_courses":[],
         'program_uuid': program_uuid,
         'program_title': program_title,
-        'username': user.username
+        'username': user.username,
+        "course_languages":course_languages
     }
 
     # Include enterprise learner portal metadata and messaging

@@ -71,7 +71,8 @@ class ProgramsFragmentView(EdxFragmentView):
             user_enrolled_programs = [str(uuid['program_uuid']) for uuid in user_enrolled_programs]
             meter.programs = [program for program in meter.programs if program['uuid'] in user_enrolled_programs ]
             
-            url = settings.FEATURES['base_lms_url']+"explore-courses/enrolled-programs?username="+user.username+"&accept_language="+request.COOKIES.get("django_language", 'en')
+            # url = settings.FEATURES['base_lms_url']+"explore-courses/enrolled-programs?username="+user.username+"&accept_language="+request.COOKIES.get("django_language", 'en')
+            url = settings.FEATURES['base_lms_url']+"explore-courses/enrolled-programs?username="+user.username+"&accept_language="+request.COOKIES.get("lang", 'en')
             result = requests.get(url)
             if result.status_code == 200:
                 if result.json():
