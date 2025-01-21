@@ -517,6 +517,7 @@ class LibraryContentBlock(
         total_possible=0
         course_data = None
         user = User.objects.get(id = user_id)
+        CourseGradeFactory().update(user, course_key =self.location.course_key,force_update_subsections=True)
         user_grade = CourseGradeFactory().read(user, course_key = self.location.course_key)
         if user_grade.passed:
             is_passed = True
