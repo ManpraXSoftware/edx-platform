@@ -130,8 +130,7 @@ class StudentModule(models.Model):
         """
         queryset = cls.objects.filter(
             course_id=course_id,
-            module_type='problem',
-            grade__isnull=True
+            module_type='problem'
         )
         if "read_replica" in settings.DATABASES:
             return queryset.using("read_replica")
