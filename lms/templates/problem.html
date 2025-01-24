@@ -56,10 +56,14 @@ from openedx.core.djangolib.markup import HTML, Text
       function sendQuizSubmissionResponse() {
         if (window.flutter_inappwebview) {
           document.getElementById("submit-btn-brand").click();
+          
           var message = {
             "success": true
           }
-          window.flutter_inappwebview.callHandler('sendQuizSubmissionResponse',message);
+
+          setTimeout(() => {
+            window.flutter_inappwebview.callHandler('sendQuizSubmissionResponse',message);
+          }, (500)); 
         } else {
           console.log(message);
         }
