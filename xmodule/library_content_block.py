@@ -503,12 +503,21 @@ class LibraryContentBlock(
         """
         Show results to User.
         """
-        from lms.djangoapps.grades.api import CourseGradeFactory
+        from lms.djangoapps.grades.course_grade_factory import CourseGradeFactory
         from django.contrib.auth.models import User
         from mx_catalog.models import Content
         from mx_catalog.views import get_course
-        from mx_catalog.serializers import ContentDetailSerializer
+        # from mx_catalog.serializers import ContentDetailSerializer
         from gamification.models.trackers import AttemptRecord
+        # from mx_content_analytics.models import UserContent
+        # from lms.djangoapps.course_blocks.api import get_course_blocks
+        from lms.djangoapps.courseware.models import StudentModule
+        from mx_content_analytics.utils import update_user_content
+        from mx_content_analytics.enums import StatusEnum
+
+        submitted=''
+        if _.body:
+            submitted = json.loads(_.body)['submitted']
         show_reset = True
         is_passed = False
         has_attempt = True
@@ -517,22 +526,14 @@ class LibraryContentBlock(
         total_possible=0
         course_data = None
         user = User.objects.get(id = user_id)
-        CourseGradeFactory().update(user, course_key =self.location.course_key,force_update_subsections=True)
+
+        selected_blocks = [str(self.location.course_key.make_usage_key(select_block[0], select_block[1])) for select_block in self.selected]
+        student_module_blocks = StudentModule.objects.filter(student_id=user.id,module_state_key__in=selected_blocks)
+        correct_count = len([problem_module for problem_module in student_module_blocks if problem_module.grade and problem_module.grade==problem_module.max_grade])
+        total_possible = len(selected_blocks)
         user_grade = CourseGradeFactory().read(user, course_key = self.location.course_key)
         if user_grade.passed:
             is_passed = True
-        test_val=[]
-        
-        # for block_key, block_structure in user_grade.chapter_grades.items():
-        #     for a in dict(block_structure['sections'][0].problem_scores).keys():
-        #         if block_structure['sections'][0].problem_scores[a].earned == block_structure['sections'][0].problem_scores[a].possible:
-        #             correct_count=correct_count+1
-        #         total_possible= total_possible+1
-        
-        for block,problem in user_grade.problem_scores.items():
-            if problem.earned == problem.possible:
-                correct_count=correct_count+1
-            total_possible= total_possible+1
         
         if self.course_connected:
             try:
@@ -560,13 +561,20 @@ class LibraryContentBlock(
             "result_summary":self.result_summary,
             "course_data":course_data
         }
-        
-        RESULT_VIEWED.send(sender=CourseGradeFactory,
-                        instance=user_grade,
-                        user_id=user_id,
-                        content_key=self.location.course_key,
-                        target=total_possible
-                        )
+        if submitted:
+            if is_passed:
+                update_user_content(user, str(self.location.course_key), status=StatusEnum.ready_for_certificate.value)
+                
+            RESULT_VIEWED.send(sender=CourseGradeFactory,
+                            user_grade=user_grade,
+                            attempt_number=attempt_number,
+                            selected_blocks=selected_blocks,
+                            student_module_blocks=student_module_blocks,
+                            user_id=user_id,
+                            content_key=self.location.course_key,
+                            correct_count=correct_count,
+                            target=total_possible
+                            )
         return Response(json.dumps(param))
 
     def _get_selected_child_blocks(self):
