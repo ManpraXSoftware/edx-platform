@@ -532,6 +532,7 @@ class LibraryContentBlock(
         correct_count = len([problem_module for problem_module in student_module_blocks if problem_module.grade and problem_module.grade==problem_module.max_grade])
         total_possible = len(selected_blocks)
         user_grade = CourseGradeFactory().read(user, course_key = self.location.course_key)
+        user_grade = user_grade.update(user, course_key = self.location.course_key)
         if user_grade.passed:
             is_passed = True
         
