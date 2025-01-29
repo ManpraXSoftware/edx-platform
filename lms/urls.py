@@ -1054,6 +1054,12 @@ urlpatterns += [
     path('api/notifications/', include('openedx.core.djangoapps.notifications.urls')),
 ]
 
+from lms.letstalksign import letstalksign_authenticate
+
+urlpatterns += [
+        path('letstalksign/authenticate/', letstalksign_authenticate, name='letstalksign_api_authenticate_call'),
+
+]
 # if 'figures' in settings.INSTALLED_APPS:
 #         urlpatterns += (
 #             path('figures/',
