@@ -3,6 +3,8 @@ import os
 import requests
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.conf import settings
+import logging
+log = logging.getLogger("")
 
 def letstalksign_authenticate(request):
     # Extract the URL from the query parameters
@@ -53,6 +55,7 @@ def letstalksign_authenticate(request):
         "customer_id": lts_customer_id,
         "api_token": lts_api_token
     }
+    log.info("Let's talk crendential {}".format(data_to_send))
     # Make the POST request
     try:
         response = requests.post(url, data=data_to_send, headers={"Content-Type": "application/x-www-form-urlencoded"})
