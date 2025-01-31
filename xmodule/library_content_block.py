@@ -532,7 +532,7 @@ class LibraryContentBlock(
         correct_count = len([problem_module for problem_module in student_module_blocks if problem_module.grade and problem_module.grade==problem_module.max_grade])
         total_possible = len(selected_blocks)
         user_grade = CourseGradeFactory().read(user, course_key = self.location.course_key)
-        user_grade = user_grade.update(user, course_key = self.location.course_key)
+        user_grade = CourseGradeFactory().update(user, course_key = self.location.course_key)
         if user_grade.passed:
             is_passed = True
         
@@ -1173,23 +1173,28 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
     def select_problem_blocks(count_problem,complexity,total_count):
         for select_problem in all_probelm_blocks_list:
             if count_problem < total_count and select_problem['complexity_name'] == complexity and select_problem['block_id'] not in already_selected:
-                count_problem+=1
                 block = (select_problem['block_type'],select_problem['block_id'])
-                mx_valid_block_keys.add(tuple(block))
+                if not block in mx_valid_block_keys:
+                    count_problem+=1  
+                    mx_valid_block_keys.add(tuple(block))
         return count_problem
     
     def already_select_problems(count_problem,complexity,total_count):
         for select_problem in all_probelm_blocks_list:
             if complexity:
                 if count_problem < total_count and select_problem['complexity_name'] == complexity:
-                    count_problem+=1
                     block = (select_problem['block_type'],select_problem['block_id'])
-                    mx_valid_block_keys.add(tuple(block))
+                    if not block in mx_valid_block_keys:
+                        count_problem+=1
+                        mx_valid_block_keys.add(tuple(block))
             else:
                 if count_problem < total_count:
-                    count_problem+=1
+                    
                     block = (select_problem['block_type'],select_problem['block_id'])
-                    mx_valid_block_keys.add(tuple(block))
+                    if not block in mx_valid_block_keys:
+                        mx_valid_block_keys.add(tuple(block))
+                        count_problem+=1
+                    
         return count_problem
     if len(set(already_selected)) < len(all_probelm_blocks_list):
         count_hard = select_problem_blocks(count_hard,complexity_hard,total_hard)
@@ -1200,7 +1205,7 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
         total_low += remaining_medium
         count_low = select_problem_blocks(count_low,complexity_low,total_low)
         if total_low - count_low > 0:
-            already_select_problems(remaining_count,'',total_low-count_low)
+            already_select_problems(total_low - count_low,'',total_low)
 
     else:
         count_hard = already_select_problems(count_hard,complexity_hard,total_hard)
@@ -1211,5 +1216,5 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
         total_low += remaining_medium
         count_low = already_select_problems(count_low,complexity_low,total_low)
         if total_low - count_low > 0:
-            already_select_problems(remaining_count,'',total_low)
+            already_select_problems(count_low,'',total_low)
     return mx_valid_block_keys
