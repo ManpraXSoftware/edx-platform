@@ -581,6 +581,11 @@ class RegistrationView(APIView):
         if is_auto_generated_username_enabled() and 'username' not in data:
             data['username'] = get_auto_generated_username(data)
 
+        data['mobile_number'] = data.get('username')
+        data['username'] = str(data.get('name').replace(' ','_'))+"_"+str(data.get('username'))[-5:]
+        log.info("_________________username : {} | mobile_number : {}".format(data['mobile_number'],data['username']))
+        
+        
         try:
             data = StudentRegistrationRequested.run_filter(form_data=data)
         except StudentRegistrationRequested.PreventRegistration as exc:

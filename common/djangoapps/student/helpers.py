@@ -699,7 +699,9 @@ def do_create_account(form, custom_form=None):
     user = User(
         username=proposed_username,
         email=form.cleaned_data["email"],
-        is_active=False
+        # is_active=False
+        is_active=True
+
     )
     password = normalize_password(form.cleaned_data["password"])
     user.set_password(password)
@@ -740,9 +742,11 @@ def do_create_account(form, custom_form=None):
 
     profile_fields = [
         "name", "level_of_education", "gender", "mailing_address", "city", "country", "goals",
-        "year_of_birth"
+        "year_of_birth", "mobile_number"
     ]
-    profile = UserProfile(
+    # profile = UserProfile(
+    from mx_accounts.models import CustomUserProfile
+    profile = CustomUserProfile(
         user=user,
         **{key: form.cleaned_data.get(key) for key in profile_fields}
     )
