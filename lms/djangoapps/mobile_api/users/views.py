@@ -109,7 +109,8 @@ class UserDetail(generics.RetrieveAPIView):
             "receive_update_on_whatsapp":userprofile.receive_update_on_whatsapp,
             "district":userprofile.district,
             "no_of_student":userprofile.no_of_student,
-            "is_google":userprofile.is_google
+            "is_google":userprofile.is_google,
+            "is_facilitator":userprofile.is_facilitator
         }
         
         context.update(profile_dict)
