@@ -473,15 +473,7 @@ class LibraryContentBlock(
                 block.save()
         
         self.selected = []
-        # Manprax
-        try:
-            attempts = AttemptRecord.objects.get(user__id=self.get_user_id(),course_id=(self.location.course_key))
-        except:
-            attempts = []
-
-        if attempts:
-            attempts.attempt_number += 1
-            attempts.save()
+        
         return Response(json.dumps(self.student_view({}).content))
     
     # Manprax
@@ -563,6 +555,9 @@ class LibraryContentBlock(
         }
         logger.info("course_id : {} showing result score count - {}/{}".format(str(self.location.course_key),correct_count,total_possible))
         if submitted:
+            if attempts:
+                attempts.attempt_number += 1
+                attempts.save()
             if is_passed:
                 update_user_content(user, str(self.location.course_key), status=StatusEnum.ready_for_certificate.value)
             logger.info("Updating course tracker table for course -{} .......".format(str(self.location.course_key)))

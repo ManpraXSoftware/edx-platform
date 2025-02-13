@@ -102,12 +102,12 @@ class ContentLibraryTransformer(FilteringTransformerMixin, BlockStructureTransfo
 
                 # Manprax
                 try:
-                    attempts = AttemptRecord.objects.get(user__id=self.get_user_id(),course_id=(self.location.course_key))
+                    attempts = AttemptRecord.objects.get(user=usage_info.user,course_id=(usage_info.course_key))
                 except:
                     attempts = []
                 if attempts:
                     attempt_number = attempts.attempt_number
-                    already_selected = attempts.already_selected.raplace('][}{','').split(',')
+                    already_selected = attempts.already_selected.replace('][}{','').split(',')
                 else:
                     attempt_number=1
                     already_selected=[]
