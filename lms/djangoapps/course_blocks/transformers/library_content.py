@@ -101,16 +101,20 @@ class ContentLibraryTransformer(FilteringTransformerMixin, BlockStructureTransfo
 
 
                 # Manprax
-                try:
-                    attempts = AttemptRecord.objects.get(user=usage_info.user,course_id=(usage_info.course_key))
-                except:
-                    attempts = []
-                if attempts:
-                    attempt_number = attempts.attempt_number
-                    already_selected = attempts.already_selected.replace('][}{','').split(',')
-                else:
-                    attempt_number=1
-                    already_selected=[]
+                
+                attempts,created = AttemptRecord.objects.get_or_create(user=usage_info.user,course_id=(usage_info.course_key))
+               
+
+                attempt_number = attempts.attempt_number
+                if attempt_number <= 0:
+                    attempt_number = 1
+
+                already_selected=[]
+                if attempts.already_selected:
+                   already_selected = attempts.already_selected.replace('][}{','').split(',')
+               
+
+                    
                 library_block = modulestore().get_item(block_key)
                 ratio = library_block.ratio
                 attempts = attempt_number
