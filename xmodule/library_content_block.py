@@ -143,7 +143,6 @@ class LibraryContentBlock(
         default="random",
         # Manprax
         values=[
-            {"display_name": _("Random"), "value": "random"},
             {"display_name": _("Ratio"), "value": "ratio"}
             # Future addition: Choose a new random set of n every time the student refreshes the block, for self tests
             # Future addition: manually selected blocks
@@ -414,8 +413,10 @@ class LibraryContentBlock(
         from django.contrib.auth.models import User
         user = User.objects.get(id=self.get_user_id())
         attempt,created = AttemptRecord.objects.get_or_create(user=user, course_id = str(self.location.course_key))
-        if not attempt.attempt_number:
-            attempt.attempt_number = 1
+        attempt_number = 1
+        if attempt.attempt_number:
+            attempt_number = attempt.attempt_number + 1
+            
         if attempt.already_selected:
             replace_string =['}','[','{', '\'','\"','\\',' ']
             clean_already_selected = attempt.already_selected
@@ -429,7 +430,7 @@ class LibraryContentBlock(
 
         # block_keys = self.make_selection(self.selected, self.children, max_count, "random")  # pylint: disable=no-member
         # Manprax
-        block_keys = self.make_selection(self.selected, self.children, max_count, attempt.attempt_number, self.attempt_allowed, self.ratio, self.mode,already_selected,self.parent,self.course_id,user)  # pylint: disable=no-member
+        block_keys = self.make_selection(self.selected, self.children, max_count, attempt_number, self.attempt_allowed, self.ratio, self.mode,already_selected,self.parent,self.course_id,user)  # pylint: disable=no-member
 
         # Publish events for analytics purposes:
         lib_tools = self.get_tools()
@@ -473,15 +474,7 @@ class LibraryContentBlock(
                 block.save()
         
         self.selected = []
-        # Manprax
-        try:
-            attempts = AttemptRecord.objects.get(user__id=self.get_user_id(),course_id=(self.location.course_key))
-        except:
-            attempts = []
-
-        if attempts:
-            attempts.attempt_number += 1
-            attempts.save()
+        
         return Response(json.dumps(self.student_view({}).content))
     
     # Manprax
@@ -541,14 +534,19 @@ class LibraryContentBlock(
                 course_data = get_course(self.course_connected,user)
             except:
                 course_data =None
-        try:
-            attempts = AttemptRecord.objects.get(user__id=self.get_user_id(),course_id=(self.location.course_key))
-        except:
-            attempts = []
-        if attempts:
+        
+        attempts = AttemptRecord.objects.get(user__id=self.get_user_id(),course_id=(self.location.course_key))
+        
+        attempt_number= 1
+        if attempts.attempt_number:
             attempt_number = attempts.attempt_number
-        else:
-            attempt_number= 1
+
+        if submitted:
+            attempts.attempt_number = attempt_number = attempts.attempt_number + 1
+            attempts.save()
+
+       
+
         param = {
             "show_reset": show_reset,
             "is_passed": is_passed,
