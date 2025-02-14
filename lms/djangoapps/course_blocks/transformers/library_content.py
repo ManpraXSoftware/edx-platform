@@ -103,11 +103,8 @@ class ContentLibraryTransformer(FilteringTransformerMixin, BlockStructureTransfo
                 # Manprax
                 
                 attempts,created = AttemptRecord.objects.get_or_create(user=usage_info.user,course_id=(usage_info.course_key))
-               
-
-                attempt_number = attempts.attempt_number
-                if attempt_number <= 0:
-                    attempt_number = 1
+                attempt_number = attempts.attempt_number + 1
+              
 
                 already_selected=[]
                 if attempts.already_selected:
@@ -127,9 +124,15 @@ class ContentLibraryTransformer(FilteringTransformerMixin, BlockStructureTransfo
 
                 # Update selected
                 previous_count = len(selected)
-                
-                block_keys = LibraryContentBlock.make_selection(selected, library_children, max_count, attempts, attempt_allowed, ratio, mode,already_selected,block_parent_id,course_id,user)
+                if mode =="ratio":
+                    block_keys = LibraryContentBlock.make_selection_ratio(selected, library_children, max_count, attempts, attempt_allowed, ratio,already_selected,block_parent_id,course_id,user)
+                else:
+                    block_keys = LibraryContentBlock.make_selection(selected, library_children, max_count, mode)
+
                 selected = block_keys['selected']
+                logger.info("\n \n number \n\n : {}\n\\n".format(len(selected)))
+                logger.info("\n \n selected \n\n : {}\n\\n".format(selected))
+                
 
                 # Save back any changes
                 if any(block_keys[changed] for changed in ('invalid', 'overlimit', 'added')):
