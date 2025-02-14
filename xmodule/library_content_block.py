@@ -242,7 +242,7 @@ class LibraryContentBlock(
             return LibraryLocatorV2.from_string(self.source_library_id)
 
     @classmethod
-    def make_selection(cls, selected, children, max_count, attempts, attempt_allowed, ratio, mode,already_selected,block_parent_id,course_id,user):
+    def make_selection(cls, selected, children, max_count, mode):
         """
         Dynamically selects block_ids indicating which of the possible children are displayed to the current user.
 
@@ -272,26 +272,12 @@ class LibraryContentBlock(
         if invalid_block_keys:
             selected_keys -= invalid_block_keys
 
-        current_ratio = "1:4:5"
-        try:
-            if attempt_allowed and attempts <= attempt_allowed:
-                split_ratio = ratio.split(",")
-                current_ratio = split_ratio[attempts-1]
-        except Exception as err:
-            logger.error("{}".format(err))
         # If max_count has been decreased, we may have to drop some previously selected blocks:
         overlimit_block_keys = set()
-        if len(selected_keys) > max_count and mode == "random":
+        if len(selected_keys) > max_count:
             num_to_remove = len(selected_keys) - max_count
             overlimit_block_keys = set(rand.sample(list(selected_keys), num_to_remove))
             selected_keys -= overlimit_block_keys
-        
-        # Manprax 
-        # If max_count has been decreased, we may have to drop some previously selected blocks and mode is ratio
-        if len(selected_keys) > max_count and current_ratio and mode == "ratio":
-            mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected,block_parent_id,course_id,user)
-            added_block_keys = mx_valid_block_keys
-            selected_keys = added_block_keys
 
         # Do we have enough blocks now?
         num_to_add = max_count - len(selected_keys)
@@ -304,14 +290,6 @@ class LibraryContentBlock(
                 num_to_add = min(len(pool), num_to_add)
                 added_block_keys = set(rand.sample(list(pool), num_to_add))
                 # We now have the correct n random children to show for this user.
-
-            # Manprax 
-            # If mode is ratio and need to show extra block to User.
-            elif current_ratio and mode == "ratio":
-                mx_valid_block_keys = get_block_based_ratio(current_ratio, max_count, children,already_selected,block_parent_id,course_id,user)
-                added_block_keys = mx_valid_block_keys
-                selected_keys = added_block_keys
-
             else:
                 raise NotImplementedError("Unsupported mode.")
             selected_keys |= added_block_keys
@@ -319,8 +297,78 @@ class LibraryContentBlock(
         if any((invalid_block_keys, overlimit_block_keys, added_block_keys)):
             selected = list(selected_keys)
             random.shuffle(selected)
+
         return {
             'selected': selected,
+            'invalid': invalid_block_keys,
+            'overlimit': overlimit_block_keys,
+            'added': added_block_keys,
+        }
+
+    @classmethod
+    def make_selection_ratio(cls, selected_blocks, children, max_count, attempt_number, attempt_allowed, ratio, already_selected, block_parent_id, course_id,user):
+        """
+        Dynamically selects block_ids indicating which of the possible children are displayed to the current user.
+
+        Arguments:
+            selected - list of (block_type, block_id) tuples assigned to this student
+            children - children of this block
+            max_count - number of components to display to each student
+            mode - how content is drawn from the library
+
+        Returns:
+            A dict containing the following keys:
+
+            'selected' (set) of (block_type, block_id) tuples assigned to this student
+            'invalid' (set) of dropped (block_type, block_id) tuples that are no longer valid
+            'overlimit' (set) of dropped (block_type, block_id) tuples that were previously selected
+            'added' (set) of newly added (block_type, block_id) tuples
+        """
+        default_ratio = "1:4:5"
+        selected_keys = {tuple(k) for k in selected_blocks}  # set of (block_type, block_id) tuples assigned to this student
+
+        # Determine which of our children we will show:
+        all_library_blocks = {(c.block_type, c.block_id) for c in children}
+        # Remove any selected blocks that are no longer valid:
+        invalid_block_keys = (selected_keys - all_library_blocks)
+        if invalid_block_keys:
+            selected_keys -= invalid_block_keys
+
+        # set current ratio from setting or set default ratio
+        current_ratio = default_ratio
+        if ratio:
+            split_ratio = ratio.split(",")
+            if len(split_ratio) >= attempt_number:
+                current_ratio=split_ratio[attempt_number-1]
+        if current_ratio and len(current_ratio.split(":")) != 3:
+            current_ratio = default_ratio
+
+        
+        # If max_count has been decreased, we may have to drop some previously selected blocks:
+        overlimit_block_keys = set()
+        added_block_keys = None
+
+        # Manprax 
+        # If max_count has been decreased, we may have to drop some previously selected blocks
+        if len(selected_keys) > max_count:
+            added_block_keys = get_block_based_ratio(children, current_ratio, max_count, already_selected, block_parent_id, course_id, user)
+            selected_keys = added_block_keys
+
+        # Do we have enough blocks now?
+        num_to_add = max_count - len(selected_keys)
+
+        
+        if num_to_add > 0:
+            # We need to select [more] blocks to display to this user:
+            added_block_keys = get_block_based_ratio(children, current_ratio, max_count, already_selected, block_parent_id, course_id, user)
+            selected_keys = added_block_keys
+
+
+        if any((invalid_block_keys, overlimit_block_keys, added_block_keys)):
+            selected_blocks = list(selected_keys)
+            random.shuffle(selected_blocks)
+        return {
+            'selected': selected_blocks,
             'invalid': invalid_block_keys,
             'overlimit': overlimit_block_keys,
             'added': added_block_keys,
@@ -407,30 +455,27 @@ class LibraryContentBlock(
         because the block_ids alone do not specify the block type.
         """
         max_count = self.max_count
-        if max_count < 0:
+        if max_count <= 0:
             max_count = 10
+
         from gamification.models.trackers import AttemptRecord
         from django.contrib.auth.models import User
         user = User.objects.get(id=self.get_user_id())
         attempt,created = AttemptRecord.objects.get_or_create(user=user, course_id = str(self.location.course_key))
-        attempt_number = 1
-        if attempt.attempt_number:
-            attempt_number = attempt.attempt_number + 1
+        attempt_number = attempt.attempt_number + 1
+     
             
+        already_selected=[]
         if attempt.already_selected:
-            replace_string =['}','[','{', '\'','\"','\\',' ']
-            clean_already_selected = attempt.already_selected
-            for c in replace_string:
-                clean_already_selected=clean_already_selected.replace(c,'')
-            already_selected = clean_already_selected.split(',')
-        else:
-            already_selected=[]
-        attempt.save()
+            import ast
+            already_selected = list(ast.literal_eval(attempt.already_selected))
+     
         # from lms.djangoapps.courseware.models import StudentModule
-
-        # block_keys = self.make_selection(self.selected, self.children, max_count, "random")  # pylint: disable=no-member
-        # Manprax
-        block_keys = self.make_selection(self.selected, self.children, max_count, attempt_number, self.attempt_allowed, self.ratio, self.mode,already_selected,self.parent,self.course_id,user)  # pylint: disable=no-member
+        if self.mode=="ratio":
+            # Manprax
+            block_keys = self.make_selection_ratio(self.selected, self.children, max_count, attempt_number, self.attempt_allowed, self.ratio,already_selected,self.parent,self.course_id,user)  # pylint: disable=no-member
+        else:
+            block_keys = self.make_selection(self.selected, self.children, max_count, "random")  # pylint: disable=no-member
 
         # Publish events for analytics purposes:
         lib_tools = self.get_tools()
@@ -440,17 +485,14 @@ class LibraryContentBlock(
             format_block_keys,
             self._publish_event,
         )
-
+        logger.info("\n\n TCSS- 1: self.selected count  : {}".format(len(self.selected)))
+        logger.info("\n\n TCSS- 1: self.selected updated  : \n\n {}".format(self.selected))
         if any(block_keys[changed] for changed in ('invalid', 'overlimit', 'added')):
             # Save our selections to the user state, to ensure consistency:
             selected = block_keys['selected']
             self.selected = selected  # TODO: this doesn't save from the LMS "Progress" page.
-        
-        already_selected=set(already_selected)
-        for select in self.selected:
-            already_selected.add(select[1])
-        attempt.already_selected= str(already_selected)
-        attempt.save()
+            logger.info("\n\n TCSS- 2: self.selected count  :  {}".format(len(self.selected)))
+            logger.info("\n\n TCSS -2: self.selected updated  : \n\n{}".format(self.selected))
         return self.selected
 
     @XBlock.handler
@@ -520,17 +562,20 @@ class LibraryContentBlock(
         course_data = None
         user = User.objects.get(id = user_id)
 
-        selected_blocks = [str(self.location.course_key.make_usage_key(select_block[0], select_block[1])) for select_block in self.selected]
+        logger.info("TCSS: going to selected varliable")
+        selected_block_objects = self.selected
+        selected_blocks = [str(self.location.course_key.make_usage_key(select_block[0], select_block[1])) for select_block in selected_block_objects]
+        logger.info("TCSS: fetching student modules to calculate correct count")
         student_module_blocks = StudentModule.objects.filter(student_id=user.id,module_state_key__in=selected_blocks)
         correct_count = len([problem_module for problem_module in student_module_blocks if problem_module.grade and problem_module.grade==problem_module.max_grade])
         total_possible = len(selected_blocks)
+        logger.info("TCSS: update grade once before send")
         user_grade = CourseGradeFactory().update(user, course_key = self.location.course_key, force_update_subsections=True)
         if user_grade.passed:
             is_passed = True
-        
+        logger.info("TCSS: ready to share result")
         if self.course_connected:
             try:
-                course_content_mapped =  Content.objects.get(source_identity = self.course_connected)
                 course_data = get_course(self.course_connected,user)
             except:
                 course_data =None
@@ -543,6 +588,14 @@ class LibraryContentBlock(
 
         if submitted:
             attempts.attempt_number = attempt_number = attempts.attempt_number + 1
+            already_selected=set()
+            if attempts.already_selected:
+                import ast
+                already_selected = ast.literal_eval(attempts.already_selected)
+            for select in selected_block_objects:
+                already_selected.add(select[1])
+            if already_selected:
+                attempts.already_selected= str(already_selected)
             attempts.save()
 
        
@@ -1049,45 +1102,100 @@ class LibrarySummary:
     
 
 # Manprax
-def get_block_based_ratio(ratio, max_count, children,already_selected,block_parent_id,course_id,user):
+def get_block_based_ratio(children, ratio, max_count, already_selected, block_parent_id, course_id, user):
+
     from openedx_tagging.core.tagging.models import ObjectTag
     from xmodule.modulestore.django import modulestore
+
+    # select hard problems first
+    def select_problem_blocks(complexity, total_count):
+        if complexity:
+            non_selected_problems = list(filter(lambda select_problem: select_problem["block_id"] not in already_selected and select_problem['complexity_name'] == complexity, all_probelm_blocks_list))[:total_count]
+            remaining_block_count = total_count - len(non_selected_problems)
+            if remaining_block_count > 0:
+                repeated_problem_block_list = list(filter( lambda select_block: select_block not in non_selected_problems, all_probelm_blocks_list ))
+                all_complexity_problems = list(filter(lambda select_problem: select_problem['complexity_name'] == complexity, repeated_problem_block_list))[:remaining_block_count]
+                non_selected_problems = non_selected_problems + all_complexity_problems
+        else:
+            non_selected_problems = list(filter(lambda select_problem: select_problem["block_id"] not in already_selected, all_probelm_blocks_list))[:total_count]
+            remaining_block_count = total_count - len(non_selected_problems)
+            if remaining_block_count > 0:
+                repeated_problem_block_list = list(filter( lambda select_block: select_block not in non_selected_problems, all_probelm_blocks_list ))
+                all_complexity_problems = list(repeated_problem_block_list)[:remaining_block_count]
+                non_selected_problems = non_selected_problems + all_complexity_problems
+
+
+        for select_problem in non_selected_problems:
+            block = (select_problem['block_type'],select_problem['block_id'])
+            mx_valid_block_keys.add(tuple(block))
+
+        return len(non_selected_problems)
+    
+    # def already_select_problems(complexity, total_count):
+    #     count_problem = 0
+    #     for select_problem in all_probelm_blocks_list:
+    #         if complexity:
+    #             if count_problem < total_count and select_problem['complexity_name'] == complexity:
+    #                 block = (select_problem['block_type'],select_problem['block_id'])
+    #                 if not block in mx_valid_block_keys:
+    #                     count_problem+=1
+    #                     mx_valid_block_keys.add(tuple(block))
+    #         else:
+    #             if count_problem < total_count:
+                    
+    #                 block = (select_problem['block_type'],select_problem['block_id'])
+    #                 if not block in mx_valid_block_keys:
+    #                     mx_valid_block_keys.add(tuple(block))
+    #                     count_problem += 1
+                    
+    #     return count_problem
+    
+    # function start
     get_ratio = ratio.split(":")
     hard = medium = low = 0
     complexity_hard = 'Hard'
     complexity_medium = 'Medium'
     complexity_low = 'Easy'
     total_hard = total_medium = total_low = 0
+
     # Get hard, medium, low value for ratio 
     try:
         hard = int(get_ratio[0])
         medium = int(get_ratio[1])
         low = int(get_ratio[2])
-    except Exception as err:
-        logger.error("{}".format(err))
-        pass
+    except Exception as e:
+        logger.error("ratio not defined correctly")
+        logger.error(e)
+
+    if hard <=0 and medium <= 0 and low <= 0:
+        hard = 1
+        medium = 4
+        low = 5
+
+    
 
     # calculate total number of hard, medium, low from given ratio.
-    try:
-        total_hard = int((hard*max_count)/(hard+medium+low)) if hard else 0
-        total_medium = int((medium*max_count)/(hard+medium+low)) if medium else 0
-        total_low = int((low*max_count)/(hard+medium+low)) if low else 0
-        if max_count > (total_hard+total_medium+total_low):
-            min_rat_complexity = min(hard,medium,low)
-            if hard == min_rat_complexity:
-                total_hard = total_hard+ (max_count-(total_hard+total_medium+total_low))
-            elif medium == min_rat_complexity:
-                total_medium = total_medium+ (max_count-(total_hard+total_medium+total_low))
-            elif low == min_rat_complexity:
-                total_low = total_low+ (max_count-(total_hard+total_medium+total_low))
-    except Exception as err:
-        logger.error("{}".format(err))
-        pass
-    count_hard = count_medium = count_low = remaining_count =0
+    ratio_sum = hard + medium + low
+    total_hard = int((hard * max_count)/ratio_sum) if hard else 0
+    total_medium = int((medium * max_count)/ratio_sum) if medium else 0
+    total_low = int((low * max_count)/ratio_sum) if low else 0
+
+    total_ratio_count = total_hard + total_medium + total_low
+    if max_count > total_ratio_count:
+        min_rat_complexity = min(hard,medium,low)
+        if hard == min_rat_complexity:
+            total_hard = total_hard + (max_count - total_ratio_count)
+        elif medium == min_rat_complexity:
+            total_medium = total_medium+ (max_count - total_ratio_count)
+        elif low == min_rat_complexity:
+            total_low = total_low + (max_count - total_ratio_count)
+ 
+
+    count_hard = count_medium = count_low = remaining_count = 0
 
     mx_valid_block_keys = set()
     course_competency = []
-    # For hard xblock
+
     all_tag_objects = ObjectTag.objects.all()
 
     # Fetch particular quiz competency if does not exist check competency of the course
@@ -1101,18 +1209,10 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
             quiz_competency = all_tag_objects.get(object_id =str(course_id),taxonomy__name='Competencies')
         except:
             quiz_competency=[]
-    # Fetch particular quiz state if does not exist check competency of the course
-    try:
-        quiz_state = all_tag_objects.get(object_id =str(block_parent_id),taxonomy__name='State')
-    except:
-        quiz_state= []
-    # if quiz_state(competency of the unit block) does not exist check state of the course
-    if not quiz_state:
-        try:
-            quiz_state = all_tag_objects.get(object_id =str(course_id),taxonomy__name='State')
-        except:
-            quiz_state=[]
+   
+
     all_probelm_blocks_list=[]
+
     ''''
     Added By Manprax
     Fetch all the blocks in the question bank(library) with quiz selected competency
@@ -1126,92 +1226,57 @@ def get_block_based_ratio(ratio, max_count, children,already_selected,block_pare
     }
 
     '''
-    for get_children in children:
-        problem_library = modulestore().get_block_original_usage(get_children)
-        problem_library_id= str(problem_library[0])
+    for problem_block in children:
+        library_problem = modulestore().get_block_original_usage(problem_block)
+        library_problem_id= str(library_problem[0])
         try:
-            competency_name = all_tag_objects.get(object_id=problem_library_id , taxonomy__name='Competencies')._value
+            competency_name = all_tag_objects.get(object_id=library_problem_id , taxonomy__name='Competencies')._value
         except:
             competency_name=''
         
         try:
-            state_name = all_tag_objects.get(object_id=problem_library_id , taxonomy__name='State')._value
+            state_name = all_tag_objects.get(object_id=library_problem_id , taxonomy__name='State')._value
         except:
             state_name=''
         try:
-            complexity_name = all_tag_objects.get(object_id=problem_library_id , taxonomy__name='Complexities')._value
+            complexity_name = all_tag_objects.get(object_id=library_problem_id , taxonomy__name='Complexities')._value
         except:
             #considering a problem low if no complexity is defined
             complexity_name='Easy'
-        if not (user.profile.state and state_name):
-            if quiz_competency and competency_name == quiz_competency._value:
-                problem_block_dict ={
-                    'block_type':get_children.block_type,
-                    'block_id':get_children.block_id,
-                    'competency_name':competency_name,
-                    'complexity_name':complexity_name,
-                    'state':state_name
-                }
-                all_probelm_blocks_list.append(problem_block_dict)
-        else:
-            if quiz_competency and competency_name == quiz_competency._value and user.profile.state == state_name:
-                problem_block_dict ={
-                    'block_type':get_children.block_type,
-                    'block_id':get_children.block_id,
-                    'competency_name':competency_name,
-                    'complexity_name':complexity_name,
-                    'state':state_name
-                }
-                all_probelm_blocks_list.append(problem_block_dict)
+
+        if quiz_competency and competency_name != quiz_competency._value:
+            continue
+
+        if not user.profile.state or not state_name or user.profile.state == state_name:
+            problem_block_dict ={
+                'block_type':problem_block.block_type,
+                'block_id':problem_block.block_id,
+                'competency_name':competency_name,
+                'complexity_name':complexity_name,
+                'state':state_name
+            }
+            all_probelm_blocks_list.append(problem_block_dict)
+
+        
     ''' End of adding '''
+
+    
     # competency_problem_clock = [comptency for comptency in all_probelm_blocks_list if comptency['competency_name'] == quiz_competency]
     random.shuffle(all_probelm_blocks_list)
-    # select hard problems first
-    def select_problem_blocks(count_problem,complexity,total_count):
-        for select_problem in all_probelm_blocks_list:
-            if count_problem < total_count and select_problem['complexity_name'] == complexity and select_problem['block_id'] not in already_selected:
-                block = (select_problem['block_type'],select_problem['block_id'])
-                if not block in mx_valid_block_keys:
-                    count_problem+=1  
-                    mx_valid_block_keys.add(tuple(block))
-        return count_problem
-    
-    def already_select_problems(count_problem,complexity,total_count):
-        for select_problem in all_probelm_blocks_list:
-            if complexity:
-                if count_problem < total_count and select_problem['complexity_name'] == complexity:
-                    block = (select_problem['block_type'],select_problem['block_id'])
-                    if not block in mx_valid_block_keys:
-                        count_problem+=1
-                        mx_valid_block_keys.add(tuple(block))
-            else:
-                if count_problem < total_count:
-                    
-                    block = (select_problem['block_type'],select_problem['block_id'])
-                    if not block in mx_valid_block_keys:
-                        mx_valid_block_keys.add(tuple(block))
-                        count_problem+=1
-                    
-        return count_problem
-    if len(set(already_selected)) < len(all_probelm_blocks_list):
-        count_hard = select_problem_blocks(count_hard,complexity_hard,total_hard)
-        remaining_hard = total_hard - count_hard
-        total_medium += remaining_hard
-        count_medium = select_problem_blocks(count_medium,complexity_medium,total_medium)
-        remaining_medium = total_medium - count_medium
-        total_low += remaining_medium
-        count_low = select_problem_blocks(count_low,complexity_low,total_low)
-        if total_low - count_low > 0:
-            already_select_problems(total_low - count_low,'',total_low)
 
-    else:
-        count_hard = already_select_problems(count_hard,complexity_hard,total_hard)
-        remaining_hard = total_hard - count_hard
-        total_medium += remaining_hard
-        count_medium = already_select_problems(count_medium,complexity_medium,total_medium)
-        remaining_medium = total_medium - count_medium
-        total_low += remaining_medium
-        count_low = already_select_problems(count_low,complexity_low,total_low)
-        if total_low - count_low > 0:
-            already_select_problems(count_low,'',total_low)
+    
+   
+    count_hard = select_problem_blocks(complexity_hard, total_hard)
+    remaining_hard = total_hard - count_hard
+    total_medium += remaining_hard
+
+    count_medium = select_problem_blocks(complexity_medium, total_medium)
+    remaining_medium = total_medium - count_medium
+    total_low += remaining_medium
+
+    count_low = select_problem_blocks(complexity_low, total_low)
+    if total_low - count_low > 0:
+        select_problem_blocks('', total_low - count_low)
+
+
     return mx_valid_block_keys
