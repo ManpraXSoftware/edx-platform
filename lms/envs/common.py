@@ -3805,7 +3805,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "common.djangoapps.util.password_policy_validators.MinimumLengthValidator",
         "OPTIONS": {
-            "min_length": 8
+            "min_length": 4 #Manprax
         }
     },
     {
