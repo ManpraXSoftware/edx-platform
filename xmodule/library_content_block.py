@@ -140,10 +140,12 @@ class LibraryContentBlock(
     mode = String(
         display_name=_("Mode"),
         help=_("Determines how content is drawn from the library"),
-        default="random",
+        default="ratio",
         # Manprax
         values=[
+            {"display_name": _("Not Selected"), "value": ""},
             {"display_name": _("Ratio"), "value": "ratio"}
+
             # Future addition: Choose a new random set of n every time the student refreshes the block, for self tests
             # Future addition: manually selected blocks
         ],
@@ -1109,22 +1111,31 @@ def get_block_based_ratio(children, ratio, max_count, already_selected, block_pa
 
     # select hard problems first
     def select_problem_blocks(complexity, total_count):
+        logger.info('TCS: already_selected {}'.format(len(already_selected)))
+        logger.info('TCS: all_probelm_blocks_list {}'.format(len(all_probelm_blocks_list)))
+        logger.info("TCS: complexity: {}, total needed: {}".format(complexity, total_count))
         if complexity:
             non_selected_problems = list(filter(lambda select_problem: select_problem["block_id"] not in already_selected and select_problem['complexity_name'] == complexity, all_probelm_blocks_list))[:total_count]
             remaining_block_count = total_count - len(non_selected_problems)
+            logger.info("TCS: new selection: {} ".format(len(non_selected_problems)))
             if remaining_block_count > 0:
                 repeated_problem_block_list = list(filter( lambda select_block: select_block not in non_selected_problems, all_probelm_blocks_list ))
                 all_complexity_problems = list(filter(lambda select_problem: select_problem['complexity_name'] == complexity, repeated_problem_block_list))[:remaining_block_count]
+                logger.info("TCS: old selection: {} ".format(len(all_complexity_problems)))
                 non_selected_problems = non_selected_problems + all_complexity_problems
+                
         else:
             non_selected_problems = list(filter(lambda select_problem: select_problem["block_id"] not in already_selected, all_probelm_blocks_list))[:total_count]
             remaining_block_count = total_count - len(non_selected_problems)
+            logger.info("TCS: new selection: {} ".format(len(non_selected_problems)))
             if remaining_block_count > 0:
                 repeated_problem_block_list = list(filter( lambda select_block: select_block not in non_selected_problems, all_probelm_blocks_list ))
                 all_complexity_problems = list(repeated_problem_block_list)[:remaining_block_count]
+                logger.info("TCS: old selection: {} ".format(len(all_complexity_problems)))
                 non_selected_problems = non_selected_problems + all_complexity_problems
+                
 
-
+        logger.info("TCS: Total picked: {} ".format(len(non_selected_problems)))
         for select_problem in non_selected_problems:
             block = (select_problem['block_type'],select_problem['block_id'])
             mx_valid_block_keys.add(tuple(block))
@@ -1265,7 +1276,7 @@ def get_block_based_ratio(children, ratio, max_count, already_selected, block_pa
     random.shuffle(all_probelm_blocks_list)
 
     
-   
+    
     count_hard = select_problem_blocks(complexity_hard, total_hard)
     remaining_hard = total_hard - count_hard
     total_medium += remaining_hard

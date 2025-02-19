@@ -84,7 +84,7 @@ class ContentLibraryTransformer(FilteringTransformerMixin, BlockStructureTransfo
             if library_children:
                 all_library_children.update(library_children)
                 selected = []
-                mode = block_structure.get_xblock_field(block_key, 'mode')
+                mode = 'ratio'
                 max_count = block_structure.get_xblock_field(block_key, 'max_count')
                 if max_count < 0:
                     max_count = len(library_children)
