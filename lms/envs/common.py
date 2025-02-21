@@ -1559,7 +1559,7 @@ USAGE_ID_PATTERN = r'(?P<usage_id>(?:i4x://?[^/]+/[^/]+/[^/]+/[^@]+(?:@[^/]+)?)|
 # The space is required for space-dependent languages like Arabic and Farsi.
 # However, backward compatibility with Ficus older releases is still maintained (space is still not valid)
 # in the AccountCreationForm and the user_api through the ENABLE_UNICODE_USERNAME feature flag.
-USERNAME_REGEX_PARTIAL = r'[\w .@_+-]+'
+USERNAME_REGEX_PARTIAL = r'[\w.@_+\-\u0900-\u097F]+'
 USERNAME_PATTERN = fr'(?P<username>{USERNAME_REGEX_PARTIAL})'
 
 
@@ -5612,3 +5612,4 @@ SURVEY_REPORT_CHECK_THRESHOLD = 6
 # .. setting_description: Dictionary with additional information that you want to share in the report.
 SURVEY_REPORT_EXTRA_DATA = {}
 
+MX_IMAGE_HOST= 'https://tcss-staging.s3.ap-south-1.amazonaws.com/quiz_images/'
