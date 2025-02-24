@@ -266,6 +266,14 @@ class ProblemBlock(
         scope=Scope.settings,
         default=False
     )
+    # Manprax
+    is_quize = Boolean(
+        display_name=_("is_quize"),
+        help=_("set 'True' if you want to use this block as quize"),
+        scope=Scope.settings,
+        default=False
+    )
+
     rerandomize = Randomization(
         display_name=_("Randomization"),
         help=_(

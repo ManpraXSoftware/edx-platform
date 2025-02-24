@@ -211,7 +211,6 @@ class LibraryContentBlock(
 
         # Determine which of our children we will show:
         valid_block_keys = {(c.block_type, c.block_id) for c in children}
-
         # Remove any selected blocks that are no longer valid:
         invalid_block_keys = (selected_keys - valid_block_keys)
         if invalid_block_keys:
@@ -221,7 +220,9 @@ class LibraryContentBlock(
         overlimit_block_keys = set()
         if len(selected_keys) > max_count:
             num_to_remove = len(selected_keys) - max_count
-            overlimit_block_keys = set(rand.sample(list(selected_keys), num_to_remove))
+            # Manprax
+            # overlimit_block_keys = set(rand.sample(list(selected_keys), num_to_remove))
+            overlimit_block_keys = set(list(selected_keys)[:num_to_remove])
             selected_keys -= overlimit_block_keys
 
         # Do we have enough blocks now?
@@ -233,7 +234,9 @@ class LibraryContentBlock(
             pool = valid_block_keys - selected_keys
             if mode == "random":
                 num_to_add = min(len(pool), num_to_add)
-                added_block_keys = set(rand.sample(list(pool), num_to_add))
+                # Manprax
+                # added_block_keys = set(rand.sample(list(pool), num_to_add))
+                added_block_keys = set(sorted(pool)[:num_to_add])
                 # We now have the correct n random children to show for this user.
             else:
                 raise NotImplementedError("Unsupported mode.")
@@ -241,7 +244,8 @@ class LibraryContentBlock(
 
         if any((invalid_block_keys, overlimit_block_keys, added_block_keys)):
             selected = list(selected_keys)
-            random.shuffle(selected)
+            # Manprax
+            # random.shuffle(selected)
 
         return {
             'selected': selected,
