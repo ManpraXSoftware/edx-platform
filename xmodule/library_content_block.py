@@ -207,6 +207,7 @@ class LibraryContentBlock(
         """
         rand = random.Random()
 
+
         selected_keys = {tuple(k) for k in selected}  # set of (block_type, block_id) tuples assigned to this student
 
         # Determine which of our children we will show:
@@ -353,6 +354,15 @@ class LibraryContentBlock(
             # Save our selections to the user state, to ensure consistency:
             selected = block_keys['selected']
             self.selected = selected  # TODO: this doesn't save from the LMS "Progress" page.
+
+        # Manprax
+        try:
+            sequence_block_keys = [[c.block_type, c.block_id] for c in self.children]
+            selected_key = sorted(self.selected, key=lambda x: sequence_block_keys.index(x))
+            self.selected = selected_key
+        except Exception as e:
+            logger.error(f"Skipping display for child block that is None. Error: {e}")
+            pass
 
         return self.selected
 
