@@ -808,7 +808,7 @@ class LoncapaProblem(object):
         """
         self.do_targeted_feedback(self.tree)
         html = contextualize_text(
-            etree.tostring(self._extract_html(self.tree)).decode('utf-8'),
+            etree.tostring(self._extract_html(self.tree),encoding='utf-8').decode('utf-8'),
             self.context
         )
         return html
