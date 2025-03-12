@@ -98,7 +98,14 @@ class SequenceFields:  # lint-amnesty, pylint: disable=missing-class-docstring
         default=False,
         scope=Scope.settings,
     )
-
+    # -------------------------MX-------------------------
+    display_image = String(
+        display_name=_("Display Image for this course block."),
+        help=_("Is set, this image will be shown to users in the mobile app instead of the default icon."),
+        default="",
+        scope=Scope.settings
+    )
+    # -------------------------MX-------------------------
     is_entrance_exam = Boolean(
         display_name=_("Is Entrance Exam"),
         help=_(

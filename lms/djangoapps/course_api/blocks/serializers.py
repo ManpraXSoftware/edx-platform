@@ -46,6 +46,9 @@ class SupportedFieldType:
 SUPPORTED_FIELDS = [
     SupportedFieldType('category', requested_field_name='type'),
     SupportedFieldType('display_name', default_value=''),
+    # -------------------------MX-------------------------
+    SupportedFieldType('display_image', default_value=''),
+    # -------------------------MX-------------------------
     SupportedFieldType('effort_activities'),
     SupportedFieldType('effort_time'),
     SupportedFieldType('graded'),
@@ -95,6 +98,7 @@ SUPPORTED_FIELDS = [
 # of content
 FIELDS_ALLOWED_IN_AUTH_DENIED_CONTENT = [
     "display_name",
+    "display_image",
     "block_id",
     "student_view_url",
     "student_view_multi_device",

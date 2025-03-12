@@ -1030,6 +1030,7 @@ def create_xblock_info(  # lint-amnesty, pylint: disable=too-many-statements
     xblock_info = {
         "id": str(xblock.location),
         "display_name": xblock.display_name_with_default,
+        "display_image": xblock.display_image or "",
         "category": xblock.category,
         "has_children": xblock.has_children,
     }
