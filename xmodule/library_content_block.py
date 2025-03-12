@@ -588,6 +588,11 @@ class LibraryContentBlock(
         if attempts.attempt_number:
             attempt_number = attempts.attempt_number
 
+        if not submitted:
+            from gamification.models.trackers import CoursesTracker
+            course_track = CoursesTracker.objects.filter(owner=user,content_key = str(self.location.course_key) ,module_type='CONTENT').order_by('-current').first()
+            correct_count = course_track.current
+            total_possible = course_track.target
         if submitted:
             attempts.attempt_number = attempt_number = attempts.attempt_number + 1
             already_selected=set()
