@@ -551,10 +551,10 @@ def student_dashboard(request, program_uuid):  # lint-amnesty, pylint: disable=t
 
     """
     user = request.user
-    if not UserProfile.objects.filter(user=user).exists():
-        return redirect(reverse('account_settings'))
-
     # Manprax
+    # if not UserProfile.objects.filter(user=user).exists():
+    #     return redirect(reverse('account_settings'))
+
     # if learner_home_mfe_enabled():
     #     return redirect(settings.LEARNER_HOME_MICROFRONTEND_URL)
 

@@ -258,9 +258,10 @@ class CertificatesListView(APIView):
 
         is_owner = request.user.username == username
         is_staff = request.user.is_staff
-        certificates_viewable = 'course_certificates' in visible_fields(user.profile, user)
-
-        return is_owner or is_staff or certificates_viewable
+        # Manprax
+        # certificates_viewable = 'course_certificates' in visible_fields(user.profile, user)
+        # return is_owner or is_staff or certificates_viewable
+        return is_owner or is_staff
 
     def _get_certificates_for_user(self, username):
         """

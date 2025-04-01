@@ -154,7 +154,7 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
             "country": None,
             "state": None,
             "profile_image": None,
-            "language_proficiencies": None,
+            "language_proficiencies": 'en',
             "name": None,
             "gender": None,
             "goals": None,
@@ -163,13 +163,13 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
             "mailing_address": None,
             "requires_parental_consent": None,
             "account_privacy": self.configuration.get('default_visibility'),
-            "social_links": None,
+            "social_links": [],
             "extended_profile_fields": None,
             "phone_number": None,
             "pending_name_change": None,
             "verified_name": None,
+            "extended_profile": []
         }
-
         if user_profile:
             data.update(
                 {
@@ -179,9 +179,10 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
                     "profile_image": AccountLegacyProfileSerializer.get_profile_image(
                         user_profile, user, self.context.get('request')
                     ),
-                    "language_proficiencies": LanguageProficiencySerializer(
-                        user_profile.language_proficiencies.all().order_by('code'), many=True
-                    ).data,
+                    # "language_proficiencies": LanguageProficiencySerializer(
+                    #     user_profile.language_proficiencies.all().order_by('code'), many=True
+                    # ).data,
+                    "language_proficiencies": "en",
                     "name": user_profile.name,
                     "gender": AccountLegacyProfileSerializer.convert_empty_to_None(user_profile.gender),
                     "goals": user_profile.goals,
