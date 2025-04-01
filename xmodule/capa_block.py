@@ -268,8 +268,8 @@ class ProblemBlock(
     )
     # Manprax
     is_quize = Boolean(
-        display_name=_("Assessment"),
-        help=_("set 'True' if you want to use this block as quize"),
+        display_name=_("is_assessment"),
+        help=_("set 'True' if you want to use this block as Assessment"),
         scope=Scope.settings,
         default=False
     )
