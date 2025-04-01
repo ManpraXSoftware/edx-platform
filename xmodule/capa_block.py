@@ -268,12 +268,19 @@ class ProblemBlock(
     )
     # Manprax
     is_quize = Boolean(
-        display_name=_("is_quize"),
+        display_name=_("Assessment"),
         help=_("set 'True' if you want to use this block as quize"),
         scope=Scope.settings,
         default=False
     )
 
+    mx_image_path = String(
+    display_name="Uploaded Image",
+    help="URL of an image uploaded for this problem",
+    scope=Scope.settings,
+    default=""
+)
+    
     rerandomize = Randomization(
         display_name=_("Randomization"),
         help=_(
@@ -401,6 +408,59 @@ class ProblemBlock(
         fragment = Fragment(
             self.runtime.service(self, 'mako').render_cms_template(self.mako_template, self.get_context())
         )
+
+        html = """
+        <div class="mx-problem-img" id="mx-problem-img">
+            <h2>Image Upload Block</h2>
+            <div class="image-upload-wrap">
+                <input class="input setting-input image_upload" type="file" id="image_upload" accept="image/*">
+                <button class="action" type="button" onclick="uploadImage()">Upload Image</button>
+                <p class="tip" style="padding: 10px 0;">Current Image: <img src="{mx_image_path}" alt="No image uploaded yet" ></p>
+            </div>
+        </div>
+        """.format(mx_image_path=self.mx_image_path or "")
+        fragment.content += html
+        
+        # # Add JavaScript for image upload
+
+        fragment.add_javascript("""
+        function uploadImage() {{
+            var fileInput = document.getElementById('image_upload');
+            var file = fileInput.files[0];
+            if (file) {{
+                var reader = new FileReader();
+                reader.onload = function(e) {{
+                    var data = {{
+                        file: {{
+                            name: file.name,
+                            content: e.target.result.split(',')[1]
+                        }}
+                    }};
+                    $.ajax({{
+                        url: '{handler_url}',
+                        type: 'POST',
+                        data: JSON.stringify(data),
+                        contentType: 'application/json',
+                        success: function(response) {{
+                            if (response.result === 'success') {{
+                                document.querySelector('.tip img').src = response.mx_image_path;
+                                alert('Image uploaded successfully!');
+                            }} else {{
+                                alert('Upload failed: ' + response.message);
+                            }}
+                        }},
+                        error: function(xhr, status, error) {{
+                            alert('Upload error: ' + error);
+                        }}
+                    }});
+                }};
+                reader.readAsDataURL(file);
+            }} else {{
+                alert('Please select a file to upload.');
+            }}
+        }}
+        """.format(handler_url=self.runtime.handler_url(self, 'upload_image').rstrip('/?')))
+
         add_sass_to_fragment(fragment, 'ProblemBlockEditor.scss')
         add_webpack_js_to_fragment(fragment, 'ProblemBlockEditor')
         shim_xmodule_js(fragment, 'MarkdownEditingDescriptor')
@@ -572,6 +632,8 @@ class ProblemBlock(
             ProblemBlock.markdown,
             ProblemBlock.use_latex_compiler,
             ProblemBlock.show_correctness,
+            # Manprax
+            ProblemBlock.mx_image_path,
 
             # Temporarily remove the ability to see MATLAB API key in Studio, as
             # a pre-cursor to removing it altogether.
@@ -1323,6 +1385,9 @@ class ProblemBlock(
             'has_saved_answers': self.has_saved_answers,
             'save_message': save_message,
             'submit_disabled_cta': submit_disabled_ctas[0] if submit_disabled_ctas else None,
+            # Manprax
+            'mx_image_path': self.mx_image_path,
+
         }
 
         html = self.runtime.service(self, 'mako').render_lms_template('problem.html', context)
@@ -2378,6 +2443,31 @@ class ProblemBlock(
         return Score(raw_earned=lcp_score['score'], raw_possible=lcp_score['total'])
 
 
+    # Manprax
+
+    @XBlock.json_handler
+    def upload_image(self, data, suffix=''):
+        from django.core.files.storage import default_storage
+        from django.core.files.base import ContentFile
+        import base64
+        if 'file' not in data:
+            return {'result': 'error', 'message': 'No file uploaded'}
+        log.info("Uploading image in Problem Xblock")
+
+        uploaded_file = data['file']
+        file_name = uploaded_file['name']
+        file_content = uploaded_file['content']
+
+        decoded_content = base64.b64decode(file_content)
+        file_path = f"assets/question/{self.location.block_id}/{file_name}"
+        default_storage.save(file_path, ContentFile(decoded_content))
+        relative_url = default_storage.url(file_path)
+        full_url = settings.LMS_ROOT_URL + relative_url
+        log.info("uploaded images full path URL {}".format(full_url))
+
+        self.mx_image_path = full_url
+        
+        return {'result': 'success', 'mx_image_path': self.mx_image_path}
 class GradingMethodHandler:
     """
     A class for handling grading method and calculating scores.
@@ -2500,3 +2590,7 @@ def randomization_bin(seed, problem_id):
     r_hash.update(str(problem_id).encode())
     # get the first few digits of the hash, convert to an int, then mod.
     return int(r_hash.hexdigest()[:7], 16) % NUM_RANDOMIZATION_BINS
+
+
+
+

@@ -9,9 +9,19 @@ from openedx.core.djangolib.markup import HTML, Text
   ${ problem['name'] }
 </h3>
 
-<div class="problem-progress" id="${ id }-problem-progress"></div>
+##<div class="problem-progress" id="${ id }-problem-progress"></div>
+##Manprax
+<div class="problem-progress" id="${ id }-problem-progress" style="display: none;"></div>
 
-<div class="problem">
+% if mx_image_path:
+
+  <div class="question-image">
+    <img src="${ mx_image_path }" alt=""/>
+  </div> 
+% endif
+
+
+<div class="problem mx-problem" id="mx-problem">
   ${ HTML(problem['html']) }
   <div class="action">
     <input type="hidden" name="problem_id" value="${ problem['name'] }" />
