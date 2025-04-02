@@ -268,7 +268,7 @@ class ProblemBlock(
     )
     # Manprax
     is_quize = Boolean(
-        display_name=_("is_assessment"),
+        display_name=_("Is Assessment"),
         help=_("set 'True' if you want to use this block as Assessment"),
         scope=Scope.settings,
         default=False
@@ -411,7 +411,7 @@ class ProblemBlock(
 
         html = """
         <div class="mx-problem-img" id="mx-problem-img">
-            <h2>Image Upload Block</h2>
+            <h2>Image</h2>
             <div class="image-upload-wrap">
                 <input class="input setting-input image_upload" type="file" id="image_upload" accept="image/*">
                 <button class="action" type="button" onclick="uploadImage()">Upload Image</button>
