@@ -413,8 +413,7 @@ class ProblemBlock(
         <div class="mx-problem-img" id="mx-problem-img">
             <h2>Image</h2>
             <div class="image-upload-wrap">
-                <input class="input setting-input image_upload" type="file" id="image_upload" accept="image/*">
-                <button class="action" type="button" onclick="uploadImage()">Upload Image</button>
+                <input class="input setting-input image_upload" type="file" id="image_upload" accept="image/*" onchange="uploadImage(this)">
                 <p class="tip" style="padding: 10px 0;">Current Image: <img src="{mx_image_path}" alt="No image uploaded yet" ></p>
             </div>
         </div>
@@ -424,20 +423,20 @@ class ProblemBlock(
         # # Add JavaScript for image upload
 
         fragment.add_javascript("""
-        function uploadImage() {{
-            var fileInput = document.getElementById('image_upload');
-            var file = fileInput.files[0];
+        function uploadImage(input) {{
+            var file = input.files[0];
             if (file) {{
                 var reader = new FileReader();
                 reader.onload = function(e) {{
                     var data = {{
                         file: {{
                             name: file.name,
-                            content: e.target.result.split(',')[1]
+                            content: e.target.result.split(',')[1]  // Base64 content
                         }}
                     }};
+                    var handlerUrl = '{handler_url}';
                     $.ajax({{
-                        url: '{handler_url}',
+                        url: handlerUrl,
                         type: 'POST',
                         data: JSON.stringify(data),
                         contentType: 'application/json',
@@ -455,8 +454,6 @@ class ProblemBlock(
                     }});
                 }};
                 reader.readAsDataURL(file);
-            }} else {{
-                alert('Please select a file to upload.');
             }}
         }}
         """.format(handler_url=self.runtime.handler_url(self, 'upload_image').rstrip('/?')))
@@ -2444,29 +2441,46 @@ class ProblemBlock(
 
 
     # Manprax
-
     @XBlock.json_handler
     def upload_image(self, data, suffix=''):
         from django.core.files.storage import default_storage
         from django.core.files.base import ContentFile
+        from django.conf import settings
         import base64
+        import urllib.parse
+
+     
+        # Delete previous image if it exists
+        if self.mx_image_path:
+            # Extract the relative path and decode URL-encoded characters
+            old_file_path = self.mx_image_path.replace(settings.LMS_ROOT_URL + '/media/', '')
+            old_file_path = urllib.parse.unquote(old_file_path)  # Decode %20 to space
+            full_old_path = default_storage.path(old_file_path)  # Full filesystem path
+            log.info("Checking if old file exists at: {}".format(full_old_path))
+            if default_storage.exists(old_file_path):
+                default_storage.delete(old_file_path)
+                log.info("Deleted previous image: {}".format(old_file_path))
+            else:
+                log.info("Previous image not found at: {}".format(full_old_path))
+
         if 'file' not in data:
             return {'result': 'error', 'message': 'No file uploaded'}
-        log.info("Uploading image in Problem Xblock")
-
+        
+        log.info("Uploading image in Problem XBlock")
+        
         uploaded_file = data['file']
         file_name = uploaded_file['name']
         file_content = uploaded_file['content']
-
+        
         decoded_content = base64.b64decode(file_content)
         file_path = f"assets/question/{self.location.block_id}/{file_name}"
         default_storage.save(file_path, ContentFile(decoded_content))
         relative_url = default_storage.url(file_path)
         full_url = settings.LMS_ROOT_URL + relative_url
-        log.info("uploaded images full path URL {}".format(full_url))
-
-        self.mx_image_path = full_url
+        log.info("Uploaded image full path URL: {}".format(full_url))
         
+        self.mx_image_path = full_url
+    
         return {'result': 'success', 'mx_image_path': self.mx_image_path}
 class GradingMethodHandler:
     """
