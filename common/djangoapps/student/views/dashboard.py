@@ -846,6 +846,10 @@ def student_dashboard(request, program_uuid):  # lint-amnesty, pylint: disable=t
                 course_languages[course_key] = "en"
         else:
             course_languages[course_key] = "en"
+
+    # Manprax
+    course_enrollments.sort(key=lambda x: x.course.start, reverse=False)
+
     context = {
         'urls': urls,
         'programs_data': programs_data,
