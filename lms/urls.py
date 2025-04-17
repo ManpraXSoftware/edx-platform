@@ -1068,7 +1068,9 @@ urlpatterns += [
     re_path(r'^letstalksign/authenticate/?$', letstalksign_authenticate, name='letstalksign_api_authenticate_call'),
 ]
 # if 'figures' in settings.INSTALLED_APPS:
-#         urlpatterns += (
-#             path('figures/',
-#                 include('figures.urls', namespace='figures')),
-#  )
+if 'figures.apps.FiguresConfig' in settings.INSTALLED_APPS:
+        
+        urlpatterns += (
+            path('figures/',
+                include('figures.urls', namespace='figures')),
+ )
