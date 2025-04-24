@@ -268,10 +268,10 @@ class ProblemBlock(
     )
     # Manprax
     is_quize = Boolean(
-        display_name=_("Is Assessment"),
+        display_name=_("Is Assignment"),
         help=_("set 'True' if you want to use this block as Assessment"),
         scope=Scope.settings,
-        default=False
+        default=True
     )
 
     mx_image_path = String(
