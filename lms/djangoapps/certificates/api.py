@@ -286,7 +286,6 @@ def certificate_downloadable_status(student, course_key):
 
     # If the certificate status is an error user should view that status is "generating".
     # On the back-end, need to monitor those errors and re-submit the task.
-
     response_data = {
         'is_downloadable': False,
         'is_generating': True if current_status['status'] in [CertificateStatuses.generating,  # pylint: disable=simplifiable-if-expression
@@ -294,6 +293,8 @@ def certificate_downloadable_status(student, course_key):
         'is_unverified': True if current_status['status'] == CertificateStatuses.unverified else False,  # pylint: disable=simplifiable-if-expression
         'download_url': None,
         'uuid': None,
+        # Manprax
+        'created_date': None
     }
 
     course_overview = get_course_overview_or_none(course_key)
@@ -328,6 +329,9 @@ def certificate_downloadable_status(student, course_key):
         )
         response_data['is_pdf_certificate'] = bool(current_status['download_url'])
         response_data['uuid'] = current_status['uuid']
+        # Manprax
+        response_data['created_date'] = current_status['created_date']
+        
 
     return response_data
 

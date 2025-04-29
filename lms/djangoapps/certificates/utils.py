@@ -194,12 +194,13 @@ def certificate_status(generated_certificate):
     # Import here instead of top of file since this module gets imported before
     # the course_modes app is loaded, resulting in a Django deprecation warning.
     from common.djangoapps.course_modes.models import CourseMode  # pylint: disable=redefined-outer-name, reimported
-
     if generated_certificate:
         cert_status = {
             'status': generated_certificate.status,
             'mode': generated_certificate.mode,
             'uuid': generated_certificate.verify_uuid,
+            # Manprax 
+            'created_date': generated_certificate.created_date,
         }
         if generated_certificate.grade:
             cert_status['grade'] = generated_certificate.grade

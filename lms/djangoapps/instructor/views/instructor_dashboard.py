@@ -42,7 +42,8 @@ from lms.djangoapps.certificates.models import (
     CertificateGenerationConfiguration,
     CertificateGenerationHistory,
     CertificateInvalidation,
-    GeneratedCertificate
+    GeneratedCertificate,
+    CertificateGenerationCourseSetting
 )
 from lms.djangoapps.courseware.access import has_access
 from lms.djangoapps.courseware.courses import get_studio_url
@@ -137,7 +138,8 @@ def instructor_dashboard_2(request, course_id):  # lint-amnesty, pylint: disable
         sections_content = [
             _section_course_info(course, access),
             _section_membership(course, access),
-            _section_cohort_management(course, access),
+            # Manprax
+            # _section_cohort_management(course, access),
             _section_student_admin(course, access),
         ]
 
@@ -197,19 +199,23 @@ def instructor_dashboard_2(request, course_id):  # lint-amnesty, pylint: disable
     course_has_special_exams = course.enable_proctored_exams or course.enable_timed_exams
     can_see_special_exams = course_has_special_exams and user_has_access and settings.FEATURES.get(
         'ENABLE_SPECIAL_EXAMS', False)
-
-    if can_see_special_exams:
-        sections.append(_section_special_exams(course, access))
+    # Manprax 
+    # if can_see_special_exams:
+    #     sections.append(_section_special_exams(course, access))
     # Certificates panel
     # This is used to generate example certificates
     # and enable self-generated certificates for a course.
     # Note: This is hidden for all CCXs
+    
     certs_enabled = CertificateGenerationConfiguration.current().enabled and not hasattr(course_key, 'ccx')
     certs_instructor_enabled = settings.FEATURES.get('ENABLE_CERTIFICATES_INSTRUCTOR_MANAGE', False)
-
-    if certs_enabled and (access['admin'] or (access['instructor'] and certs_instructor_enabled)):
-        sections.append(_section_certificates(course))
-
+    
+    # if certs_enabled and (access['admin'] or (access['instructor'] and certs_instructor_enabled)):
+    #     sections.append(_section_certificates(course))
+        
+    has_certificate_course = CertificateGenerationCourseSetting.objects.filter(course_key = course_key).first()
+    mx_certificate_tab = True if has_certificate_course else False
+    
     openassessment_blocks = modulestore().get_items(
         course_key, qualifiers={'category': 'openassessment'}
     )
@@ -256,6 +262,8 @@ def instructor_dashboard_2(request, course_id):  # lint-amnesty, pylint: disable
         'certificate_exception_view_url': certificate_exception_view_url,
         'certificate_invalidation_view_url': certificate_invalidation_view_url,
         'xqa_server': settings.FEATURES.get('XQA_SERVER', "http://your_xqa_server.com"),
+        # Manprax 
+        'mx_certificate_tab': mx_certificate_tab
     }
 
     context_from_plugins = get_plugins_view_context(
