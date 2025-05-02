@@ -545,7 +545,12 @@ class CourseFields:  # lint-amnesty, pylint: disable=missing-class-docstring
     advanced_modules = List(
         display_name=_("Advanced Module List"),
         help=_("Enter the names of the advanced modules to use in your course."),
-        scope=Scope.settings
+        scope=Scope.settings,
+        # Manprax
+        default = [
+            "lti_consumer",
+            "google-document"
+        ]
     )
     has_children = True
     show_timezone = Boolean(
