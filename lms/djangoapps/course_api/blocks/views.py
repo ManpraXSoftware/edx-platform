@@ -423,6 +423,10 @@ def recurse_mark_complete(block_id, blocks):
         for child_block in child_blocks:
             recurse_mark_complete(child_block, blocks)
 
+        # completable_blocks = [blocks[child_block_id] for child_block_id in child_blocks
+        #                       if blocks[child_block_id].get('type') != 'discussion']
+        # Manprax
         completable_blocks = [blocks[child_block_id] for child_block_id in child_blocks
-                              if blocks[child_block_id].get('type') != 'discussion']
+                              if blocks[child_block_id].get('type') != 'discussion' and blocks[child_block_id].get('type') != 'library_content']
+        
         block['completion'] = int(all(child.get('completion') == 1 for child in completable_blocks))
