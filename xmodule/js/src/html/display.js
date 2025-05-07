@@ -8,7 +8,14 @@
       JavascriptLoader.executeModuleScripts(this.el);
       Collapsible.setCollapsibles(this.el);
       if (typeof MathJax !== "undefined" && MathJax !== null) {
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.el[0]]);
+        // Manprax
+
+        // MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.el[0]]);
+        MathJax.typesetPromise().then(function() {
+          // modify the DOM here
+          MathJax.typesetPromise(mathjaxElm);
+        }).catch(function(err) {console.log(err.message);});
+        
       }
       if (typeof setupFullScreenModal !== "undefined" && setupFullScreenModal !== null) {
         setupFullScreenModal();

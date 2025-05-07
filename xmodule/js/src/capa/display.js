@@ -151,11 +151,23 @@
         Problem.prototype.bind = function() {
             var problemPrefix,
                 that = this;
-            if (typeof MathJax !== 'undefined' && MathJax !== null) {
-                this.el.find('.problem > div').each(function(index, element) {
-                    return MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
-                });
+            // if (typeof MathJax !== 'undefined' && MathJax !== null) {
+            //     this.el.find('.problem > div').each(function(index, element) {
+            //         return MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
+            //     });
+            // }
+            // Manprax
+            if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null) {
+                var mathjaxElm = this.el.find('.problem > div');
+                MathJax.typesetPromise().then(function() {
+                            // modify the DOM here
+                            MathJax.typesetPromise(mathjaxElm);
+                          }).catch(function(err) {console.log(err.message)});
+                // this.el.find('.problem > div').each(function(index, element) {
+                //    // manprax return MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
+                // });
             }
+
             if (window.hasOwnProperty('update_schematics')) {
                 window.update_schematics();
             }
@@ -203,11 +215,25 @@
             }
             Collapsible.setCollapsibles(this.el);
             this.$('input.math').keyup(this.refreshMath);
-            if (typeof MathJax !== 'undefined' && MathJax !== null) {
-                this.$('input.math').each(function(index, element) {
-                    return MathJax.Hub.Queue([that.refreshMath, null, element]);
-                });
-            }
+            // Manprax
+            // if (typeof MathJax !== 'undefined' && MathJax !== null) {
+            //     this.$('input.math').each(function(index, element) {
+            //         return MathJax.Hub.Queue([that.refreshMath, null, element]);
+            //     });
+            // }
+            if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null) 
+                {
+                    var mathjaxElm = this.$('input.math');
+                    MathJax.typesetPromise().then(function() {
+                                // modify the DOM here
+                                MathJax.typesetPromise(mathjaxElm);
+                              }).catch(function(err) { console.log(err.message) });
+                    // this.$('input.math').each(function(index, element) {
+                    //   // manprax  return MathJax.Hub.Queue([that.refreshMath, null, element]);
+                    // });
+                }
+
+
         };
 
         Problem.prototype.renderProgressState = function() {
@@ -770,11 +796,23 @@
                     }
                     return results;
                 });
-                if (typeof MathJax !== 'undefined' && MathJax !== null) {
-                    that.el.find('.problem > div').each(function(index, element) {
-                        return MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
-                    });
+                // Manprax
+                // if (typeof MathJax !== 'undefined' && MathJax !== null) {
+                //     that.el.find('.problem > div').each(function(index, element) {
+                //         return MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
+                //     });
+                // }
+                if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null) {
+                    var mathjaxElm = that.el.find('.problem > div');
+                MathJax.typesetPromise().then(function() {
+                            // modify the DOM here
+                            MathJax.typesetPromise(mathjaxElm);
+                          }).catch(function(err) { console.log(err.message)});
+                    // that.el.find('.problem > div').each(function(index, element) {
+                    //    // manprax return MathJax.Hub.Queue(['Typeset', MathJax.Hub, element]);
+                    // });
                 }
+
                 that.el.find('.show').attr('disabled', 'disabled');
                 that.updateProgress(response);
                 that.clear_all_notifications();
@@ -839,13 +877,27 @@
             // MathJax preprocessor is loaded by 'setupInputTypes'
             preprocessorTag = 'inputtype_' + elid;
             mathjaxPreprocessor = this.inputtypeDisplays[preprocessorTag];
-            if (typeof MathJax !== 'undefined' && MathJax !== null && MathJax.Hub.getAllJax(target)[0]) {
-                jax = MathJax.Hub.getAllJax(target)[0];
+            // Manprax
+            // if (typeof MathJax !== 'undefined' && MathJax !== null && MathJax.Hub.getAllJax(target)[0]) {
+            //     jax = MathJax.Hub.getAllJax(target)[0];
+            //     eqn = $(element).val();
+            //     if (mathjaxPreprocessor) {
+            //         eqn = mathjaxPreprocessor(eqn);
+            //     }
+            //     MathJax.Hub.Queue(['Text', jax, eqn], [this.updateMathML, jax, element]);
+            // }
+            if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null && MathJax.Hub.getAllJax(target)[0]) {
+                //jax = MathJax.Hub.getAllJax(target)[0];
                 eqn = $(element).val();
                 if (mathjaxPreprocessor) {
                     eqn = mathjaxPreprocessor(eqn);
                 }
-                MathJax.Hub.Queue(['Text', jax, eqn], [this.updateMathML, jax, element]);
+                var mathjaxElm = $(element);
+                MathJax.typesetPromise().then(function() {
+                            // modify the DOM here
+                            MathJax.typesetPromise(mathjaxElm);
+                          }).catch(function(err) { console.log(err.message)});
+               // manprax MathJax.Hub.Queue(['Text', jax, eqn], [this.updateMathML, jax, element]);
             }
         };
 
@@ -856,7 +908,12 @@
                 if (!exception.restart) {
                     throw exception;
                 }
-                if (typeof MathJax !== 'undefined' && MathJax !== null) {
+                // manprax
+                // if (typeof MathJax !== 'undefined' && MathJax !== null) {
+                //     MathJax.Callback.After([this.refreshMath, jax], exception.restart);
+                // }
+
+                if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.typesetPromise !== 'undefined' && MathJax.typesetPromise !== null) {
                     MathJax.Callback.After([this.refreshMath, jax], exception.restart);
                 }
             }
@@ -1332,7 +1389,14 @@
                     hintMsgContainer = that.$('.problem-hint .notification-message');
                     hintContainer.attr('hint_index', response.hint_index);
                     edx.HtmlUtils.setHtml(hintMsgContainer, edx.HtmlUtils.HTML(response.msg));
-                    MathJax.Hub.Queue(['Typeset', MathJax.Hub, hintContainer[0]]);
+                    // Manprax
+                    // MathJax.Hub.Queue(['Typeset', MathJax.Hub, hintContainer[0]]);
+                    var mathjaxElm = hintContainer[0];
+                    MathJax.typesetPromise().then(function() {
+                                // modify the DOM here
+                                MathJax.typesetPromise(mathjaxElm);
+                              }).catch(function(err) { console.log(err.message)});
+                              
                     if (response.should_enable_next_hint) {
                         that.hintButton.removeAttr('disabled');
                     } else {

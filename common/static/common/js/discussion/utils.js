@@ -493,8 +493,16 @@
         };
 
         DiscussionUtil.typesetMathJax = function(element) {
+            // Manprax
+            // if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.Hub !== 'undefined') {
+            //     MathJax.Hub.Queue(['Typeset', MathJax.Hub, element[0]]);
+            // }
             if (typeof MathJax !== 'undefined' && MathJax !== null && typeof MathJax.Hub !== 'undefined') {
-                MathJax.Hub.Queue(['Typeset', MathJax.Hub, element[0]]);
+                MathJax.typesetPromise().then(function() {
+                    // modify the DOM here
+                    MathJax.typesetPromise(element[0]);
+                  }).catch(function(err) { console.log(err.message)});
+               // manprax MathJax.Hub.Queue(['Typeset', MathJax.Hub, element[0]]);
             }
         };
 

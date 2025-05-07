@@ -14,7 +14,21 @@ if (typeof MathJax === 'undefined') {
 
         var MathJax = window.MathJax,
             setMathJaxDisplayDivSettings;
-        MathJax.Hub.Config({
+            // Manprax
+        // MathJax.Hub.Config({
+        //     tex2jax: {
+        //         inlineMath: [
+        //             ['\\(', '\\)'],
+        //             ['[mathjaxinline]', '[/mathjaxinline]']
+        //         ],
+        //         displayMath: [
+        //             ['\\[', '\\]'],
+        //             ['[mathjax]', '[/mathjax]']
+        //         ]
+        //     }
+        // });
+
+        MathJax.Config({
             tex2jax: {
                 inlineMath: [
                     ['\\(', '\\)'],
@@ -26,10 +40,16 @@ if (typeof MathJax === 'undefined') {
                 ]
             }
         });
+
         if (disableFastPreview) {
-            MathJax.Hub.processSectionDelay = 0;
+            // Manprax
+            // MathJax.Hub.processSectionDelay = 0;
+            MathJax.processSectionDelay = 0;
+
         }
-        MathJax.Hub.signal.Interest(function(message) {
+        // Manprax
+        // MathJax.Hub.signal.Interest(function(message) {
+            MathJax.signal.Interest(function(message) {
             if (message[0] === 'End Math') {
                 setMathJaxDisplayDivSettings();
             }
@@ -44,13 +64,21 @@ if (typeof MathJax === 'undefined') {
         };
     };
     // Automatic loading of Mathjax accessibility files
-    window.MathJax = {
-        menuSettings: {
-            collapsible: true,
-            autocollapse: false,
-            explorer: true
-        }
-    };
-    vendorScript.src = 'https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+    // Manprax
+    // window.MathJax = {
+    //     menuSettings: {
+    //         collapsible: true,
+    //         autocollapse: false,
+    //         explorer: true
+    //     }
+    // };
+    window.MathJax.menuSettings=  {
+        collapsible: true,
+        autocollapse: false,
+        explorer: true
+};
+    // Manprax
+    // vendorScript.src = 'https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+    vendorScript.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
     document.body.appendChild(vendorScript);
 }
