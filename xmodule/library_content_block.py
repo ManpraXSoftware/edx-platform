@@ -149,7 +149,7 @@ class LibraryContentBlock(
     max_count = Integer(
         display_name=_("Count"),
         help=_("Enter the number of components to display to each student. Set it to -1 to display all components."),
-        default=1,
+        default=-1, #Manprax
         scope=Scope.settings,
     )
     capa_type = String(
@@ -171,7 +171,7 @@ class LibraryContentBlock(
         help=_("Determines whether a 'Reset Problems' button is shown, so users may reset their answers and reshuffle "
                "selected items."),
         scope=Scope.settings,
-        default=False
+        default=True #Manprax
     )
 
     @property
@@ -207,11 +207,11 @@ class LibraryContentBlock(
         """
         rand = random.Random()
 
-
         selected_keys = {tuple(k) for k in selected}  # set of (block_type, block_id) tuples assigned to this student
 
         # Determine which of our children we will show:
         valid_block_keys = {(c.block_type, c.block_id) for c in children}
+
         # Remove any selected blocks that are no longer valid:
         invalid_block_keys = (selected_keys - valid_block_keys)
         if invalid_block_keys:
@@ -221,9 +221,7 @@ class LibraryContentBlock(
         overlimit_block_keys = set()
         if len(selected_keys) > max_count:
             num_to_remove = len(selected_keys) - max_count
-            # Manprax
-            # overlimit_block_keys = set(rand.sample(list(selected_keys), num_to_remove))
-            overlimit_block_keys = set(list(selected_keys)[:num_to_remove])
+            overlimit_block_keys = set(rand.sample(list(selected_keys), num_to_remove))
             selected_keys -= overlimit_block_keys
 
         # Do we have enough blocks now?
@@ -235,9 +233,7 @@ class LibraryContentBlock(
             pool = valid_block_keys - selected_keys
             if mode == "random":
                 num_to_add = min(len(pool), num_to_add)
-                # Manprax
-                # added_block_keys = set(rand.sample(list(pool), num_to_add))
-                added_block_keys = set(sorted(pool)[:num_to_add])
+                added_block_keys = set(rand.sample(list(pool), num_to_add))
                 # We now have the correct n random children to show for this user.
             else:
                 raise NotImplementedError("Unsupported mode.")
@@ -245,8 +241,7 @@ class LibraryContentBlock(
 
         if any((invalid_block_keys, overlimit_block_keys, added_block_keys)):
             selected = list(selected_keys)
-            # Manprax
-            # random.shuffle(selected)
+            random.shuffle(selected)
 
         return {
             'selected': selected,
@@ -355,15 +350,6 @@ class LibraryContentBlock(
             selected = block_keys['selected']
             self.selected = selected  # TODO: this doesn't save from the LMS "Progress" page.
 
-        # Manprax
-        try:
-            sequence_block_keys = [[c.block_type, c.block_id] for c in self.children]
-            selected_key = sorted(self.selected, key=lambda x: sequence_block_keys.index(x))
-            self.selected = selected_key
-        except Exception as e:
-            logger.error(f"Skipping display for child block that is None. Error: {e}")
-            pass
-
         return self.selected
 
     @XBlock.handler
@@ -417,6 +403,10 @@ class LibraryContentBlock(
                 'id': str(child.location),
                 'content': rendered_child.content,
             })
+        # Manprax
+        # Show reset btn if student is fail and student has attempt the problem
+        user_id = self.get_user_id()
+        mx_show_reset_cta = check_quiz_status(self.location, self.location.course_key, user_id)
 
         fragment.add_content(self.runtime.service(self, 'mako').render_lms_template('vert_module.html', {
             'items': contents,
@@ -425,6 +415,8 @@ class LibraryContentBlock(
             'watched_completable_blocks': set(),
             'completion_delay_ms': None,
             'reset_button': self.allow_resetting_children,
+            # Manprax
+            'mx_show_reset_cta': mx_show_reset_cta, 
         }))
 
         fragment.add_javascript_url(self.runtime.local_resource_url(self, 'public/js/library_content_reset.js'))
@@ -857,3 +849,47 @@ class LibrarySummary:
         Always returns the raw 'library' field from the key.
         """
         return self.location.library_key.library
+
+
+# Manprax
+
+
+
+def check_quiz_status(library_block_key, course_key, user_id):
+    from django.contrib.auth.models import User
+    from mx_catalog.models import Quiz
+    from lms.djangoapps.grades.course_grade_factory import CourseGradeFactory
+    from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+
+    mx_show_reset_cta = False
+    try:
+        if not all([library_block_key, course_key, user_id]):
+            logger.warning("Missing required parameters for quiz status check")
+            return mx_show_reset_cta
+        user = User.objects.get(id=user_id)
+
+        # Query quiz with optimized filtering
+        quiz = Quiz.objects.filter(
+            block_key=library_block_key,
+            course_id=str(course_key),
+            submitted_by=user
+        ).select_related('submitted_by').first()
+
+        if quiz:
+            course = CourseOverview.objects.get(id=course_key)
+            
+            course_grade = CourseGradeFactory().read(user, course_key=course_key)
+            passing_grade = course.lowest_passing_grade
+            
+            mx_show_reset_cta = course_grade.percent < passing_grade
+
+    except Quiz.DoesNotExist:
+        logger.info(f"No quiz found for block_key: {library_block_key}, course: {course_key}, user: {user_id}")
+    except CourseOverview.DoesNotExist:
+        logger.error(f"Course not found: {course_key}")
+    except User.DoesNotExist:
+        logger.error(f"User not found: {user_id}")
+    except Exception as err:
+        logger.error(f"Error checking quiz status: {str(err)}")
+    
+    return mx_show_reset_cta

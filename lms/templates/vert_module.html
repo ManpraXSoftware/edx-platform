@@ -69,7 +69,7 @@ from openedx.core.djangolib.markup import HTML
 % endfor
 </div>
 
-% if reset_button:
+% if reset_button and mx_show_reset_cta:
   <div class="problem-reset-btn-wrapper">
     <button type="button" class="problem-reset-btn btn-link" data-value="${_('Reset Problems')}"><span aria-hidden="true">${_('Reset Problems')}</span><span class="sr">${_("Reset Problems")}</span></button>
   </div>
