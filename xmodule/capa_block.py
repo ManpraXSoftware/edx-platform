@@ -1085,7 +1085,6 @@ class ProblemBlock(
         Return True/False to indicate whether to enable the "Submit" button.
         """
         submitted_without_reset = (self.is_submitted() and self.rerandomize == RANDOMIZATION.ALWAYS)
-
         # If the problem is closed (past due / too many attempts)
         # then we disable the "submit" button
         # Also, disable the "submit" button if we're waiting
@@ -1361,7 +1360,6 @@ class ProblemBlock(
             save_message = _(
                 "Your answers were previously saved. Click '{button_name}' to grade them."
             ).format(button_name=self.submit_button_name())
-
         context = {
             'problem': content,
             'id': str(self.location),
@@ -1384,7 +1382,7 @@ class ProblemBlock(
             'submit_disabled_cta': submit_disabled_ctas[0] if submit_disabled_ctas else None,
             # Manprax
             'mx_image_path': self.mx_image_path,
-
+            'has_answer': bool(self.student_answers)
         }
 
         html = self.runtime.service(self, 'mako').render_lms_template('problem.html', context)
