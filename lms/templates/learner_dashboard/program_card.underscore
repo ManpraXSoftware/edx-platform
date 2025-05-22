@@ -12,7 +12,7 @@
                 </p>
                 <div class="vcourse-p">
                     <div class="blank"></div>
-                    <div class="vcourse"><a href="<%- detailUrl %>" class="btn-border" type="button">View Program</a></div>
+                    <div class="vcourse"><a href="<%- detailUrl %>" class="btn-border" aria-label="<%- gettext(title) %> view program" type="button">View Program</a></div>
                 </div>
             </div>
             
