@@ -691,7 +691,7 @@ class RegistrationView(APIView):
         except ValidationError as err:
             # Should only get field errors from this exception
             assert NON_FIELD_ERRORS not in err.message_dict
-
+            log.error("error in registration {} {}".format(err, err.message_dict))
             # Error messages are returned as arrays from ValidationError
             error_code = err.message_dict.get('error_code', ['validation-error'])[0]
 
