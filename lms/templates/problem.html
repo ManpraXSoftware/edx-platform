@@ -21,7 +21,7 @@ from openedx.core.djangolib.markup import HTML, Text
 % endif
 
 
-<div class="problem mx-problem" id="mx-problem">
+<div class="problem mx-problem ${'mx_has_answer' if has_answer else ''}" id="mx-problem">
   ${ HTML(problem['html']) }
   <div class="action">
     <input type="hidden" name="problem_id" value="${ problem['name'] }" />
