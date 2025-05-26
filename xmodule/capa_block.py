@@ -1384,6 +1384,7 @@ class ProblemBlock(
             'submit_disabled_cta': submit_disabled_ctas[0] if submit_disabled_ctas else None,
             # Manprax
             'mx_image_path': self.mx_image_path,
+            'has_answer': bool(self.student_answers)
 
         }
 
