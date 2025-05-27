@@ -125,6 +125,101 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
         """
         POST /api/user/v1/accounts/{username}/image
         """
+        # Log initial request details
+        log.info(f"Request content-type: {request.content_type}")
+        log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
+
+        # Validate content type
+        if 'multipart/form-data' not in request.content_type.lower():
+            log.error(f"Invalid content type: {request.content_type}")
+            return Response(
+                {
+                    "developer_message": "Request must be multipart/form-data",
+                    "user_message": _("Please upload the image using a multipart form"),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Force parsing of the request body immediately
+        try:
+            # Access request.data to trigger parsing by DRF parsers
+            parsed_data = request.data
+            log.info(f"Parsed request data: {parsed_data}")
+        except Exception as e:
+            log.error(f"Error parsing request data: {str(e)}")
+            return Response(
+                {
+                    "developer_message": f"Failed to parse request: {str(e)}",
+                    "user_message": _("Invalid request format"),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Log request.FILES after parsing
+        try:
+            log.info(f"Request files: {request.FILES}")
+        except Exception as e:
+            log.error(f"Error accessing request.FILES: {str(e)}")
+            return Response(
+                {
+                    "developer_message": f"Failed to access files: {str(e)}",
+                    "user_message": _("Invalid file upload"),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check for file in request.FILES
+        if 'file' not in request.FILES:
+            log.error("No file provided in request.FILES")
+            return Response(
+                {
+                    "developer_message": "No file provided for profile image",
+                    "user_message": _("No file provided for profile image"),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Process the upload
+        uploaded_file = request.FILES['file']
+        with closing(uploaded_file):
+            # Image file validation
+            try:
+                validate_uploaded_image(uploaded_file)
+            except ImageValidationError as error:
+                log.error(f"Image validation failed: {str(error)}")
+                return Response(
+                    {
+                        "developer_message": str(error),
+                        "user_message": error.user_message
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Generate profile pic and thumbnails and store them
+            try:
+                profile_image_names = get_profile_image_names(username)
+                create_profile_images(uploaded_file, profile_image_names)
+                set_has_profile_image(username, True, _make_upload_dt())
+                log.info(
+                    LOG_MESSAGE_CREATE,
+                    {'image_names': list(profile_image_names.values()), 'user_id': request.user.id}
+                )
+            except Exception as e:
+                log.error(f"Error processing image: {str(e)}")
+                return Response(
+                    {
+                        "developer_message": f"Failed to process image: {str(e)}",
+                        "user_message": _("Failed to process image"),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def mx_post(self, request, username):
+        """
+        POST /api/user/v1/accounts/{username}/image
+        """
 
         log.info(f"Request content-type: {request.content_type}")
         log.info(f"Request files: {request.FILES}")
