@@ -126,6 +126,44 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
         POST /api/user/v1/accounts/{username}/image
         """
 
+        log.info(f"Request content-type: {request.content_type}")
+        log.info(f"Request files: {request.FILES}")
+        log.info(f"Request data: {request.data}")
+        log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
+
+        # Validate content type
+        if 'multipart/form-data' not in request.content_type.lower():
+            log.error(f"Invalid content type: {request.content_type}")
+            return Response(
+                {
+                    "developer_message": "Request must be multipart/form-data",
+                    "user_message": _("Please upload the image using a multipart form"),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Force parsing of the request to load FILES and data
+        try:
+            # Access request.data to trigger parsing
+            if not request.data:
+                log.error("No data parsed from request")
+                return Response(
+                    {
+                        "developer_message": "No data parsed from request",
+                        "user_message": _("Invalid or empty request data"),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Exception as e:
+            log.error(f"Error parsing request: {str(e)}")
+            return Response(
+                {
+                    "developer_message": f"Failed to parse request: {str(e)}",
+                    "user_message": _("Invalid request format"),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         # validate request:
         # verify that the user's
         # ensure any file was sent
