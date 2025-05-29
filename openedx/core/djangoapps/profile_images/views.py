@@ -129,8 +129,8 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
         from django.http.request import UnreadablePostError
         # Log initial request details
         log.info(f"Request content-type: {request.content_type}")
-        log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')})")
-        log.info(f"Content-Length: {request.META.get('CONTENT_LENGTH', 'Unknown')})")
+        log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
+        log.info(f"Content-Length: {request.META.get('CONTENT_LENGTH', 'Unknown')}")
         log.info(f"Request headers: {dict(request.META)}")
 
         # Validate content type
@@ -139,16 +139,16 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
             return Response(
                 {
                     "developer_message": "Request must be multipart/form-data",
-                    "user_message": _("Please upload the image using a multipart form data"),
+                    "user_message": _("Please upload the image using a multipart form"),
                 },
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Validate file size
-        content_length = request.META.get('CONTENT_TYPE', '0')
+        # Validate file size (limit to 10MB)
+        content_length = request.META.get('CONTENT_LENGTH', '0')  # Fixed: Use CONTENT_LENGTH
         try:
             content_length = int(content_length)
-            if content_length > 10 * 1024 * 1024:  # 10MB limit (increased from 5MB)
+            if content_length > 10 * 1024 * 1024:  # 10MB limit
                 log.error(f"File size too large: {content_length} bytes")
                 return Response(
                     {
@@ -158,7 +158,7 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         except ValueError:
-            log.error(f"Invalid Content-Length: {content_length}")
+            log.error(f"Invalid Content-Length value: {content_length}")
             return Response(
                 {
                     "developer_message": "Invalid Content-Length header",
