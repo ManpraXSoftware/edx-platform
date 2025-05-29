@@ -41,17 +41,16 @@ def _make_upload_dt():
     function so its behavior can be overridden in tests.
     """
     return datetime.datetime.utcnow().replace(tzinfo=UTC)
-
 def cache_request_body(view_func):
     """
     Decorator to cache the request body to allow multiple reads.
     """
     @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
+    def wrapper(view, request, *args, **kwargs):
         try:
             # Cache the body if not already cached
             if not hasattr(request, '_cached_body'):
-                request._cached_body = request.body
+                request._cached_body = request.body  # Read the actual request body
                 request._body = io.BytesIO(request._cached_body)
                 log.info("Request body cached successfully")
         except UnreadablePostError as e:
@@ -63,7 +62,7 @@ def cache_request_body(view_func):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-        return view_func(request, *args, **kwargs)
+        return view_func(view, request, *args, **kwargs)
     return wrapper
 
 class ProfileImageView(DeveloperErrorViewMixin, APIView):
@@ -157,7 +156,7 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
         log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
         log.info(f"Content-Length: {request.META.get('CONTENT_LENGTH', 'Unknown')}")
         log.info(f"Request headers: {dict(request.META)}")
-        from django.http.request import UnreadablePostError
+
         # Validate content type
         if 'multipart/form-data' not in request.content_type.lower():
             log.error(f"Invalid content type: {request.content_type}")
