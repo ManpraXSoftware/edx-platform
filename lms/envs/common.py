@@ -1448,7 +1448,10 @@ MAX_FILEUPLOADS_PER_INPUT = 20
 
 # Set request limits for maximum size of a request body and maximum number of GET/POST parameters. (>=Django 1.10)
 # Limits are currently disabled - but can be used for finer-grained denial-of-service protection.
-DATA_UPLOAD_MAX_MEMORY_SIZE = None
+# DATA_UPLOAD_MAX_MEMORY_SIZE = None
+# Manprax
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1000 * 1000  # 10 MB
+
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
 # Configuration option for when we want to grab server error pages
