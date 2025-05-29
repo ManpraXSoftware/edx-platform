@@ -111,7 +111,7 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
           the user exists or not.
     """
 
-    parser_classes = (MultiPartParser, FormParser, TypedFileUploadParser)
+    parser_classes = (MultiPartParser, FormParser)
     authentication_classes = (
         JwtAuthentication,
         BearerAuthenticationAllowInactiveUser,
@@ -145,9 +145,10 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
             )
 
         # Validate file size (limit to 10MB)
-        content_length = request.META.get('CONTENT_LENGTH', '0')  # Fixed: Use CONTENT_LENGTH
+        content_length = request.META.get('CONTENT_LENGTH', '0')
         try:
             content_length = int(content_length)
+            log.info(f"Validated Content-Length: {content_length} bytes")
             if content_length > 10 * 1024 * 1024:  # 10MB limit
                 log.error(f"File size too large: {content_length} bytes")
                 return Response(
@@ -175,8 +176,8 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
             log.error(f"UnreadablePostError parsing request data: {str(e)}")
             return Response(
                 {
-                    "developer_message": f"Failed to read request body: {str(e)}. Likely caused by middleware reading the body prematurely.",
-                    "user_message": _("Failed to upload image. Please try again or use a smaller file."),
+                    "developer_message": f"Failed to read request body: {str(e)}. Possible client disconnection or middleware interference.",
+                    "user_message": _("Failed to upload image due to a connection issue. Please try again with a stable network or smaller file."),
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -217,15 +218,49 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
         # Process the upload
         uploaded_file = request.FILES['file']
         with closing(uploaded_file):
-            # Image file validation
+            # Enhanced image file validation to replace TypedFileUploadParser
             try:
+                # Validate media type
+                content_type = uploaded_file.content_type
+                if content_type not in self.upload_media_types:
+                    log.error(f"Unsupported media type: {content_type}")
+                    return Response(
+                        {
+                            "developer_message": f"Unsupported media type: {content_type}",
+                            "user_message": _("The uploaded image format is not supported. Please use JPEG, PNG, GIF, or SVG."),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                # Validate file extension (mimicking TypedFileUploadParser)
+                valid_extensions = {
+                    'image/gif': {'.gif'},
+                    'image/jpeg': {'.jpeg', '.jpg'},
+                    'image/pjpeg': {'.jpeg', '.jpg'},
+                    'image/png': {'.png'},
+                    'image/svg': {'.svg'},
+                }
+                filename = uploaded_file.name
+                fileparts = filename.rsplit('.', 1)
+                ext = f'.{fileparts[1].lower()}' if len(fileparts) > 1 else ''
+                if content_type in valid_extensions and ext not in valid_extensions[content_type]:
+                    log.error(f"File extension {ext} does not match content type {content_type}")
+                    return Response(
+                        {
+                            "developer_message": f"File extension {ext} does not match content type {content_type}",
+                            "user_message": _("The file extension does not match the image format."),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                # Existing validation (size, format, etc.)
                 validate_uploaded_image(uploaded_file)
-            except ImageValidationError as error:
+            except Exception as error:
                 log.error(f"Image validation failed: {str(error)}")
                 return Response(
                     {
                         "developer_message": str(error),
-                        "user_message": error.user_message
+                        "user_message": _("Invalid image file. Please ensure it is a valid JPEG, PNG, GIF, or SVG."),
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
