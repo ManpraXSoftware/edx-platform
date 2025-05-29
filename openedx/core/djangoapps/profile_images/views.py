@@ -146,7 +146,6 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
     upload_media_types = set(itertools.chain(*(image_type.mimetypes for image_type in IMAGE_TYPES.values())))
 
     
-    @cache_request_body
     def post(self, request, username):
         """
         POST /api/user/v1/accounts/{username}/image
@@ -192,15 +191,16 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Attempt to parse request data
+        # Early parsing to avoid middleware interference
         try:
-            parsed_data = request.data
+            parsed_data = request.data  # Trigger MultiPartParser early
             log.info(f"Parsed request data: {parsed_data}")
+            log.info(f"Request files: {request.FILES}")
         except UnreadablePostError as e:
             log.error(f"UnreadablePostError parsing request data: {str(e)}")
             return Response(
                 {
-                    "developer_message": f"Failed to read request body: {str(e)}. Possible middleware interference or connection issue.",
+                    "developer_message": f"Failed to read request body: {str(e)}. Possible client disconnection or middleware interference.",
                     "user_message": _("Failed to upload image. Please try again with a stable network or smaller file."),
                 },
                 status=status.HTTP_400_BAD_REQUEST
@@ -211,19 +211,6 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                 {
                     "developer_message": f"Failed to parse request: {str(e)}",
                     "user_message": _("Invalid request format"),
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Log request.FILES
-        try:
-            log.info(f"Request files: {request.FILES}")
-        except Exception as e:
-            log.error(f"Error accessing request.FILES: {str(e)}")
-            return Response(
-                {
-                    "developer_message": f"Failed to access files: {str(e)}",
-                    "user_message": _("Invalid file upload"),
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -306,7 +293,6 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                 )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
     # def post(self, request, username):
     #     """
     #     POST /api/user/v1/accounts/{username}/image
