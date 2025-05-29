@@ -191,16 +191,17 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Early parsing to avoid middleware interference
+        # Defensive parsing to handle middleware interference
         try:
-            parsed_data = request.data  # Trigger MultiPartParser early
+            # Access request.data early to trigger MultiPartParser
+            parsed_data = request.data
             log.info(f"Parsed request data: {parsed_data}")
             log.info(f"Request files: {request.FILES}")
         except UnreadablePostError as e:
-            log.error(f"UnreadablePostError parsing request data: {str(e)}")
+            log.error(f"UnreadablePostError parsing request data: {str(e)}. Likely middleware interference or client disconnection.")
             return Response(
                 {
-                    "developer_message": f"Failed to read request body: {str(e)}. Possible client disconnection or middleware interference.",
+                    "developer_message": f"Failed to read request body: {str(e)}. Possible middleware or network issue.",
                     "user_message": _("Failed to upload image. Please try again with a stable network or smaller file."),
                 },
                 status=status.HTTP_400_BAD_REQUEST
