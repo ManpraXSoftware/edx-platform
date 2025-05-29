@@ -126,28 +126,11 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
         """
         POST /api/user/v1/accounts/{username}/image
         """
-        # Buffer the request body to allow multiple reads
-        import io
         from django.http.request import UnreadablePostError
-        try:
-            if not hasattr(request, '_cached_body'):
-                request._cached_body = request.body
-                request._body = io.BytesIO(request._cached_body)  # Replace stream with buffered version
-            log.info("Request body buffered successfully")
-        except UnreadablePostError as e:
-            log.error(f"Failed to buffer request body: {str(e)}")
-            return Response(
-                {
-                    "developer_message": f"Cannot read request body: {str(e)}",
-                    "user_message": _("Failed to process request due to a server error. Please try again."),
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
         # Log initial request details
         log.info(f"Request content-type: {request.content_type}")
-        log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
-        log.info(f"Content-Length: {request.META.get('CONTENT_LENGTH', 'Unknown')}")
+        log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')})")
+        log.info(f"Content-Length: {request.META.get('CONTENT_LENGTH', 'Unknown')})")
         log.info(f"Request headers: {dict(request.META)}")
 
         # Validate content type
@@ -156,21 +139,21 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
             return Response(
                 {
                     "developer_message": "Request must be multipart/form-data",
-                    "user_message": _("Please upload the image using a multipart form"),
+                    "user_message": _("Please upload the image using a multipart form data"),
                 },
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Validate file size (limit to 5MB to match Content-Length)
-        content_length = request.META.get('CONTENT_LENGTH', '0')
+        # Validate file size
+        content_length = request.META.get('CONTENT_TYPE', '0')
         try:
             content_length = int(content_length)
-            if content_length > 5 * 1024 * 1024:  # 5MB limit
+            if content_length > 10 * 1024 * 1024:  # 10MB limit (increased from 5MB)
                 log.error(f"File size too large: {content_length} bytes")
                 return Response(
                     {
-                        "developer_message": f"File size {content_length} bytes exceeds 5MB limit",
-                        "user_message": _("Image file is too large. Please upload a file smaller than 5MB."),
+                        "developer_message": f"File size {content_length} bytes exceeds 10MB limit",
+                        "user_message": _("Image file is too large. Please upload a file smaller than 10MB."),
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
@@ -184,7 +167,7 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Force parsing of the request body
+        # Attempt to parse request data
         try:
             parsed_data = request.data
             log.info(f"Parsed request data: {parsed_data}")
@@ -192,7 +175,7 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
             log.error(f"UnreadablePostError parsing request data: {str(e)}")
             return Response(
                 {
-                    "developer_message": f"Failed to read request body: {str(e)}. Possible middleware interference or file size issue.",
+                    "developer_message": f"Failed to read request body: {str(e)}. Likely caused by middleware reading the body prematurely.",
                     "user_message": _("Failed to upload image. Please try again or use a smaller file."),
                 },
                 status=status.HTTP_400_BAD_REQUEST
@@ -207,7 +190,7 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Log request.FILES after parsing
+        # Log request.FILES
         try:
             log.info(f"Request files: {request.FILES}")
         except Exception as e:
