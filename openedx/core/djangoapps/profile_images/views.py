@@ -26,7 +26,9 @@ from openedx.core.lib.api.view_utils import DeveloperErrorViewMixin
 
 from .exceptions import ImageValidationError
 from .images import IMAGE_TYPES, create_profile_images, remove_profile_images, validate_uploaded_image
-
+from django.http.request import UnreadablePostError
+from functools import wraps
+import io
 log = logging.getLogger(__name__)
 
 LOG_MESSAGE_CREATE = 'Generated and uploaded images %(image_names)s for user %(user_id)s'
@@ -40,6 +42,29 @@ def _make_upload_dt():
     """
     return datetime.datetime.utcnow().replace(tzinfo=UTC)
 
+def cache_request_body(view_func):
+    """
+    Decorator to cache the request body to allow multiple reads.
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        try:
+            # Cache the body if not already cached
+            if not hasattr(request, '_cached_body'):
+                request._cached_body = request.body
+                request._body = io.BytesIO(request._cached_body)
+                log.info("Request body cached successfully")
+        except UnreadablePostError as e:
+            log.error(f"Failed to cache request body: {str(e)}")
+            return Response(
+                {
+                    "developer_message": f"Cannot read request body: {str(e)}",
+                    "user_message": _("Failed to process request due to a server error. Please try again."),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 class ProfileImageView(DeveloperErrorViewMixin, APIView):
     """
@@ -122,17 +147,17 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
     upload_media_types = set(itertools.chain(*(image_type.mimetypes for image_type in IMAGE_TYPES.values())))
 
     
+    @cache_request_body
     def post(self, request, username):
         """
         POST /api/user/v1/accounts/{username}/image
         """
-        from django.http.request import UnreadablePostError
         # Log initial request details
         log.info(f"Request content-type: {request.content_type}")
         log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
         log.info(f"Content-Length: {request.META.get('CONTENT_LENGTH', 'Unknown')}")
         log.info(f"Request headers: {dict(request.META)}")
-
+        from django.http.request import UnreadablePostError
         # Validate content type
         if 'multipart/form-data' not in request.content_type.lower():
             log.error(f"Invalid content type: {request.content_type}")
@@ -176,8 +201,8 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
             log.error(f"UnreadablePostError parsing request data: {str(e)}")
             return Response(
                 {
-                    "developer_message": f"Failed to read request body: {str(e)}. Possible client disconnection or middleware interference.",
-                    "user_message": _("Failed to upload image due to a connection issue. Please try again with a stable network or smaller file."),
+                    "developer_message": f"Failed to read request body: {str(e)}. Possible middleware interference or connection issue.",
+                    "user_message": _("Failed to upload image. Please try again with a stable network or smaller file."),
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -218,9 +243,8 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
         # Process the upload
         uploaded_file = request.FILES['file']
         with closing(uploaded_file):
-            # Enhanced image file validation to replace TypedFileUploadParser
+            # Validate media type and extension
             try:
-                # Validate media type
                 content_type = uploaded_file.content_type
                 if content_type not in self.upload_media_types:
                     log.error(f"Unsupported media type: {content_type}")
@@ -232,7 +256,6 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                         status=status.HTTP_400_BAD_REQUEST
                     )
 
-                # Validate file extension (mimicking TypedFileUploadParser)
                 valid_extensions = {
                     'image/gif': {'.gif'},
                     'image/jpeg': {'.jpeg', '.jpg'},
@@ -253,7 +276,6 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                         status=status.HTTP_400_BAD_REQUEST
                     )
 
-                # Existing validation (size, format, etc.)
                 validate_uploaded_image(uploaded_file)
             except Exception as error:
                 log.error(f"Image validation failed: {str(error)}")
