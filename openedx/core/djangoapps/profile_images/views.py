@@ -126,7 +126,24 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
         """
         POST /api/user/v1/accounts/{username}/image
         """
+        # Buffer the request body to allow multiple reads
+        import io
         from django.http.request import UnreadablePostError
+        try:
+            if not hasattr(request, '_cached_body'):
+                request._cached_body = request.body
+                request._body = io.BytesIO(request._cached_body)  # Replace stream with buffered version
+            log.info("Request body buffered successfully")
+        except UnreadablePostError as e:
+            log.error(f"Failed to buffer request body: {str(e)}")
+            return Response(
+                {
+                    "developer_message": f"Cannot read request body: {str(e)}",
+                    "user_message": _("Failed to process request due to a server error. Please try again."),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         # Log initial request details
         log.info(f"Request content-type: {request.content_type}")
         log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
@@ -144,17 +161,39 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Force parsing of the request body immediately
+        # Validate file size (limit to 5MB to match Content-Length)
+        content_length = request.META.get('CONTENT_LENGTH', '0')
         try:
-            # Access request.data to trigger parsing by DRF parsers
+            content_length = int(content_length)
+            if content_length > 5 * 1024 * 1024:  # 5MB limit
+                log.error(f"File size too large: {content_length} bytes")
+                return Response(
+                    {
+                        "developer_message": f"File size {content_length} bytes exceeds 5MB limit",
+                        "user_message": _("Image file is too large. Please upload a file smaller than 5MB."),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except ValueError:
+            log.error(f"Invalid Content-Length: {content_length}")
+            return Response(
+                {
+                    "developer_message": "Invalid Content-Length header",
+                    "user_message": _("Invalid request format"),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Force parsing of the request body
+        try:
             parsed_data = request.data
             log.info(f"Parsed request data: {parsed_data}")
         except UnreadablePostError as e:
             log.error(f"UnreadablePostError parsing request data: {str(e)}")
             return Response(
                 {
-                    "developer_message": f"Failed to read request body: {str(e)}. Possible client connection issue or file size too large.",
-                    "user_message": _("Failed to upload image due to a connection issue. Please try again or use a smaller file."),
+                    "developer_message": f"Failed to read request body: {str(e)}. Possible middleware interference or file size issue.",
+                    "user_message": _("Failed to upload image. Please try again or use a smaller file."),
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -208,7 +247,7 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Generate profile pic and thumbnails and store them
+            # Generate profile pic and thumbnails
             try:
                 profile_image_names = get_profile_image_names(username)
                 create_profile_images(uploaded_file, profile_image_names)
