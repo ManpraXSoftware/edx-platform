@@ -210,8 +210,8 @@ def instructor_dashboard_2(request, course_id):  # lint-amnesty, pylint: disable
     certs_enabled = CertificateGenerationConfiguration.current().enabled and not hasattr(course_key, 'ccx')
     certs_instructor_enabled = settings.FEATURES.get('ENABLE_CERTIFICATES_INSTRUCTOR_MANAGE', False)
     
-    # if certs_enabled and (access['admin'] or (access['instructor'] and certs_instructor_enabled)):
-    #     sections.append(_section_certificates(course))
+    if certs_enabled and (access['admin'] or (access['instructor'] and certs_instructor_enabled)):
+        sections.append(_section_certificates(course))
         
     has_certificate_course = CertificateGenerationCourseSetting.objects.filter(course_key = course_key).first()
     mx_certificate_tab = True if has_certificate_course else False
