@@ -121,13 +121,17 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
 
     upload_media_types = set(itertools.chain(*(image_type.mimetypes for image_type in IMAGE_TYPES.values())))
 
+    
     def post(self, request, username):
         """
         POST /api/user/v1/accounts/{username}/image
         """
+        from django.http.request import UnreadablePostError
         # Log initial request details
         log.info(f"Request content-type: {request.content_type}")
         log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
+        log.info(f"Content-Length: {request.META.get('CONTENT_LENGTH', 'Unknown')}")
+        log.info(f"Request headers: {dict(request.META)}")
 
         # Validate content type
         if 'multipart/form-data' not in request.content_type.lower():
@@ -145,6 +149,15 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
             # Access request.data to trigger parsing by DRF parsers
             parsed_data = request.data
             log.info(f"Parsed request data: {parsed_data}")
+        except UnreadablePostError as e:
+            log.error(f"UnreadablePostError parsing request data: {str(e)}")
+            return Response(
+                {
+                    "developer_message": f"Failed to read request body: {str(e)}. Possible client connection issue or file size too large.",
+                    "user_message": _("Failed to upload image due to a connection issue. Please try again or use a smaller file."),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
             log.error(f"Error parsing request data: {str(e)}")
             return Response(
@@ -215,92 +228,187 @@ class ProfileImageView(DeveloperErrorViewMixin, APIView):
                 )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # def post(self, request, username):
+    #     """
+    #     POST /api/user/v1/accounts/{username}/image
+    #     """
+    #     # Log initial request details
+    #     log.info(f"Request content-type: {request.content_type}")
+    #     log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
+
+    #     # Validate content type
+    #     if 'multipart/form-data' not in request.content_type.lower():
+    #         log.error(f"Invalid content type: {request.content_type}")
+    #         return Response(
+    #             {
+    #                 "developer_message": "Request must be multipart/form-data",
+    #                 "user_message": _("Please upload the image using a multipart form"),
+    #             },
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
+
+    #     # Force parsing of the request body immediately
+    #     try:
+    #         # Access request.data to trigger parsing by DRF parsers
+    #         parsed_data = request.data
+    #         log.info(f"Parsed request data: {parsed_data}")
+    #     except Exception as e:
+    #         log.error(f"Error parsing request data: {str(e)}")
+    #         return Response(
+    #             {
+    #                 "developer_message": f"Failed to parse request: {str(e)}",
+    #                 "user_message": _("Invalid request format"),
+    #             },
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
+
+    #     # Log request.FILES after parsing
+    #     try:
+    #         log.info(f"Request files: {request.FILES}")
+    #     except Exception as e:
+    #         log.error(f"Error accessing request.FILES: {str(e)}")
+    #         return Response(
+    #             {
+    #                 "developer_message": f"Failed to access files: {str(e)}",
+    #                 "user_message": _("Invalid file upload"),
+    #             },
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
+
+    #     # Check for file in request.FILES
+    #     if 'file' not in request.FILES:
+    #         log.error("No file provided in request.FILES")
+    #         return Response(
+    #             {
+    #                 "developer_message": "No file provided for profile image",
+    #                 "user_message": _("No file provided for profile image"),
+    #             },
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
+
+    #     # Process the upload
+    #     uploaded_file = request.FILES['file']
+    #     with closing(uploaded_file):
+    #         # Image file validation
+    #         try:
+    #             validate_uploaded_image(uploaded_file)
+    #         except ImageValidationError as error:
+    #             log.error(f"Image validation failed: {str(error)}")
+    #             return Response(
+    #                 {
+    #                     "developer_message": str(error),
+    #                     "user_message": error.user_message
+    #                 },
+    #                 status=status.HTTP_400_BAD_REQUEST
+    #             )
+
+    #         # Generate profile pic and thumbnails and store them
+    #         try:
+    #             profile_image_names = get_profile_image_names(username)
+    #             create_profile_images(uploaded_file, profile_image_names)
+    #             set_has_profile_image(username, True, _make_upload_dt())
+    #             log.info(
+    #                 LOG_MESSAGE_CREATE,
+    #                 {'image_names': list(profile_image_names.values()), 'user_id': request.user.id}
+    #             )
+    #         except Exception as e:
+    #             log.error(f"Error processing image: {str(e)}")
+    #             return Response(
+    #                 {
+    #                     "developer_message": f"Failed to process image: {str(e)}",
+    #                     "user_message": _("Failed to process image"),
+    #                 },
+    #                 status=status.HTTP_400_BAD_REQUEST
+    #             )
+
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
     
-    def mx_post(self, request, username):
-        """
-        POST /api/user/v1/accounts/{username}/image
-        """
+    # def mx_post(self, request, username):
+    #     """
+    #     POST /api/user/v1/accounts/{username}/image
+    #     """
 
-        log.info(f"Request content-type: {request.content_type}")
-        log.info(f"Request files: {request.FILES}")
-        log.info(f"Request data: {request.data}")
-        log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
+    #     log.info(f"Request content-type: {request.content_type}")
+    #     log.info(f"Request files: {request.FILES}")
+    #     log.info(f"Request data: {request.data}")
+    #     log.info(f"User agent: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
 
-        # Validate content type
-        if 'multipart/form-data' not in request.content_type.lower():
-            log.error(f"Invalid content type: {request.content_type}")
-            return Response(
-                {
-                    "developer_message": "Request must be multipart/form-data",
-                    "user_message": _("Please upload the image using a multipart form"),
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+    #     # Validate content type
+    #     if 'multipart/form-data' not in request.content_type.lower():
+    #         log.error(f"Invalid content type: {request.content_type}")
+    #         return Response(
+    #             {
+    #                 "developer_message": "Request must be multipart/form-data",
+    #                 "user_message": _("Please upload the image using a multipart form"),
+    #             },
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
 
-        # Force parsing of the request to load FILES and data
-        try:
-            # Access request.data to trigger parsing
-            if not request.data:
-                log.error("No data parsed from request")
-                return Response(
-                    {
-                        "developer_message": "No data parsed from request",
-                        "user_message": _("Invalid or empty request data"),
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        except Exception as e:
-            log.error(f"Error parsing request: {str(e)}")
-            return Response(
-                {
-                    "developer_message": f"Failed to parse request: {str(e)}",
-                    "user_message": _("Invalid request format"),
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+    #     # Force parsing of the request to load FILES and data
+    #     try:
+    #         # Access request.data to trigger parsing
+    #         if not request.data:
+    #             log.error("No data parsed from request")
+    #             return Response(
+    #                 {
+    #                     "developer_message": "No data parsed from request",
+    #                     "user_message": _("Invalid or empty request data"),
+    #                 },
+    #                 status=status.HTTP_400_BAD_REQUEST
+    #             )
+    #     except Exception as e:
+    #         log.error(f"Error parsing request: {str(e)}")
+    #         return Response(
+    #             {
+    #                 "developer_message": f"Failed to parse request: {str(e)}",
+    #                 "user_message": _("Invalid request format"),
+    #             },
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
         
-        # validate request:
-        # verify that the user's
-        # ensure any file was sent
-        if 'file' not in request.FILES:
-            return Response(
-                {
-                    "developer_message": "No file provided for profile image",
-                    "user_message": _("No file provided for profile image"),
+    #     # validate request:
+    #     # verify that the user's
+    #     # ensure any file was sent
+    #     if 'file' not in request.FILES:
+    #         return Response(
+    #             {
+    #                 "developer_message": "No file provided for profile image",
+    #                 "user_message": _("No file provided for profile image"),
 
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+    #             },
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
 
-        # process the upload.
-        uploaded_file = request.FILES['file']
+    #     # process the upload.
+    #     uploaded_file = request.FILES['file']
 
-        # no matter what happens, delete the temporary file when we're done
-        with closing(uploaded_file):
+    #     # no matter what happens, delete the temporary file when we're done
+    #     with closing(uploaded_file):
 
-            # image file validation.
-            try:
-                validate_uploaded_image(uploaded_file)
-            except ImageValidationError as error:
-                return Response(
-                    {"developer_message": str(error), "user_message": error.user_message},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+    #         # image file validation.
+    #         try:
+    #             validate_uploaded_image(uploaded_file)
+    #         except ImageValidationError as error:
+    #             return Response(
+    #                 {"developer_message": str(error), "user_message": error.user_message},
+    #                 status=status.HTTP_400_BAD_REQUEST,
+    #             )
 
-            # generate profile pic and thumbnails and store them
-            profile_image_names = get_profile_image_names(username)
-            create_profile_images(uploaded_file, profile_image_names)
+    #         # generate profile pic and thumbnails and store them
+    #         profile_image_names = get_profile_image_names(username)
+    #         create_profile_images(uploaded_file, profile_image_names)
 
-            # update the user account to reflect that a profile image is available.
-            set_has_profile_image(username, True, _make_upload_dt())
+    #         # update the user account to reflect that a profile image is available.
+    #         set_has_profile_image(username, True, _make_upload_dt())
 
-            log.info(
-                LOG_MESSAGE_CREATE,
-                {'image_names': list(profile_image_names.values()), 'user_id': request.user.id}
-            )
+    #         log.info(
+    #             LOG_MESSAGE_CREATE,
+    #             {'image_names': list(profile_image_names.values()), 'user_id': request.user.id}
+    #         )
 
-        # send client response.
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    #     # send client response.
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, username):
         """
