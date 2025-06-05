@@ -302,6 +302,8 @@ class BlocksInCourseView(BlocksView):
 
         # convert the requested course_key to the course's root block's usage_key
         course_key_string = request.query_params.get('course_id', None)
+        username = request.query_params.get('username', None)
+
         if not course_key_string:
             raise ValidationError('course_id is required.')
 
@@ -336,8 +338,14 @@ class BlocksInCourseView(BlocksView):
 
         if not root:
             raise ValueError(f"Unable to find course block in {course_key_string}")
+        # Manprax
+        # recurse_mark_complete(root, course_blocks)
 
-        recurse_mark_complete(root, course_blocks)
+        if username:
+          mx_recurse_mark_complete(root, course_blocks, username, course_key)
+        if username is None:
+          recurse_mark_complete(root, course_blocks)
+            
         return response
 
 
@@ -430,3 +438,60 @@ def recurse_mark_complete(block_id, blocks):
                               if blocks[child_block_id].get('type') != 'discussion' and blocks[child_block_id].get('type') != 'library_content']
         
         block['completion'] = int(all(child.get('completion') == 1 for child in completable_blocks))
+
+# Manprax
+def mx_recurse_mark_complete(block_id, blocks, username, course_key):
+    """
+    Helper function to walk course tree dict,
+    marking completion as 1 or 0
+
+    If all blocks are complete, mark parent block complete
+
+    :param blocks: dict of all blocks
+    :param block_id: root or child block id
+    :param user: user object for course completion check
+    :param course_key: course key for fetching course data
+
+    :return:
+        block: course_outline_root_block block object or child block
+    """
+    from openedx.core.lib.courses import get_course_by_id
+    from lms.djangoapps.courseware.views.views import is_course_passed
+    from django.contrib.auth.models import User
+
+
+    block = blocks.get(block_id, {})
+    if block.get('completion') == 1:
+        return block
+    user = User.objects.get(username= username)
+
+    child_blocks = block.get('children', block.get('descendants'))
+    if child_blocks:
+        for child_block in child_blocks:
+            mx_recurse_mark_complete(child_block, blocks, user, course_key)
+
+        # Include only non-discussion and non-library_content blocks
+        completable_blocks = [
+            blocks[child_block_id] for child_block_id in child_blocks
+            if blocks[child_block_id].get('type') != 'discussion' and blocks[child_block_id].get('type') != 'library_content'
+        ]
+        
+        # Check completion for completable blocks
+        block['completion'] = int(
+            not completable_blocks or all(
+                child.get('completion') == 1 for child in completable_blocks
+            )
+        )
+        
+        # If block is not complete, check library_content blocks
+        if block['completion'] == 0:
+            for child_block_id in child_blocks:
+                child = blocks[child_block_id]
+                if child.get('type') == 'library_content':
+                    course = get_course_by_id(course_key, depth=2)
+                    user_pass = is_course_passed(user, course)
+                    if user_pass is True:
+                        block['completion'] = 1
+                        break
+
+    return block
