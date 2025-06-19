@@ -204,6 +204,119 @@ def retrieve_last_sitewide_block_completed(user):
     )
 
 
+
+# Manprax
+def mx_retrieve_last_sitewide_block_completed(user):
+    """
+    Completion utility
+    From a given User object retrieve
+    the last course block marked as 'completed' and construct a URL
+
+    :param user: obj(User)
+    :return: block_lms_url
+
+    """
+    if not ENABLE_COMPLETION_TRACKING_SWITCH.is_enabled():
+        return
+
+    latest_completions_by_course = BlockCompletion.latest_blocks_completed_all_courses(user)
+
+    known_site_configs = [
+        other_site_config.get_value('course_org_filter') for other_site_config in SiteConfiguration.objects.all()
+        if other_site_config.get_value('course_org_filter')
+    ]
+
+    current_site_configuration = get_config_value_from_site_or_settings(
+        name='course_org_filter',
+        site=get_current_site()
+    )
+
+    # courses.edx.org has no 'course_org_filter'
+    # however the courses within DO, but those entries are not found in
+    # known_site_configs, which are White Label sites
+    # This is necessary because the WL sites and courses.edx.org
+    # have the same AWS RDS mySQL instance
+    candidate_course = None
+    candidate_block_key = None
+    latest_date = None
+    # Go through dict, find latest
+    for course, [modified_date, block_key] in latest_completions_by_course.items():
+        if not current_site_configuration:
+            # This is a edx.org
+            if course.org in known_site_configs:
+                continue
+            if not latest_date or modified_date > latest_date:
+                candidate_course = course
+                candidate_block_key = block_key
+                latest_date = modified_date
+
+        else:
+            # This is a White Label site, and we should find candidates from the same site
+            if course.org not in current_site_configuration:
+                # Not the same White Label, or a edx.org course
+                continue
+            if not latest_date or modified_date > latest_date:
+                candidate_course = course
+                candidate_block_key = block_key
+                latest_date = modified_date
+
+    if not candidate_course:
+        return
+
+    lms_root = SiteConfiguration.get_value_for_org(candidate_course.org, "LMS_ROOT_URL", settings.LMS_ROOT_URL)
+
+    try:
+        item = modulestore().get_item(candidate_block_key, depth=1)
+    except Exception as err:  # pylint: disable=broad-except
+        LOGGER.exception(
+            '[PROD-2877] Error retrieving resume block for user %s with raw error %r',
+            user.username, err,
+        )
+        item = None
+
+    if not (lms_root and item):
+        return
+    
+    else:
+
+        user_last_read_course = LastReadCourse.objects.filter(user=user).first()
+        if user_last_read_course:
+            if not user_last_read_course.block_id:
+                user_last_read_course.block_id = str(candidate_block_key)
+                user_last_read_course.save()
+            else:
+                if user_last_read_course.block_id  != str(candidate_block_key):
+                    user_last_read_course.block_id = str(candidate_block_key)
+                    user_last_read_course.last_read_program_uuid = user_last_read_course.last_visited_program_uuid  if user_last_read_course.last_visited_program_uuid  else ''
+                    user_last_read_course.last_read_program = user_last_read_course.last_visited_program  if user_last_read_course.last_visited_program  else ''
+                    user_last_read_course.last_read_topics = user_last_read_course.last_visited_topics if user_last_read_course.last_visited_topics else []
+                    user_last_read_course.save()
+        else:
+            LastReadCourse.objects.create(user=user,block_id=str(candidate_block_key))
+
+    # Check if course is enrolled to program, then only return resume link 
+    # Fetch program information
+    from lms.djangoapps.program_enrollments.models import ProgramEnrollment
+    from openedx.core.djangoapps.catalog.utils import get_programs
+
+    programs = get_programs(course=str(item.location.course_key))
+    prog_uuid = programs[0]['uuid'] if programs else None
+    if prog_uuid:
+        # Check user enrollment
+        enrollment = ProgramEnrollment.objects.filter(
+            user=user,
+            program_uuid=prog_uuid
+        ).first()
+        
+        if enrollment:
+            return "{lms_root}/courses/{course_key}/jump_to/{location}".format(
+                lms_root=lms_root,
+                course_key=str(item.location.course_key),
+                location=str(item.location),
+            )
+    return 
+
+
 def is_secondary_email_feature_enabled():
     """
     Checks to see if the django-waffle switch for enabling the secondary email feature is active

@@ -98,19 +98,33 @@ class ProgramsFragmentView(EdxFragmentView):
         if resume_block_url:
             course_id = resume_block_url.split('/')[4]
             if course_id.startswith('course'):
-                resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
-                resume_block['course_language'] = modulestore().get_course(CourseKey.from_string(course_id)).language
-                try:
-                    resume_block['course_language_name'] = settings.LANGUAGE_DICT[modulestore().get_course(CourseKey.from_string(course_id)).language]
-                except:
-                    resume_block['course_language_name'] = settings.LANGUAGE_DICT['en']
+
+                # Fetch program information
+                programs = get_programs(course=course_id)
+                prog_uuid = programs[0]['uuid'] if programs else None
+                if prog_uuid:
+                    # Check user enrollment
+                    enrollment = ProgramEnrollment.objects.filter(
+                        user=user,
+                        program_uuid=prog_uuid
+                    ).first()
+                    
+                    if enrollment:
                 
-                user_last_read_course = LastReadCourse.objects.filter(user=user).first()
-                if user_last_read_course:
-                    if user_last_read_course.last_read_program:
-                        import ast            
-                        resume_block['topics'] = ast.literal_eval(user_last_read_course.last_read_topics)
-                        resume_block['program_title'] = user_last_read_course.last_read_program                
+                        resume_block['course_title'] = CourseOverview.objects.filter(id=course_id).first().display_name
+                        resume_block['course_language'] = modulestore().get_course(CourseKey.from_string(course_id)).language
+                        try:
+                            resume_block['course_language_name'] = settings.LANGUAGE_DICT[modulestore().get_course(CourseKey.from_string(course_id)).language]
+                        except:
+                            resume_block['course_language_name'] = settings.LANGUAGE_DICT['en']
+                        
+                        user_last_read_course = LastReadCourse.objects.filter(user=user).first()
+                        if user_last_read_course:
+                            if user_last_read_course.last_read_program:
+                                import ast            
+                                resume_block['topics'] = ast.literal_eval(user_last_read_course.last_read_topics)
+                                resume_block['program_title'] = user_last_read_course.last_read_program   
+
         is_user_b2c_subscriptions_enabled = b2c_subscriptions_enabled(mobile_only)
         programs_subscription_data = (
             get_programs_subscription_data(user)
