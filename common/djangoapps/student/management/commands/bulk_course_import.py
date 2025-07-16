@@ -35,7 +35,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
           # Debugging breakpoint
-        excel_file = os.path.dirname(__file__)+'/static/bulk_import_6_7.xlsx'  # Make sure it's in your working dir or use full path
+        excel_file = os.path.dirname(__file__)+'/static/bulk_upload.xlsx'  # Make sure it's in your working dir or use full path
         workbook = openpyxl.load_workbook(excel_file)
         sheet = workbook.active
 
@@ -46,14 +46,21 @@ class Command(BaseCommand):
         for row in sheet.iter_rows(min_row=2, values_only=True):
             grade = row[0]
             subject = row[2]
-            course_name= row[5]
+            medium = row[3]
+            course_name= row[5]+"-" + str(medium) if medium else ''
             video_url = row[7]
             org = "AA"
             number = re.sub(r'\s+', '_', re.sub(r'[^\w\s]', '', course_name)).lower()
+            logging.info(f"Processing row: {row}")
             # number = course_name.replace(",", "").replace("?", "").replace("-", "").replace('(','').replace(')','').replace('&','').replace(':','').replace('"', '').replace("'", "").replace(" ", "_").lower()
             run = "2025-2026"
             course_key = CourseLocator(org=org, course=number, run=run)
             # Create course
+            if video_url not in [None, '']:
+                pass
+            else:
+                logging.error(f"Video URL is missing for course {course_name}. Skipping this row.")
+                continue
             if store.get_course(course_key):
                 log.info("Course : %s already Exist :",course_key)
                 continue
@@ -131,14 +138,14 @@ class Command(BaseCommand):
                 django_file = File(thumbnail_io, name=thumbnail_io.name)
                 content.icon = django_file
 
-            tags_list = [grade, subject,'English']
+            tags_list = [grade, subject,medium]
             tags = Tag.objects.translated(language_code='en').filter(translations__value__in=tags_list)
             try:
-                content_list= Content_List.objects.translated(language_code='en').get(translations__name=subject,category__translations__name=grade)
+                content_list= Content_List.objects.translated(language_code='en').get(translations__name=subject,category__translations__name=medium)
                 logging.info(f"Content list {content_list} found for subject {subject} and grade {grade}.")
             except Content_List.DoesNotExist:
                 logging.info(f"Content list not found for subject {subject} and grade {grade}, creating new one.")
-                content_category= Content_Category.objects.translated(language_code='en').filter(translations__name=grade).first()
+                content_category= Content_Category.objects.translated(language_code='en').filter(translations__name=medium).first()
                 content_list = Content_List.objects.create(
                     list_name=str(subject),
                     category_id=content_category.id if content_category else None,
