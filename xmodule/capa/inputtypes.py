@@ -374,7 +374,11 @@ class InputTypeBase(object):
                                       .format(self.__class__))
 
         context = self._get_render_context()
-
+        context.update(
+            {
+                'problem_name': 'multi-select' if self.xml.getparent().tag == 'choiceresponse' else ''
+            }
+        )
         html = self.capa_system.render_template(self.template, context).strip()
 
         try:
