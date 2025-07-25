@@ -35,7 +35,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
           # Debugging breakpoint
-        excel_file = os.path.dirname(__file__)+'/static/bulk_upload.xlsx'  # Make sure it's in your working dir or use full path
+        excel_file = os.path.dirname(__file__)+'/static/bulk_upload_grade_6_7.xlsx'  # Make sure it's in your working dir or use full path
         workbook = openpyxl.load_workbook(excel_file)
         sheet = workbook.active
 
@@ -47,7 +47,7 @@ class Command(BaseCommand):
             grade = row[0]
             subject = row[2]
             medium = row[3]
-            course_name= row[5]+"-" + str(medium) if medium else ''
+            course_name= str(row[5]+"-" +medium) if medium else str(row[5])
             video_url = row[7]
             org = "AA"
             number = re.sub(r'\s+', '_', re.sub(r'[^\w\s]', '', course_name)).lower()
@@ -132,7 +132,7 @@ class Command(BaseCommand):
             
             logging.info(f"Course structure created for {course_key} with section, subsection, and unit.")
             content = Content.objects.get(source_identity=str(course_key))
-
+            medium = medium if medium else 'English'
             if thumbnail_io:
                 thumbnail_io.name = f"{youtube_id}.jpg"
                 django_file = File(thumbnail_io, name=thumbnail_io.name)
