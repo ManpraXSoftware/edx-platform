@@ -4,12 +4,12 @@
             182px; width:283px;"></div>
             <div class="cardarea-right">
                 <h3 id="program-<%- uuid %>" class="title hd-3 card-text py-3"><%- gettext(title) %></h3>
-                <p>Vision Empower -
+                <!--<p>Vision Empower -
                     <%- topics%>
                 </p>
                 <p>Program Language -
                     <%- program_language%>
-                </p>
+                </p>-->
                 <div class="vcourse-p">
                     <div class="blank"></div>
                     <div class="vcourse"><a href="<%- detailUrl %>" class="btn-border" aria-label="<%- gettext(title) %> view program" type="button">View Program</a></div>
