@@ -818,7 +818,10 @@ def videos_post(course, request):
             return {'error': error_msg}, 400
 
         edx_video_id = str(uuid4())
-        key = storage_service_key(bucket, file_name=edx_video_id)
+        from pathlib import Path
+        ext = Path(req_file['file_name']).suffix or ".mp4"
+        # key = storage_service_key(bucket, file_name=edx_video_id)
+        key = storage_service_key(bucket, file_name=f"{edx_video_id}{ext}")
 
         metadata_list = [
             ('client_video_id', file_name),
