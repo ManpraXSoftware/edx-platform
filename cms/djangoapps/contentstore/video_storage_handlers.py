@@ -824,22 +824,31 @@ def videos_post(course, request):
             ('client_video_id', file_name),
             ('course_key', str(course.id)),
         ]
+        import urllib.parse
+
+        safe_file_name = urllib.parse.quote(file_name, safe='')
+        safe_course_key = urllib.parse.quote(str(course.id), safe='')
 
         course_video_upload_token = course.video_upload_pipeline.get('course_video_upload_token')
 
         # Only include `course_video_upload_token` if youtube has not been deprecated
         # for this course.
         if not DEPRECATE_YOUTUBE.is_enabled(course.id) and course_video_upload_token:
-            metadata_list.append(('course_video_upload_token', course_video_upload_token))
+            # metadata_list.append(('course_video_upload_token', course_video_upload_token))
+            key.set_metadata('course_video_upload_token', course_video_upload_token)
 
         is_video_transcript_enabled = VideoTranscriptEnabledFlag.feature_enabled(course.id)
         if is_video_transcript_enabled:
             transcript_preferences = get_transcript_preferences(str(course.id))
             if transcript_preferences is not None:
-                metadata_list.append(('transcript_preferences', json.dumps(transcript_preferences)))
+                key.set_metadata('transcript_preferences', json.dumps(transcript_preferences))
 
-        for metadata_name, value in metadata_list:
-            key.set_metadata(metadata_name, value)
+        # for metadata_name, value in metadata_list:
+        #     key.set_metadata(metadata_name, value)
+            
+        #     key.set_metadata('client_video_id', safe_file_name)
+        #     key.set_metadata('course_key', safe_course_key)
+
         upload_url = key.generate_url(
             KEY_EXPIRATION_IN_SECONDS,
             'PUT',
@@ -875,7 +884,10 @@ def storage_service_bucket():
     else:
         params = {
             'aws_access_key_id': settings.AWS_ACCESS_KEY_ID,
-            'aws_secret_access_key': settings.AWS_SECRET_ACCESS_KEY
+            'aws_secret_access_key': settings.AWS_SECRET_ACCESS_KEY,
+            'host': settings.AWS_S3_ENDPOINT_URL.replace('https://', ''),
+            # 'host': settings.AWS_S3_ENDPOINT_URL,
+            'calling_format': s3.connection.OrdinaryCallingFormat(),
         }
 
     conn = S3Connection(**params)
