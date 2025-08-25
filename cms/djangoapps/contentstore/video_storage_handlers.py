@@ -818,19 +818,17 @@ def videos_post(course, request):
             return {'error': error_msg}, 400
 
         edx_video_id = str(uuid4())
-        from pathlib import Path
-        ext = Path(req_file['file_name']).suffix or ".mp4"
+        # from pathlib import Path
+        # ext = Path(req_file['file_name']).suffix or ".mp4"
         # key = storage_service_key(bucket, file_name=edx_video_id)
-        key = storage_service_key(bucket, file_name=f"{edx_video_id}{ext}")
+        # key = storage_service_key(bucket, file_name=f"{edx_video_id}{ext}")
+        key_name = f"{edx_video_id}/{file_name}"
+        key = storage_service_key(bucket, file_name=key_name)
 
-        metadata_list = [
-            ('client_video_id', file_name),
-            ('course_key', str(course.id)),
-        ]
-        import urllib.parse
-
-        safe_file_name = urllib.parse.quote(file_name, safe='')
-        safe_course_key = urllib.parse.quote(str(course.id), safe='')
+        # metadata_list = [
+        #     ('client_video_id', file_name),
+        #     ('course_key', str(course.id)),
+        # ]
 
         course_video_upload_token = course.video_upload_pipeline.get('course_video_upload_token')
 
