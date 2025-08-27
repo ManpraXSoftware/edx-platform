@@ -577,7 +577,6 @@ def _get_and_validate_course(course_key_string, user):
     # For now, assume all studio users that have access to the course can upload videos.
     # In the future, we plan to add a new org-level role for video uploaders.
     course = get_course_and_check_access(course_key, user)
-
     if (
         settings.FEATURES["ENABLE_VIDEO_UPLOAD_PIPELINE"] and
         getattr(settings, "VIDEO_UPLOAD_PIPELINE", None) and
@@ -685,6 +684,8 @@ def _get_index_videos(course, pagination_conf=None):
         Get data for predefined video attributes.
         """
         values = {}
+        MINIO_ENDPOINT_URL = settings.MINIO_ENDPOINT_URL
+        BUCKET = settings.VIDEO_UPLOAD_PIPELINE['BUCKET']
         for attr in attrs:
             if attr == 'courses':
                 current_course = [c for c in video['courses'] if course_id in c]
@@ -698,6 +699,11 @@ def _get_index_videos(course, pagination_conf=None):
                         values['file_size'] = encoding['file_size']
             else:
                 values[attr] = video[attr]
+        if values['download_link'] == '' and values['status'] == "Uploaded":
+           
+            url = MINIO_ENDPOINT_URL + BUCKET + '/videos' + attrs['edx_video_id'] + '/' + attrs['client_video_id']
+            values['download_link'] = url
+            
         return values
 
     videos, pagination_context = _get_videos(course, pagination_conf)
