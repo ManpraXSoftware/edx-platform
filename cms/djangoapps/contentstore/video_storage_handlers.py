@@ -684,7 +684,10 @@ def _get_index_videos(course, pagination_conf=None):
         Get data for predefined video attributes.
         """
         values = {}
-        MINIO_ENDPOINT_URL = settings.MINIO_ENDPOINT_URL
+        try:
+            MINIO_ENDPOINT_URL = settings.MINIO_ENDPOINT_URL
+        except AttributeError:
+            MINIO_ENDPOINT_URL = 'minio.local.edly.io'
         BUCKET = settings.VIDEO_UPLOAD_PIPELINE['BUCKET']
         for attr in attrs:
             if attr == 'courses':
@@ -699,9 +702,9 @@ def _get_index_videos(course, pagination_conf=None):
                         values['file_size'] = encoding['file_size']
             else:
                 values[attr] = video[attr]
-        if values['download_link'] == '' and values['status'] == "Uploaded":
-            url = f"{MINIO_ENDPOINT_URL}/{BUCKET}/videos/{video['edx_video_id']}/{video['client_video_id']}"
-            values['download_link'] = url
+        if values['status'] == "Uploaded":
+            url = f"{MINIO_ENDPOINT_URL}{BUCKET}/videos/{video['edx_video_id']}/{video['client_video_id']}"
+            values['mx_download_url'] = url
             
         return values
 
