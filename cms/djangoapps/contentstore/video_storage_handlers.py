@@ -684,6 +684,8 @@ def _get_index_videos(course, pagination_conf=None):
         Get data for predefined video attributes.
         """
         values = {}
+        values['mx_download_url'] = "-"
+
         try:
             MINIO_ENDPOINT_URL = settings.MINIO_ENDPOINT_URL
         except AttributeError:
