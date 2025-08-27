@@ -700,8 +700,7 @@ def _get_index_videos(course, pagination_conf=None):
             else:
                 values[attr] = video[attr]
         if values['download_link'] == '' and values['status'] == "Uploaded":
-           
-            url = MINIO_ENDPOINT_URL + BUCKET + '/videos' + attrs['edx_video_id'] + '/' + attrs['client_video_id']
+            url = f"{MINIO_ENDPOINT_URL}/{BUCKET}/videos/{video['edx_video_id']}/{video['client_video_id']}"
             values['download_link'] = url
             
         return values
