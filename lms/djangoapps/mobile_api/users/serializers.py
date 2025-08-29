@@ -167,7 +167,7 @@ class UserSerializer(serializers.ModelSerializer):
     block = serializers.SerializerMethodField()
     cluster = serializers.SerializerMethodField()
     emp_id = serializers.SerializerMethodField()
-    udise_id = serializers.SerializerMethodField()
+    udise = serializers.SerializerMethodField()
     is_gov_teacher = serializers.SerializerMethodField()
 
     def get_course_enrollments(self, model):
