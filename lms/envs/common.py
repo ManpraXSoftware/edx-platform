@@ -3728,6 +3728,7 @@ REGISTRATION_EXTRA_FIELDS = {
     'terms_of_service': 'hidden',
     'city': 'hidden',
     'country': 'hidden',
+
 }
 
 REGISTRATION_FIELD_ORDER = [
@@ -4290,7 +4291,10 @@ ACCOUNT_VISIBILITY_CONFIGURATION["admin_fields"] = (
         "receive_update_on_whatsapp",
         "district",
         "block",
-        "cluster"
+        "cluster",
+        "emp_id",
+        "udise",
+        "is_gov_teacher"
     ]
 )
 

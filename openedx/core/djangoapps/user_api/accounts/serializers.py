@@ -228,7 +228,10 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
                     "receive_update_on_whatsapp":user_profile.receive_update_on_whatsapp,
                     "district":user_profile.district,
                     "block":user_profile.block,
-                    "cluster":user_profile.cluster
+                    "cluster":user_profile.cluster,
+                    "emp_id":user_profile.emp_id,
+                    "udise":user_profile.udise,
+                    "is_gov_teacher":user_profile.is_gov_teacher,
                 }
             )
 

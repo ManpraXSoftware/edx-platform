@@ -108,6 +108,9 @@ class UserDetail(generics.RetrieveAPIView):
             "district":userprofile.district,
             "block":userprofile.block,
             "cluster":userprofile.cluster,
+            "emp_id":userprofile.emp_id,
+            "udise":userprofile.udise,
+            "is_gov_teacher":userprofile.is_gov_teacher,
         }
         context.update(profile_dict)
         return context
