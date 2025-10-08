@@ -531,11 +531,35 @@ def udateLastVisitedProgram(program_uuid,user):
                 last_visited_user[0].last_read_topics = last_visited_user[0].last_visited_topics
                 last_visited_user[0].save()
 
+# Manprax
 
 @login_required
 @ensure_csrf_cookie
 @add_maintenance_banner
 def student_dashboard(request, program_uuid):  # lint-amnesty, pylint: disable=too-many-statements
+    """
+    Provides the LMS dashboard view
+
+    TODO: This is lms specific and does not belong in common code.
+    Note:
+        To load the all courses set course_limit=None as parameter in GET. If its not None then default course
+        limit will be used  that is set in configuration
+    Arguments:
+        request: The request object.
+
+    Returns:
+        The dashboard response.
+
+    """
+    explore_course_base_url = settings.FEATURES['explore_course_base_url']
+    redirect_url = f"{explore_course_base_url}explore-courses/dashboard/{program_uuid}"
+
+    return redirect(redirect_url)
+
+@login_required
+@ensure_csrf_cookie
+@add_maintenance_banner
+def mx_student_dashboard(request, program_uuid):  # lint-amnesty, pylint: disable=too-many-statements
     """
     Provides the LMS dashboard view
 

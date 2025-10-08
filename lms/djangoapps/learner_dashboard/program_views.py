@@ -17,12 +17,40 @@ from lms.djangoapps.learner_dashboard.programs import (
 from lms.djangoapps.program_enrollments.rest_api.v1.utils import ProgramSpecificViewMixin
 from openedx.core.djangoapps.programs.models import ProgramsApiConfig
 from openedx.core.lib.api.authentication import BearerAuthentication
-
+from django.conf import settings
+from django.shortcuts import redirect
 
 @login_required
 @require_GET
 def program_listing(request):
     """View a list of programs in which the user is engaged."""
+
+    # Manprax
+    explore_course_base_url = settings.FEATURES['explore_course_base_url']
+    redirect_url = f"{explore_course_base_url}explore-courses/dashboard/programs"
+
+    return redirect(redirect_url)
+
+    programs_config = ProgramsApiConfig.current()
+    programs_fragment = ProgramsFragmentView().render_to_fragment(request, programs_config=programs_config)
+
+    context = {
+        'disable_courseware_js': True,
+        'programs_fragment': programs_fragment,
+        'nav_hidden': True,
+        'show_dashboard_tabs': True,
+        'show_program_listing': programs_config.enabled,
+        'uses_bootstrap': True,
+    }
+
+    return render_to_response('learner_dashboard/programs.html', context)
+
+
+@login_required
+@require_GET
+def mx_program_listing(request):
+    """View a list of programs in which the user is engaged."""
+
     programs_config = ProgramsApiConfig.current()
     programs_fragment = ProgramsFragmentView().render_to_fragment(request, programs_config=programs_config)
 

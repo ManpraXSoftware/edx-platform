@@ -599,31 +599,14 @@ def student_program_course_api(request, program_uuid):
     course_enrollments.sort(key=lambda x: x.course.start, reverse=False)
 
     # Course modes (simplified)
-    enrolled_course_ids = [str(enr.course_id) for enr in course_enrollments]
-    __, unexpired_course_modes = CourseMode.all_and_unexpired_modes_for_courses(enrolled_course_ids)
-    course_modes_by_course = {
-        course_id: {mode.slug: mode for mode in modes}
-        for course_id, modes in unexpired_course_modes.items()
-    }
-
-    # Course mode info
-    # course_mode_info = {
-    #     enr.course_id: complete_course_mode_info(str(enr.course_id), enr, modes=course_modes_by_course.get(str(enr.course_id), {}))
-    #     for enr in course_enrollments
+    # enrolled_course_ids = [str(enr.course_id) for enr in course_enrollments]
+    # __, unexpired_course_modes = CourseMode.all_and_unexpired_modes_for_courses(enrolled_course_ids)
+    # # course_modes_by_course = {
+    #     course_id: {mode.slug: mode for mode in modes}
+    #     for course_id, modes in unexpired_course_modes.items()
     # }
 
-    # Verify status
-    verify_status_by_course = check_verify_status_by_course(user, course_enrollments)
-
-    # Cert statuses
-    # cert_statuses = {enr.course_id: cert_info(request.user, enr) for enr in course_enrollments}
-
-    # Show courseware links
-    show_courseware_links_for = {
-        enr.course_id: has_access(request.user, 'load', enr.course_overview)
-        for enr in course_enrollments
-    }
-
+    
     # Course languages
     course_languages = {}
     for course_key in course_keys_in_program:
@@ -639,7 +622,6 @@ def student_program_course_api(request, program_uuid):
 
     # Resume URLs
     resume_button_urls = get_resume_urls_for_enrollments(user, course_enrollments)
-    # import pdb; pdb.set_trace()
     context = {
         'program_uuid': program_uuid,
         'program_title': program_title,
@@ -649,10 +631,6 @@ def student_program_course_api(request, program_uuid):
         'course_entitlement_available_sessions': course_entitlement_available_sessions,
         'unfulfilled_entitlement_pseudo_sessions': unfulfilled_entitlement_pseudo_sessions,
         'course_languages': course_languages,
-        # 'all_course_modes': course_mode_info,
-        # 'cert_statuses': {k: v for k, v in cert_statuses.items()},
-        # 'verification_status_by_course': verify_status_by_course,
-        # 'show_courseware_links_for': show_courseware_links_for,
         'resume_button_urls': list(resume_button_urls.values()),
         'display_course_modes_on_dashboard': enable_verified_certificates and display_course_modes_on_dashboard,
         'nav_hidden': True,
@@ -660,7 +638,6 @@ def student_program_course_api(request, program_uuid):
         'show_dashboard_tabs': True,
         'disable_courseware_js': True,
     }
-
     return JsonResponse(context, encoder=DjangoJSONEncoder)
 
 
