@@ -400,12 +400,10 @@ import ast
 def program_listing_api(request):
     """
     API endpoint to return program listing data as JSON.
+    URL - /dashboard/api/program-listing/
     """
     user = request.user
-    try:
-        mobile_only = json.loads(request.GET.get('mobile_only', 'false'))
-    except ValueError:
-        mobile_only = False
+    mobile_only = False
 
     programs_config = ProgramsApiConfig.current()
     if not programs_config.enabled or not user.is_authenticated:
@@ -472,38 +470,9 @@ def program_listing_api(request):
                             resume_block['topics'] = ast.literal_eval(user_last_read_course.last_read_topics)
                             resume_block['program_title'] = user_last_read_course.last_read_program   
 
-    # Subscription data (uncommented; adjust if not needed)
-    # is_user_b2c_subscriptions_enabled = b2c_subscriptions_enabled(mobile_only)
-    # programs_subscription_data = (
-    #     get_programs_subscription_data(user)
-    #     if is_user_b2c_subscriptions_enabled
-    #     else []
-    # )
-    # subscription_upsell_data = (
-    #     {
-    #         'marketing_url': get_program_subscriptions_marketing_url(),
-    #         'minimum_price': settings.SUBSCRIPTIONS_MINIMUM_PRICE,
-    #         'trial_length': settings.SUBSCRIPTIONS_TRIAL_LENGTH,
-    #     }
-    #     if is_user_b2c_subscriptions_enabled
-    #     else {}
-    # )
-
-    # # User preferences
-    # user_preferences = get_user_preferences(user)
-    
-    # # Marketing URL
-    # marketing_url = get_program_marketing_url(programs_config, mobile_only)
 
     context = {
-        # 'marketing_url': marketing_url,
         'programs': meter.engaged_programs,
-        'progress': meter.progress(),
-        # 'programs_subscription_data': programs_subscription_data,
-        # 'subscription_upsell_data': subscription_upsell_data,
-        # 'user_preferences': user_preferences,
-        # 'is_user_b2c_subscriptions_enabled': is_user_b2c_subscriptions_enabled,
-        'mobile_only': bool(mobile_only),
         'resume_block': resume_block
     }
 
