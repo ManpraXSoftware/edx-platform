@@ -514,7 +514,7 @@ from common.djangoapps.course_modes.models import CourseMode
 from lms.djangoapps.bulk_email.models import Optout
 from lms.djangoapps.courseware.access import has_access
 from common.djangoapps.student.helpers import cert_info, check_verify_status_by_course, get_resume_urls_for_enrollments
-
+from django.db import transaction
 
 # Manprax
 @login_required
@@ -558,10 +558,10 @@ def student_program_course_api(request, program_uuid):
 
     # Update last visited program
     try:
-        udateLastVisitedProgram(program_uuid, user)
+        with transaction.atomic():  # Rolls back only this savepoint on error
+            udateLastVisitedProgram(program_uuid, user)
     except Exception as err:
         logger.error(f"Error updating last visited program for UUID {program_uuid}: {str(err)}")
-        pass
 
     # Entitlements (simplified)
     (course_entitlements,
