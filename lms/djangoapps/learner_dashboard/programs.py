@@ -416,25 +416,25 @@ def program_listing_api(request):
         user_enrolled_programs = [str(uuid['program_uuid']) for uuid in user_enrolled_programs]
         meter.programs = [program for program in meter.programs if program['uuid'] in user_enrolled_programs]
         
-        lang = request.COOKIES.get("lang", 'en')
-        url = settings.FEATURES['base_lms_url'] + f"explore-courses/enrolled-programs?username={user.username}&accept_language={lang}"
-        result = requests.get(url)
-        if result.status_code == 200:
-            if result.json():
-                for meter_program in meter.programs:
-                    for result_program in result.json():
-                        if meter_program['uuid'] == result_program['program_uuid']:
-                            try:
-                                if (result_program['program_language'] == "") or (result_program['program_language'] == None):
-                                    meter_program['program_language'] = "English"
-                                else:
-                                    meter_program['program_language'] = settings.LANGUAGE_DICT[result_program['program_language']]
-                            except:
-                                meter_program['program_language'] = "English"
-                            meter_program['title'] = result_program['converted_program_title']
-                            for program_topics in result_program['tags']:
-                                if program_topics['tag_title'] not in meter_program['topics']:
-                                    meter_program['topics'].append(program_topics['tag_title'])
+        # lang = request.COOKIES.get("lang", 'en')
+        # url = settings.FEATURES['base_lms_url'] + f"explore-courses/enrolled-programs?username={user.username}&accept_language={lang}"
+        # result = requests.get(url)
+        # if result.status_code == 200:
+        #     if result.json():
+        #         for meter_program in meter.programs:
+        #             for result_program in result.json():
+        #                 if meter_program['uuid'] == result_program['program_uuid']:
+        #                     try:
+        #                         if (result_program['program_language'] == "") or (result_program['program_language'] == None):
+        #                             meter_program['program_language'] = "English"
+        #                         else:
+        #                             meter_program['program_language'] = settings.LANGUAGE_DICT[result_program['program_language']]
+        #                     except:
+        #                         meter_program['program_language'] = "English"
+        #                     meter_program['title'] = result_program['converted_program_title']
+        #                     for program_topics in result_program['tags']:
+        #                         if program_topics['tag_title'] not in meter_program['topics']:
+        #                             meter_program['topics'].append(program_topics['tag_title'])
 
     # Resume block logic
     resume_block = {}
