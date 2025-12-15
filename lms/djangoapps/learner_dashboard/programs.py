@@ -44,6 +44,8 @@ from mx_course_discovery.models import LastReadCourse
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from xmodule.modulestore.django import modulestore
 from opaque_keys.edx.keys import CourseKey
+import logging
+logger = logging.getLogger(__name__)
 
 class ProgramsFragmentView(EdxFragmentView):
     """
@@ -555,7 +557,10 @@ def student_program_course_api(request, program_uuid):
         course_enrollments = [enr for enr in course_enrollments if str(enr.course.id) in course_keys_in_program]
 
     # Update last visited program
-    udateLastVisitedProgram(program_uuid, user)
+    try:
+        udateLastVisitedProgram(program_uuid, user)
+    except Exception as err:
+        logger.error(f"Error updating last visited program for UUID {program_uuid}: {str(err)}")
 
     # Entitlements (simplified)
     (course_entitlements,
