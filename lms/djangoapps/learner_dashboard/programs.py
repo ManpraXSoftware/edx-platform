@@ -561,6 +561,7 @@ def student_program_course_api(request, program_uuid):
         udateLastVisitedProgram(program_uuid, user)
     except Exception as err:
         logger.error(f"Error updating last visited program for UUID {program_uuid}: {str(err)}")
+        pass
 
     # Entitlements (simplified)
     (course_entitlements,
