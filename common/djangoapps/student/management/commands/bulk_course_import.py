@@ -34,21 +34,29 @@ class Command(BaseCommand):
         return None
 
     def handle(self, *args, **options):
+
+        imported_count = 0
+        video_url_skipped_count = 0
+        course_repeat_skipped_count = 0
+        error_count=0
+
           # Debugging breakpoint
-        excel_file = os.path.dirname(__file__)+'/static/bulk_upload_grade_6_7.xlsx'  # Make sure it's in your working dir or use full path
+        excel_file = os.path.dirname(__file__)+'/static/LMS Mapping - 683 Vidoes.xlsx'  # Make sure it's in your working dir or use full path
         workbook = openpyxl.load_workbook(excel_file)
         sheet = workbook.active
 
         store = modulestore()
         User = get_user_model()
-        user = User.objects.get(username=settings.DEFAULT_USER_NAME)  # must be a course staff
-
+        user = User.objects.get(username=settings.DEFAULT_USER_NAME
+ )  # must be a course staff
+        
         for row in sheet.iter_rows(min_row=2, values_only=True):
-            grade = row[0]
+            
+            grade = row[1]
             subject = row[2]
             medium = row[3]
-            course_name= str(row[5]+"-" +medium) if medium else str(row[5])
-            video_url = row[7]
+            course_name= str(row[4]+"-" +medium) if medium else str(row[5])
+            video_url = row[5]
             org = "AA"
             number = re.sub(r'\s+', '_', re.sub(r'[^\w\s]', '', course_name)).lower()
             logging.info(f"Processing row: {row}")
@@ -59,9 +67,13 @@ class Command(BaseCommand):
             if video_url not in [None, '']:
                 pass
             else:
+                video_url_skipped_count += 1
+
                 logging.error(f"Video URL is missing for course {course_name}. Skipping this row.")
                 continue
             if store.get_course(course_key):
+                course_repeat_skipped_count += 1
+
                 log.info("Course : %s already Exist :",course_key)
                 continue
 
@@ -150,7 +162,7 @@ class Command(BaseCommand):
                     list_name=str(subject),
                     category_id=content_category.id if content_category else None,
                     order=1,
-                    internal_name=subject.replace(" ", "_").lower()+'_en_'+grade.replace(" ", "_").lower(),
+                    internal_name=subject.replace(" ", "_").lower()+'_en_'+str(grade).replace(" ", "_").lower(),
                     format_type = 'normal',
                     subscription = SubscriptionCatalog.objects.get(subscription_name='FREE') ,
                     created_by=user,
@@ -160,6 +172,7 @@ class Command(BaseCommand):
                 content_list.set_current_language('en')
                 content_list.name = subject
                 content_list.save()
+
                 logging.info(f"Content list {content_list} created for subject {subject} and grade {grade}.")
             if content:
                 # for con_list in content_list:
@@ -175,4 +188,13 @@ class Command(BaseCommand):
                     )
                     logging.info(f"Tag {tag} added to content {content}.")
                 content.save()
+            imported_count += 1 
+
+        self.stdout.write(self.style.SUCCESS(
+            f"\nImport completed\n"
+            f"Imported courses : {imported_count}\n"
+            f"Skipped rows     : {video_url_skipped_count}\n"
+            f"Errors           : {error_count}\n"
+            f"course Skipped rows     : {course_repeat_skipped_count}\n"
+        ))
            
