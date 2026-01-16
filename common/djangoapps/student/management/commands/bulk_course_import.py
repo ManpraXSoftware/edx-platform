@@ -105,7 +105,8 @@ class Command(BaseCommand):
         
         for row in sheet.iter_rows(min_row=2, values_only=True):
             
-            grade = row[1]
+            grade = f"grade {str(row[1]).strip()}"
+
             subject = row[2]
             medium = row[3]
             course_name= str(row[4]+"-" +medium) if medium else str(row[5])
@@ -225,7 +226,7 @@ class Command(BaseCommand):
                     list_name=str(subject),
                     category_id=content_category.id if content_category else None,
                     order=1,
-                    internal_name=subject.replace(" ", "_").lower()+'_en_'+str(grade).replace(" ", "_").lower(),
+                    internal_name = f"{subject.replace(' ', '_').lower()}_en_{grade.replace(' ', '_').lower()}",
                     format_type = 'normal',
                     subscription = SubscriptionCatalog.objects.get(subscription_name='FREE') ,
                     created_by=user,
