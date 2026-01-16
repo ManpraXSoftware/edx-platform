@@ -115,7 +115,7 @@ class Command(BaseCommand):
             number = re.sub(r'\s+', '_', re.sub(r'[^\w\s]', '', course_name)).lower()
             logging.info(f"Processing row: {row}")
             # number = course_name.replace(",", "").replace("?", "").replace("-", "").replace('(','').replace(')','').replace('&','').replace(':','').replace('"', '').replace("'", "").replace(" ", "_").lower()
-            run = "2025-2026"
+            run = "2026-2027"
             course_key = CourseLocator(org=org, course=number, run=run)
             # Create course
             if video_url not in [None, '']:
