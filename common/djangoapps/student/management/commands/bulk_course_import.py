@@ -18,10 +18,63 @@ log = logging.getLogger(__name__)
 import requests
 from io import BytesIO
 import re
+from django.utils.timezone import now
+
 
 DEFAULT_START_DATE = datetime(2025, 1, 1)  # Adjust as needed
 
 from django.core.files.base import File
+
+from urllib.parse import urlparse, parse_qs
+
+def extract_youtube_id(url: str) -> str | None:
+    """
+    Extract YouTube video ID from all common YouTube URL formats.
+    Returns None if ID cannot be determined.
+    """
+    if not url:
+        return None
+
+    url = url.strip()
+
+    # 1. Raw ID (sometimes clients send just the ID)
+    if re.fullmatch(r"[A-Za-z0-9_-]{11}", url):
+        return url
+
+    parsed = urlparse(url)
+
+    # 2. youtu.be/<id>
+    if parsed.netloc in {"youtu.be", "www.youtu.be"}:
+        return parsed.path.lstrip("/") or None
+
+    # 3. youtube.com/watch?v=<id>
+    if parsed.netloc in {
+        "youtube.com",
+        "www.youtube.com",
+        "m.youtube.com",
+        "music.youtube.com",
+    }:
+        query = parse_qs(parsed.query)
+        if "v" in query:
+            return query["v"][0]
+
+    # 4. youtube.com/embed/<id>
+    if parsed.path.startswith("/embed/"):
+        return parsed.path.split("/embed/")[-1]
+
+    # 5. youtube.com/shorts/<id>
+    if parsed.path.startswith("/shorts/"):
+        return parsed.path.split("/shorts/")[-1]
+
+    # 6. Fallback regex (last resort)
+    match = re.search(
+        r"(?:v=|\/)([A-Za-z0-9_-]{11})(?:\?|&|\/|$)",
+        url,
+    )
+    if match:
+        return match.group(1)
+
+    return None
 
 class Command(BaseCommand):
     help = "Create course from Excel"
@@ -48,7 +101,7 @@ class Command(BaseCommand):
         store = modulestore()
         User = get_user_model()
         user = User.objects.get(username=settings.DEFAULT_USER_NAME
- )  # must be a course staff
+)  # must be a course staff
         
         for row in sheet.iter_rows(min_row=2, values_only=True):
             
@@ -85,16 +138,26 @@ class Command(BaseCommand):
                 run=run,
                 user_id=user.id,
                 fields={
-                    'display_name': course_name,
-                    'start': DEFAULT_START_DATE,
-                    "mobile_available": True
-                }
+    "display_name": course_name,
+    "start": DEFAULT_START_DATE,
+    "enrollment_start": now(),
+    "enrollment_end": None,
+    "mobile_available": True,
+    "self_paced": True,
+    "visible_to_staff_only": False,
+}
             )
             logging.info(f"Course {course_key} created successfully.")
             section = create_xblock(str(course.location),user , 'chapter', display_name="Section")
             subsection = create_xblock(str(section.location),user, 'sequential', display_name="Subsection")
             unit = create_xblock(str(subsection.location),user,  'vertical', display_name="Video")
-            youtube_id = video_url.split("/")[-1]
+            youtube_id = extract_youtube_id(video_url)
+            
+            if not youtube_id:
+                error_count += 1
+                logging.error(f"Invalid YouTube URL: {video_url}")
+                continue
+
             logging.info(f"Creating video XBlock with YouTube ID: {youtube_id}")
             metadata = {
                 'display_name': 'Video',
