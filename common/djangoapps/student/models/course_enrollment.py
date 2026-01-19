@@ -725,7 +725,9 @@ class CourseEnrollment(models.Model):
                     pii=UserPersonalData(
                         username=user.username,
                         email=user.email,
-                        name=user.profile.name,
+                        # name=user.profile.name,
+                        # Manprax
+                        name=user.first_name,
                     ),
                     id=user.id,
                     is_active=user.is_active,
