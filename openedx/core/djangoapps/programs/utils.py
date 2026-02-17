@@ -413,7 +413,8 @@ class ProgramProgressMeter:
                 course_run_mode = self._course_run_mode_translation(course_run['type'])
                 certificate_mode = self._certificate_mode_translation(certificate.mode)
                 modes_match = course_run_mode == certificate_mode
-
+                # Manprax
+                modes_match = True
                 # Grab the available date and keep it if it's the earliest one for this catalog course.
                 if modes_match and CertificateStatuses.is_passing_status(certificate.status):
                     course_overview = CourseOverview.get_from_id(key)

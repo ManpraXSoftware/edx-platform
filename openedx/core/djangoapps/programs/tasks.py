@@ -55,6 +55,7 @@ def get_completed_programs(site, student):
 
     """
     meter = ProgramProgressMeter(site, student)
+
     return meter.completed_programs_with_available_dates
 
 
@@ -272,6 +273,8 @@ def award_program_certificates(self, username):  # lint-amnesty, pylint: disable
     Returns:
         None
     """
+    
+
     def _retry_with_custom_exception(username, reason, countdown):
         exception = MaxRetriesExceededError(
             f"Failed to award a program certificate to user {username}. Reason: {reason}"
@@ -279,7 +282,6 @@ def award_program_certificates(self, username):  # lint-amnesty, pylint: disable
         return self.retry(exc=exception, countdown=countdown, max_retries=MAX_RETRIES)
 
     countdown = 2**self.request.retries
-
     # If the credentials config model is disabled for this feature, it may indicate a condition where processing of such
     # tasks has been temporarily disabled.  Since this is a recoverable situation, mark this task for retry instead of
     # failing it altogether.
@@ -306,6 +308,7 @@ def award_program_certificates(self, username):  # lint-amnesty, pylint: disable
             return
 
     LOGGER.info(f"Running task award_program_certificates for user {student}")
+
     try:
         completed_programs = {}
         for site in Site.objects.all():
@@ -821,3 +824,163 @@ def update_certificate_available_date_on_course_update(self, course_key):
         str(course_key),
         new_certificate_available_date
     )
+
+
+
+
+# Manprax
+from mx_course_discovery.mx_certificate_helper import mx_get_programs
+
+@shared_task(bind=True, ignore_result=True)
+@set_code_owner_attribute
+def mx_award_program_certificates(self, username, course_id):  # lint-amnesty, pylint: disable=too-many-statements
+    """
+    This task is designed to be called whenever a student's completion status changes with respect to one or more
+    courses (primarily, when a course get completed(Pass)).
+
+    It will consult with a variety of APIs to determine whether or not the specified user should be awarded a program
+    certificate in one or more programs, and use the credentials service to create said certificates if so.
+
+    This task may also be invoked independently of any course completion status change - for example, to backpopulate
+    missing program credentials for a student.
+
+    If this function is moved, make sure to update it's entry in EXPLICIT_QUEUES in the settings files so it runs in the
+    correct queue.
+
+    Args:
+        username (str): The username of the student
+
+    Returns:
+        None
+    """
+    
+
+    def _retry_with_custom_exception(username, reason, countdown):
+        exception = MaxRetriesExceededError(
+            f"Failed to award a program certificate to user {username}. Reason: {reason}"
+        )
+        return self.retry(exc=exception, countdown=countdown, max_retries=MAX_RETRIES)
+
+    countdown = 2**self.request.retries
+    # If the credentials config model is disabled for this feature, it may indicate a condition where processing of such
+    # tasks has been temporarily disabled.  Since this is a recoverable situation, mark this task for retry instead of
+    # failing it altogether.
+    if not is_credentials_enabled():
+        error_msg = (
+            "Task award_program_certificates cannot be executed, use of the Credentials service is disabled by config"
+        )
+        LOGGER.warning(error_msg)
+        raise _retry_with_custom_exception(username=username, reason=error_msg, countdown=countdown)
+
+    try:
+        student = User.objects.get(username=username)
+    except User.DoesNotExist:
+        LOGGER.warning(
+            "Task award_program_certificates was called with an invalid username. Could not retrieve a User instance "
+            f"with username {username}"
+        )
+        return
+
+    # this check will prevent unnecessary logging for partners without program certificates
+    programs_without_certificates = configuration_helpers.get_value("programs_without_certificates", [])
+    if programs_without_certificates:
+        if str(programs_without_certificates[0]).lower() == "all":
+            return
+
+    LOGGER.info(f"Running task award_program_certificates for user {student}")
+    try:
+        completed_programs = {}
+        # for site in Site.objects.all():
+        # completed_programs.update(get_completed_programs(site, student))
+        completed_programs.update(mx_get_programs(student.id))
+        # completed_programs= mx_get_programs(student.id, course_id)
+# 
+        if not completed_programs:
+            LOGGER.warning(f"Task award_program_certificates was called for user {student} with no completed programs")
+            return
+
+        # determine which program certificates have been awarded to the user
+        existing_program_uuids = get_certified_programs(student)
+        # construct a list of program UUIDs where the learner has already been awarded a program certificate or if the
+        # program is part of the "programs without certificates" list in our site configuration
+        awarded_and_skipped_program_uuids = list(set(existing_program_uuids + list(programs_without_certificates)))
+    except Exception as exc:
+        error_msg = f"Failed to determine program certificates to be awarded for user {student}: {exc}"
+        LOGGER.exception(error_msg)
+        raise _retry_with_custom_exception(username=username, reason=error_msg, countdown=countdown) from exc
+
+    # For each completed program for which the student doesn't already have a certificate, award one now.
+    #
+    # This logic is important, because we will retry the whole task if awarding any particular program cert fails.
+    #
+    # N.B. the list is sorted to facilitate deterministic ordering, e.g. for tests.
+    new_program_uuids = sorted(list(set(completed_programs.keys()) - set(awarded_and_skipped_program_uuids)))
+    # new_program_uuids = sorted(list(set(completed_programs) - set(awarded_and_skipped_program_uuids)))
+    if new_program_uuids:
+        try:
+            credentials_client = get_credentials_api_client(
+                User.objects.get(username=settings.CREDENTIALS_SERVICE_USERNAME),
+            )
+        except Exception as exc:
+            error_msg = "Failed to create a credentials API client to award program certificates"
+            LOGGER.exception(error_msg)
+            # Retry because a misconfiguration could be fixed
+            raise _retry_with_custom_exception(username=username, reason=error_msg, countdown=countdown) from exc
+
+        failed_program_certificate_award_attempts = []
+        for program_uuid in new_program_uuids:
+            visible_date = completed_programs[program_uuid]
+            try:
+                LOGGER.info(
+                    f"Visible date for program certificate awarded to user {student} in program {program_uuid} is "
+                    f"{visible_date}"
+                )
+                award_program_certificate(credentials_client, student, program_uuid, visible_date)
+                LOGGER.info(f"Awarded program certificate to user {student} in program {program_uuid}")
+            except HTTPError as exc:
+                if exc.response.status_code == 404:
+                    LOGGER.warning(
+                        f"Unable to award a program certificate to user {student} in program {program_uuid}. A "
+                        f"certificate configuration for program {program_uuid} could not be found, the program might "
+                        "not be configured correctly in Credentials"
+                    )
+                elif exc.response.status_code == 429:
+                    rate_limit_countdown = 60
+                    error_msg = (
+                        f"Rate limited. Retrying task to award certificate to user {student} in program "
+                        f"{program_uuid} in {rate_limit_countdown} seconds"
+                    )
+                    LOGGER.warning(error_msg)
+                    # Retry after 60 seconds, when we should be in a new throttling window
+                    raise _retry_with_custom_exception(
+                        username=username,
+                        reason=error_msg,
+                        countdown=rate_limit_countdown,
+                    ) from exc
+                else:
+                    LOGGER.warning(
+                        f"Unable to award program certificate to user {student} in program {program_uuid}. The program "
+                        "might not be configured correctly in Credentials"
+                    )
+            except Exception as exc:  # pylint: disable=broad-except
+                # keep trying to award other certs, but retry the whole task to fix any missing entries
+                LOGGER.exception(
+                    f"Failed to award program certificate to user {student} in program {program_uuid}: {exc}"
+                )
+                failed_program_certificate_award_attempts.append(program_uuid)
+
+        if failed_program_certificate_award_attempts:
+            # N.B. This logic assumes that this task is idempotent
+            LOGGER.info(f"Retrying failed tasks to award program certificate(s) to user {student}")
+            # The error message may change on each reattempt but will never be raised until the max number of retries
+            # have been exceeded. It is unlikely that this list will change by the time it reaches its maximimum number
+            # of attempts.
+            error_msg = (
+                f"Failed to award program certificate(s) for user {student} in programs "
+                f"{failed_program_certificate_award_attempts}"
+            )
+            raise _retry_with_custom_exception(username=username, reason=error_msg, countdown=countdown)
+    else:
+        LOGGER.warning(f"User {student} is not eligible for any new program certificates")
+
+    LOGGER.info(f"Successfully completed the task award_program_certificates for user {student}")

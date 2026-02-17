@@ -141,11 +141,14 @@ def _update_certificate_context(context, course, course_overview, user_certifica
 
     # Translators:  This text fragment appears after the student's name (displayed in a large font) on the certificate
     # screen.  The text describes the accomplishment represented by the certificate information displayed to the user
-    context['accomplishment_copy_description_full'] = _("successfully completed, received a passing grade, and was "
-                                                        "awarded this {platform_name} {certificate_type} "
+    context['accomplishment_copy_description_full'] = _("successfully completed, received a passing grade, and is "
+                                                        # "awarded this {platform_name} {certificate_type} "
+                                                        # "awarded this {platform_name} "
+                                                        "awarded this "
                                                         "Certificate of Completion in ").format(
-        platform_name=platform_name,
-        certificate_type=context.get("certificate_type"))
+        # platform_name=platform_name,
+        # certificate_type=context.get("certificate_type")
+        )
 
     certificate_type_description = get_certificate_description(
         user_certificate.mode, certificate_type, platform_name, course.location.course_key
@@ -253,18 +256,22 @@ def _update_course_context(request, context, course, platform_name):
     context['idv_enabled_for_certificates'] = settings.FEATURES.get('ENABLE_CERTIFICATES_IDV_REQUIREMENT')
     if context['organization_long_name']:
         # Translators:  This text represents the description of course
-        context['accomplishment_copy_course_description'] = _('a course of study offered by {partner_short_name}, '
-                                                              'an online learning initiative of '
-                                                              '{partner_long_name}.').format(
-            partner_short_name=context['organization_short_name'],
-            partner_long_name=context['organization_long_name'],
-            platform_name=platform_name)
+        # context['accomplishment_copy_course_description'] = _('a course of study offered by {partner_short_name}, '
+        #                                                       'an online learning initiative of '
+        #                                                       '{partner_long_name}.').format(
+        #     partner_short_name=context['organization_short_name'],
+        #     partner_long_name=context['organization_long_name'],
+        #     platform_name=platform_name)
+        
+        context['accomplishment_copy_course_description'] = _('a course offered by Vision Empower Trust, towards inclusive education for the Visually Impaired.')
     else:
         # Translators:  This text represents the description of course
-        context['accomplishment_copy_course_description'] = _('a course of study offered by '
-                                                              '{partner_short_name}.').format(
-            partner_short_name=context['organization_short_name'],
-            platform_name=platform_name)
+        # context['accomplishment_copy_course_description'] = _('a course of study offered by '
+        #                                                       '{partner_short_name}.').format(
+        #     partner_short_name=context['organization_short_name'],
+        #     platform_name=platform_name)
+        context['accomplishment_copy_course_description'] = _('a course offered by Vision Empower Trust, towards inclusive education for the Visually Impaired.')
+
 
 
 def _update_social_context(request, context, course, user_certificate, platform_name):

@@ -55,6 +55,7 @@ from .capa.xqueue_interface import XQueueService
 
 from .fields import Date, ListScoreField, ScoreField, Timedelta
 from .progress import Progress
+from mx_course_discovery.mx_certificate_helper import get_progress_percentage, update_subsection_status, get_subsection_status,check_program_progress
 
 log = logging.getLogger("edx.courseware")
 
@@ -340,6 +341,7 @@ class ProblemBlock(
         scope=Scope.settings
     )
 
+  
     def bind_for_student(self, *args, **kwargs):  # lint-amnesty, pylint: disable=signature-differs
         super().bind_for_student(*args, **kwargs)
 
@@ -353,6 +355,7 @@ class ProblemBlock(
         """
         Return the student view.
         """
+
         # self.score is initialized in self.lcp but in this method is accessed before self.lcp so just call it first.
         try:
             self.lcp
@@ -1308,6 +1311,9 @@ class ProblemBlock(
                 "Your answers were previously saved. Click '{button_name}' to grade them."
             ).format(button_name=self.submit_button_name())
 
+        # Manprax
+        # show_assmt = self._compute_show_assmt_lock()
+        show_assmt, use_program_threshold = self._compute_show_assmt_lock()
         context = {
             'problem': content,
             'id': str(self.location),
@@ -1328,6 +1334,9 @@ class ProblemBlock(
             'has_saved_answers': self.has_saved_answers,
             'save_message': save_message,
             'submit_disabled_cta': submit_disabled_ctas[0] if submit_disabled_ctas else None,
+            # Manprax
+            'mx_show_assmt': show_assmt,
+            'mx_use_program_threshold': use_program_threshold
         }
 
         html = self.runtime.service(self, 'mako').render_lms_template('problem.html', context)
@@ -2381,6 +2390,175 @@ class ProblemBlock(
         """
         lcp_score = lcp.calculate_score()
         return Score(raw_earned=lcp_score['score'], raw_possible=lcp_score['total'])
+    
+
+    # Manprax
+    # def _compute_show_assmt_lock(self):
+    #     """
+    #     Returns True if content shows (unlocked), False if locked (progress < threshold).
+    #     Checks cache first, then calculates and logs if needed.
+    #     """
+    #     threshold = self._get_parent_threshold()
+    #     if threshold == 0:
+    #         return True  # No threshold: always show
+
+    #     course_key = self.scope_ids.usage_id.context_key
+    #     user_id = self.runtime.service(self, 'user').get_current_user().opt_attrs.get(ATTR_KEY_USER_ID)
+    #     if not user_id:
+    #         log.warning(f"No user_id available for lock check in {self.location}")
+    #         return False
+
+    #     # Get subsection_id properly
+    #     try:
+    #         sequential_block = self.get_parent().get_parent()
+    #         subsection_id = str(sequential_block.location)
+    #     except Exception as e:
+    #         log.warning(f"Failed to get subsection location for {self.location}: {e}")
+    #         return False
+
+    #     # Check table first (single efficient query)
+    #     if get_subsection_status(course_key, user_id, subsection_id):
+    #         return True
+
+    #     user_progress = get_progress_percentage(course_key, user_id)
+
+    #     # If met, log and unlock
+    #     if user_progress >= threshold:
+    #         update_subsection_status(course_key, user_id, subsection_id, user_progress, threshold)
+    #         return True
+
+    #     return False
+
+    
+    
+    def _compute_show_assmt_lock(self):
+        """
+        Returns a tuple:
+            (show_assmt: bool, use_program_threshold: bool)
+            
+        - show_assmt: True if content should be shown (unlocked), False if locked
+        - use_program_threshold: whether this subsection is using program-level unlocking
+        """
+        threshold = self._get_parent_threshold()
+        if threshold <= 0:
+            # No threshold → always show, and we don't care about mode
+            return True, False
+
+        course_key = self.scope_ids.usage_id.context_key
+        user_service = self.runtime.service(self, 'user')
+        current_user = user_service.get_current_user()
+        user_id = current_user.opt_attrs.get(ATTR_KEY_USER_ID) if current_user else None
+
+        if not user_id:
+            log.warning(f"No user_id available for lock check in {self.location}")
+            return False, False
+
+        # Get the parent sequential block (subsection)
+        try:
+            vertical = self.get_parent()
+            sequential = vertical.get_parent() if vertical else None
+            if not sequential:
+                raise AttributeError("No sequential parent found")
+            subsection_id = str(sequential.location)
+        except Exception as e:
+            log.warning(f"Failed to get subsection location for {self.location}: {e}")
+            return False, False
+
+        # Read the flags from the sequential block
+        use_program_threshold = getattr(sequential, 'use_program_threshold', False)
+        program_uuid = getattr(sequential, 'program_uuid', None)
+
+        is_program_mode = use_program_threshold and bool(program_uuid)
+        unlock_type = 'program' if is_program_mode else 'course'
+
+        # Prepare kwargs for status check
+        status_kwargs = {'unlock_type': unlock_type}
+        if is_program_mode:
+            status_kwargs['program_uuid'] = program_uuid
+
+        # Fast path: already unlocked in the correct mode
+        if get_subsection_status(course_key, user_id, subsection_id, **status_kwargs):
+            return True, use_program_threshold
+
+        # Need to compute progress
+        if is_program_mode:
+            # PROGRAM MODE
+            all_met, course_progress_dict = check_program_progress(
+                program_uuid=program_uuid,
+                user_id=user_id,
+                threshold=threshold
+            )
+
+            current_course_progress = course_progress_dict.get(str(course_key), 0)
+
+            if all_met:
+                update_subsection_status(
+                    course_key=course_key,
+                    user_id=user_id,
+                    subsection_id=subsection_id,
+                    current_progress=current_course_progress,
+                    threshold=threshold,
+                    unlock_type='program',
+                    program_uuid=program_uuid,
+                    program_progress_dict=course_progress_dict,
+                    status='unlocked'
+                )
+                return True, use_program_threshold
+            else:
+                update_subsection_status(
+                    course_key=course_key,
+                    user_id=user_id,
+                    subsection_id=subsection_id,
+                    current_progress=current_course_progress,
+                    threshold=threshold,
+                    unlock_type='program',
+                    program_uuid=program_uuid,
+                    program_progress_dict=course_progress_dict,
+                    status='blocked'
+                )
+                return False, use_program_threshold
+
+        else:
+            # SINGLE COURSE MODE
+            user_progress = get_progress_percentage(course_key, user_id)
+
+            if user_progress >= threshold:
+                update_subsection_status(
+                    course_key=course_key,
+                    user_id=user_id,
+                    subsection_id=subsection_id,
+                    current_progress=user_progress,
+                    threshold=threshold,
+                    unlock_type='course',
+                    status='unlocked'
+                )
+                return True, use_program_threshold
+            else:
+                update_subsection_status(
+                    course_key=course_key,
+                    user_id=user_id,
+                    subsection_id=subsection_id,
+                    current_progress=user_progress,
+                    threshold=threshold,
+                    unlock_type='course',
+                    status='blocked'
+                )
+                return False, use_program_threshold
+
+    def _get_parent_threshold(self):
+        """
+        Fetches progress_threshold from parent Vertical's metadata (int or 0).
+        """
+        try:
+            # import pdb; pdb.set_trace()
+            # Get subsections loccation
+            sequential_block = self.get_parent().get_parent()
+            progress_threshold = sequential_block.progress_threshold
+            return int(progress_threshold) if progress_threshold else 0
+
+        except Exception as e:
+            log.warning(f"Failed to get parent threshold for {self.location}: {e}")
+            return 0
 
 
 class GradingMethodHandler:
@@ -2477,6 +2655,11 @@ class GradingMethodHandler:
         total = sum(score.raw_earned for score in self.score_history)
         average_score = round(total / len(self.score_history), 2)
         return Score(raw_earned=average_score, raw_possible=self.max_score)
+    
+
+
+
+
 
 
 class ComplexEncoder(json.JSONEncoder):
@@ -2505,3 +2688,4 @@ def randomization_bin(seed, problem_id):
     r_hash.update(str(problem_id).encode())
     # get the first few digits of the hash, convert to an int, then mod.
     return int(r_hash.hexdigest()[:7], 16) % NUM_RANDOMIZATION_BINS
+

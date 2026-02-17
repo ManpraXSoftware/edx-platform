@@ -219,10 +219,14 @@ class BlocksView(DeveloperErrorViewMixin, ListAPIView):
         # validate request parameters
         requested_params = request.query_params.copy()
         requested_params.update({'usage_key': usage_key_string})
+        # Manprax
+        # requested_params.update({'requested_fields': 'progress_threshold'})
+        # requested_params.update({'requested_fields': 'use_program_threshold'})
+        # requested_params.update({'requested_fields': 'program_uuid'})
+
         params = BlockListGetForm(requested_params, initial={'requesting_user': request.user})
         if not params.is_valid():
             raise ValidationError(params.errors)
-
         try:
             response = Response(
                 get_blocks(

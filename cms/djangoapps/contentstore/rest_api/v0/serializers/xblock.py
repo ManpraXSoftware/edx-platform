@@ -78,3 +78,8 @@ class XblockSerializer(StrictSerializer):
     boilerplate = serializers.JSONField(required=False, allow_null=True)
     staged_content = serializers.CharField(required=False, allow_null=True)
     hide_from_toc = serializers.BooleanField(required=False, allow_null=True)
+    # Manprax
+    progress_threshold = serializers.CharField(required=False, allow_null=True)
+    use_program_threshold = serializers.CharField(required=False, allow_null=True)
+    program_uuid = serializers.CharField(required=False, allow_null=True)
+

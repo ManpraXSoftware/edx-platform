@@ -39,6 +39,7 @@ from .mako_block import MakoTemplateBlockBase
 from .progress import Progress
 from .x_module import AUTHOR_VIEW, PUBLIC_VIEW
 from .xml_block import XmlMixin
+from mx_course_discovery.mx_certificate_helper import get_progress_percentage, update_subsection_status, get_subsection_status, check_program_progress
 
 
 log = logging.getLogger(__name__)
@@ -108,7 +109,34 @@ class SequenceFields:  # lint-amnesty, pylint: disable=missing-class-docstring
         default=False,
         scope=Scope.settings,
     )
+    # Manprax
+   
+    progress_threshold = Integer(
+        display_name=_("Set the Progress for subsection"),
+        help=_(""),
+        default="0",
+        scope=Scope.settings,
+    )
 
+    use_program_threshold = Boolean(
+        display_name=_("Use progress Threshold"),
+        help=_(
+            ""
+        ),
+        default=False,
+        scope=Scope.settings,
+    )
+
+    program_uuid = String(
+        display_name=_("Program UUID"),
+        help=_(
+            "Add program uuid"
+        ),
+        default="",
+        scope=Scope.settings,
+    )
+
+  
 
 class SequenceMixin(SequenceFields):
     """
@@ -377,7 +405,158 @@ class SequenceBlock(
         meta['format'] = getattr(self, 'format', '')
         meta['is_hidden_after_due'] = is_hidden_after_due
         meta['navigation_disabled'] = self.is_sequence_navigation_disabled()
+
+        # Manprax
+
+        try:
+            threshold = int(self.progress_threshold)
+        except (TypeError, ValueError):
+            threshold = 0
+
+        meta['show_assmt'] = True   # default
+
+        if threshold <= 0:
+            return meta
+
+        # ────────────────────────────────────────────────────────────────
+        #   Get context & user
+        # ────────────────────────────────────────────────────────────────
+
+        course_key = self.scope_ids.usage_id.context_key
+        user_service = self.runtime.service(self, 'user')
+        current_user = user_service.get_current_user()
+        user_id = current_user.opt_attrs.get(ATTR_KEY_USER_ID) if current_user else None
+
+        if not user_id:
+            log.warning(f"No user_id available for lock check in {self.location}")
+            meta['show_assmt'] = False
+            return meta
+
+        subsection_id = str(self.location)  # safe string key
+
+        # ────────────────────────────────────────────────────────────────
+        #   Read XBlock / section fields
+        # ────────────────────────────────────────────────────────────────
+
+        use_program_threshold = getattr(self, 'use_program_threshold', False)
+        program_uuid = getattr(self, 'program_uuid', None)
+
+        is_program_mode = use_program_threshold and program_uuid is not None
+        unlock_type = 'program' if is_program_mode else 'course'
+
+        # Expose to frontend (optional but useful)
+        meta['unlock_type'] = unlock_type
+        meta['use_program_threshold'] = use_program_threshold
+        meta['program_uuid'] = program_uuid
+        meta['progress_threshold'] = threshold
+        
+        # ────────────────────────────────────────────────────────────────
+        #   Fast path: already unlocked in cache
+        # ────────────────────────────────────────────────────────────────
+        # import pdb; pdb.set_trace()
+        # if get_subsection_status(course_key,  user_id, subsection_id, unlock_type=unlock_type):
+        #     meta['show_assmt'] = True
+        #     return meta
+        already_unlocked =False
+        if is_program_mode:
+            already_unlocked = get_subsection_status(
+                course_key, 
+                user_id, 
+                subsection_id, 
+                unlock_type='program',
+                program_uuid=program_uuid  
+            )
+        else:
+            already_unlocked = get_subsection_status(
+                course_key, 
+                user_id, 
+                subsection_id, 
+                unlock_type='course'
+            )
+
+        if already_unlocked:
+            meta['show_assmt'] = True
+            return meta
+        
+        # ────────────────────────────────────────────────────────────────
+        #   Need to check progress
+        # ────────────────────────────────────────────────────────────────
+        if is_program_mode:
+            # PROGRAM MODE
+            all_met, course_progress_dict = check_program_progress(
+                program_uuid=program_uuid,
+                user_id=user_id,
+                threshold=threshold
+            )
+
+            current_course_progress = course_progress_dict.get(str(course_key), 0)
+
+            if all_met:
+                update_subsection_status(
+                    course_key=course_key,
+                    user_id=user_id,
+                    subsection_id=subsection_id,
+                    current_progress=current_course_progress,
+                    threshold=threshold,
+                    unlock_type='program',
+                    program_uuid=program_uuid,
+                    program_progress_dict=course_progress_dict,
+                    status='unlocked'
+                )
+                meta['show_assmt'] = True
+                return meta
+            else:
+                update_subsection_status(
+                    course_key=course_key,
+                    user_id=user_id,
+                    subsection_id=subsection_id,
+                    current_progress=current_course_progress,
+                    threshold=threshold,
+                    unlock_type='program',
+                    program_uuid=program_uuid,
+                    program_progress_dict=course_progress_dict,
+                    status='blocked'
+                )
+                meta['show_assmt'] = False
+                return meta
+
+            # Expose to frontend
+            # meta['program_course_progress'] = course_progress_dict
+
+        else:
+            # CLASSIC SINGLE COURSE MODE
+            # import pdb; pdb.set_trace()
+            user_progress = get_progress_percentage(course_key, user_id)
+
+            if user_progress >= threshold:
+                update_subsection_status(
+                    course_key=course_key,
+                    user_id=user_id,
+                    subsection_id=subsection_id,
+                    current_progress=user_progress,
+                    threshold=threshold,
+                    unlock_type='course',
+                    status='unlocked'
+                )
+                meta['show_assmt'] = True
+                return meta
+            else:
+                update_subsection_status(
+                    course_key=course_key,
+                    user_id=user_id,
+                    subsection_id=subsection_id,
+                    current_progress=user_progress,
+                    threshold=threshold,
+                    unlock_type='course',
+                    status='blocked'
+                )
+                meta['show_assmt'] = False
+                return meta
+
+            # meta['user_progress'] = user_progress
+
         return meta
+
 
     def is_sequence_navigation_disabled(self):
         """
@@ -1000,3 +1179,5 @@ class SectionBlock(HighlightsFields, SequenceBlock):
     """
     XBlock for a Section/Chapter.
     """
+
+

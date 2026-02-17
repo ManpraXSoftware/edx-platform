@@ -5,11 +5,35 @@ from openedx.core.djangolib.markup import HTML, Text
 %>
 
 <%namespace name='static' file='static_content.html'/>
+
+##Manprax
+% if not mx_show_assmt and not mx_use_program_threshold:
+
+<div class="problem-lock-wrapper ">
+  <div class="problem-lock-msg" aria-label="Course Assessment is locked. To unlock it, you need to complete the course first.">
+    Course Assessment is locked. To unlock it, you need to complete the course first.
+  </div>
+</div>
+
+
+% elif not mx_show_assmt and mx_use_program_threshold:
+
+<div class="problem-lock-wrapper ">
+  <div class="problem-lock-msg" aria-label="Program Assessment is locked. To unlock it, you need to complete the program first.">
+    Program Assessment is locked. To unlock it, you need to complete the program first.
+  </div>
+</div>
+
+% else:
+
 <h3 class="hd hd-3 problem-header" id="${ short_id }-problem-title" aria-describedby="${ id }-problem-progress" tabindex="-1">
   ${ problem['name'] }
 </h3>
 
 <div class="problem-progress" id="${ id }-problem-progress"></div>
+
+
+
 
 <div class="problem">
   ${ HTML(problem['html']) }
@@ -159,6 +183,9 @@ from openedx.core.djangolib.markup import HTML, Text
       is_hidden=True"
     />
 </div>
+
+
+% endif
 
 <script>
     function emit_event(message) {

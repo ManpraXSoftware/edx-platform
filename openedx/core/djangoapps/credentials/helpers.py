@@ -27,6 +27,8 @@ def is_learner_records_enabled():
 
 
 def is_learner_records_enabled_for_org(org):
+    # Manprax
+    return True
     return config_helpers.get_value_for_org(
         org, "ENABLE_LEARNER_RECORDS", ENABLE_LEARNER_RECORDS.is_enabled()
     )

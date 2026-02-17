@@ -1032,6 +1032,11 @@ def create_xblock_info(  # lint-amnesty, pylint: disable=too-many-statements
         "display_name": xblock.display_name_with_default,
         "category": xblock.category,
         "has_children": xblock.has_children,
+        # Manprax 
+        "progress_threshold": getattr(xblock,"progress_threshold",""),
+        "use_program_threshold": getattr(xblock,"use_program_threshold",""),
+        "program_uuid": getattr(xblock,"program_uuid",""),
+
     }
 
     if course is not None and PUBLIC_VIDEO_SHARE.is_enabled(xblock.location.course_key):

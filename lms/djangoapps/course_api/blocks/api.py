@@ -127,7 +127,6 @@ def get_blocks(
         include_completion=include_completion,
         include_has_scheduled_content=include_has_scheduled_content
     )
-
     # filter blocks by types
     if block_types_filter:
         block_keys_to_remove = []

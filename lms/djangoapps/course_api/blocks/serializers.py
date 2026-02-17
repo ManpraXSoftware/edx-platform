@@ -15,7 +15,7 @@ from .transformers.extra_fields import ExtraFieldsTransformer
 from .transformers.milestones import MilestonesAndSpecialExamsTransformer
 from .transformers.navigation import BlockNavigationTransformer
 from .transformers.student_view import StudentViewTransformer
-
+from xmodule.modulestore.django import modulestore
 
 class SupportedFieldType:
     """
@@ -88,6 +88,13 @@ SUPPORTED_FIELDS = [
     SupportedFieldType(DiscussionsTopicLinkTransformer.EMBED_URL),
 
     *[SupportedFieldType(field_name) for field_name in ExtraFieldsTransformer.get_requested_extra_fields()],
+
+    # Manprax
+    SupportedFieldType('progress_threshold', default_value='0'),
+    SupportedFieldType('use_program_threshold', default_value=False),
+    SupportedFieldType('program_uuid', default_value=''),
+
+
 ]
 
 # This lists the names of all fields that are allowed
@@ -108,6 +115,9 @@ FIELDS_ALLOWED_IN_AUTH_DENIED_CONTENT = [
     "authorization_denial_reason",
     "authorization_denial_message",
     'contains_gated_content',
+    # # Manprax
+    # 'progress_threshold',
+    # 'use_program_threshold'
 ]
 
 
@@ -184,6 +194,42 @@ class BlockSerializer(serializers.Serializer):  # pylint: disable=abstract-metho
                 if field_value is not None:
                     # only return fields that have data
                     data[supported_field.serializer_field_name] = field_value
+        # Manprax
+        if block_key.block_type == 'sequential':
+            try:
+                threshold = block_structure.get_xblock_field(block_key, 'progress_threshold')
+                threshold = int(threshold)
+            except:
+                threshold = 0
+            show_assmt = True
+            data['show_assmt'] = show_assmt
+            data['progress_threshold'] = threshold
+            use_program_threshold = block_structure.get_xblock_field(block_key, 'use_program_threshold')
+            data['use_program_threshold'] = use_program_threshold
+            # import pdb; pdb.set_trace()
+            data['assmt_msg'] = ""
+            if threshold > 0:
+                request = self.context['request']
+                username = request.query_params.get('username')
+                if username is None:
+                    username = request.user.username
+
+                program_uuid = block_structure.get_xblock_field(block_key, 'program_uuid')
+                # import pdb; pdb.set_trace()
+
+                subsection_id = str(block_key)
+                if use_program_threshold and program_uuid is None:
+                    seq_block = modulestore().get_item(block_key)
+                    program_uuid = seq_block.program_uuid
+                show_assmt = check_subsection_status(threshold, use_program_threshold, program_uuid, block_key.course_key, subsection_id, username)
+                data['show_assmt'] = show_assmt
+                if not show_assmt and not use_program_threshold:
+                    data['assmt_msg'] = "Course Assessment is locked. To unlock it, you need to complete the course first." 
+
+                if not show_assmt and use_program_threshold:
+                    data['assmt_msg'] = "Program Assessment is locked. To unlock it, you need to complete the program first." 
+
+
 
         if 'children' in self.context['requested_fields']:
             children = block_structure.get_children(block_key)
@@ -201,6 +247,111 @@ class BlockSerializer(serializers.Serializer):  # pylint: disable=abstract-metho
 
         return data
 
+
+def check_subsection_status(threshold, use_program_threshold, program_uuid, course_key, subsection_id, username):
+    from mx_course_discovery.mx_certificate_helper import get_progress_percentage, update_subsection_status, get_subsection_status, check_program_progress
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    show_assmt =False 
+    if use_program_threshold:
+        # import pdb; pdb.set_trace()
+
+        if program_uuid is None:
+            return show_assmt
+
+    is_program_mode =  use_program_threshold and program_uuid is not None
+
+    user_id = User.objects.get(username= username).id
+    show_assmt =False 
+
+    if is_program_mode:
+        already_unlocked = get_subsection_status(
+            course_key, 
+            user_id, 
+            subsection_id, 
+            unlock_type='program',
+            program_uuid=program_uuid  
+        )
+    else:
+        already_unlocked = get_subsection_status(
+            course_key, 
+            user_id, 
+            subsection_id, 
+            unlock_type='course'
+        )
+    if already_unlocked:
+        show_assmt = True
+        return show_assmt
+    
+    # ────────────────────────────────────────────────────────────────
+    #   Need to check progress
+    # ────────────────────────────────────────────────────────────────
+    if is_program_mode:
+        # PROGRAM MODE
+        all_met, course_progress_dict = check_program_progress(
+            program_uuid=program_uuid,
+            user_id=user_id,
+            threshold=threshold
+        )
+
+        current_course_progress = course_progress_dict.get(str(course_key), 0)
+
+        if all_met:
+            update_subsection_status(
+                course_key=course_key,
+                user_id=user_id,
+                subsection_id=subsection_id,
+                current_progress=current_course_progress,
+                threshold=threshold,
+                unlock_type='program',
+                program_uuid=program_uuid,
+                program_progress_dict=course_progress_dict,
+                status='unlocked'
+            )
+            show_assmt = True
+        else:
+            update_subsection_status(
+                course_key=course_key,
+                user_id=user_id,
+                subsection_id=subsection_id,
+                current_progress=current_course_progress,
+                threshold=threshold,
+                unlock_type='program',
+                program_uuid=program_uuid,
+                program_progress_dict=course_progress_dict,
+                status='blocked'
+            )
+            show_assmt = False
+
+
+    else:
+        # CLASSIC SINGLE COURSE MODE
+        user_progress = get_progress_percentage(course_key, user_id)
+
+        if user_progress >= threshold:
+            update_subsection_status(
+                course_key=course_key,
+                user_id=user_id,
+                subsection_id=subsection_id,
+                current_progress=user_progress,
+                threshold=threshold,
+                unlock_type='course',
+                status='unlocked'
+            )
+            show_assmt = True
+        else:
+            update_subsection_status(
+                course_key=course_key,
+                user_id=user_id,
+                subsection_id=subsection_id,
+                current_progress=user_progress,
+                threshold=threshold,
+                unlock_type='course',
+                status='blocked'
+            )
+            show_assmt = False
+    
+    return show_assmt
 
 class BlockDictSerializer(serializers.Serializer):  # pylint: disable=abstract-method
     """

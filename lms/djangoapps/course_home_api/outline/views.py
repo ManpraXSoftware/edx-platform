@@ -62,6 +62,13 @@ from xblock.core import XBlock
 from xblock.completable import XBlockCompletionMode
 from xmodule.course_block import COURSE_VISIBILITY_PUBLIC, COURSE_VISIBILITY_PUBLIC_OUTLINE  # lint-amnesty, pylint: disable=wrong-import-order
 
+from opaque_keys.edx.keys import UsageKey
+from xmodule.modulestore.django import modulestore
+from mx_course_discovery.mx_certificate_helper import get_progress_percentage, update_subsection_status, get_subsection_status, check_program_progress
+
+import logging  
+
+logger = logging.getLogger(__name__)
 
 class UnableToDismissWelcomeMessage(APIException):
     status_code = 400
@@ -258,6 +265,9 @@ class OutlineTabView(RetrieveAPIView):
 
             enable_proctored_exams = course_overview.enable_proctored_exams
 
+            # Manprax
+            self._enrich_with_progress_threshold(course_blocks, course_key, request.user.id)
+
             if (is_enrolled and ENABLE_COURSE_GOALS.is_enabled(course_key)):
                 course_goals['weekly_learning_goal_enabled'] = True
                 selected_goal = get_course_goal(request.user, course_key)
@@ -281,6 +291,11 @@ class OutlineTabView(RetrieveAPIView):
 
         elif allow_public_outline or allow_public or user_is_masquerading:
             course_blocks = get_course_outline_block_tree(request, course_key_string, None)
+
+            # Manprax
+            self._enrich_with_progress_threshold(course_blocks, course_key, request.user.id)
+
+
             if allow_public or user_is_masquerading:
                 handouts_html = get_course_info_section(request, request.user, course, 'handouts')
 
@@ -382,7 +397,210 @@ class OutlineTabView(RetrieveAPIView):
         # Adding this header should be moved to global middleware, not just this endpoint
         return expose_header('Date', response)
 
+    # Manprax
+    # def _enrich_with_progress_threshold(self, block_tree, course_key, user_id):
+    #     """
+    #     Recursively traverse the block tree and add 'progress_threshold' to sequential blocks
+    #     by loading the XBlock from modulestore.
+    #     """
+    #     if not block_tree or 'type' not in block_tree:
+    #         return
 
+    #     # Only process sequential blocks (subsections)
+    #     if block_tree['type'] == 'sequential':
+    #         try:
+    #             loc_str = block_tree['id']
+    #             loc = UsageKey.from_string(loc_str)  
+    #             store = modulestore()  
+    #             xblock = store.get_item(loc)  
+    #             block_tree['show_assmt'] = True
+
+    #             try:
+    #                 raw_threshold = xblock.progress_threshold  
+    #                 threshold = int(raw_threshold) if raw_threshold else 0
+    #                 block_tree['progress_threshold'] = threshold
+    #                 if threshold == 0:
+    #                     block_tree['show_assmt'] = True  # No threshold: always show
+    #                 else:
+
+    #                     # Assume course_key and user_id are in scope; add checks if needed
+    #                     if not course_key or not user_id:
+    #                         logger.warning(f"Missing course_key or user_id for vertical {loc_str}")
+    #                         block_tree['show_assmt'] = False
+    #                     else:
+    #                         subsection_id = loc_str  # Already str, no need for str()
+
+    #                         # Check table first (single efficient query)
+    #                         if get_subsection_status(course_key, user_id, subsection_id):
+    #                             block_tree['show_assmt'] = True
+    #                         else:
+    #                             # No cached unlock: calculate fresh progress
+    #                             user_progress = get_progress_percentage(course_key, user_id)
+                                
+    #                             # If met, log and unlock
+    #                             if user_progress >= threshold:
+    #                                 update_subsection_status(course_key, user_id, subsection_id, user_progress, threshold)
+    #                                 block_tree['show_assmt'] = True
+    #                             else:
+    #                                 block_tree['show_assmt'] = False
+                                
+    #                             block_tree['user_progress'] = user_progress
+    #             except Exception as e:
+    #                 block_tree['progress_threshold'] = 0 
+    #                 logger.warning(f"Failed to enrich vertical {block_tree['id']}: {e}")
+    #             logger.debug(f"Added progress_threshold={block_tree['progress_threshold']} for vertical {loc_str}")
+    #         except Exception as e:  # UsageKeyError, ItemNotFoundError, etc.
+    #             logger.warning(f"Failed to enrich vertical {block_tree['id']}: {e}")
+    #             block_tree['progress_threshold'] = 0  # Graceful fallback
+
+    #     # Recurse into children (sections → sequentials → verticals)
+    #     if 'children' in block_tree and isinstance(block_tree['children'], list):
+    #         for child in block_tree['children']:
+    #             self._enrich_with_progress_threshold(child, course_key, user_id)
+
+
+
+    def _enrich_with_progress_threshold(self, block_tree, course_key, user_id):
+        """
+        Recursively enrich course block tree with progress threshold info and unlock status.
+        Supports both single-course and program-wide thresholds.
+        """
+        if not block_tree or 'type' not in block_tree:
+            return
+
+        # Only process sequential (subsection) blocks
+        if block_tree['type'] == 'sequential':
+            try:
+                loc_str = block_tree['id']
+                loc = UsageKey.from_string(loc_str)
+                store = modulestore()
+                xblock = store.get_item(loc)
+                # Expose fields to frontend
+                block_tree['progress_threshold'] = getattr(xblock, 'progress_threshold', 0)
+                block_tree['unlock_type'] = 'program' if getattr(xblock, 'use_program_threshold', False) else 'course'
+                block_tree['use_program_threshold'] = getattr(xblock, 'use_program_threshold', False)
+                block_tree['program_uuid'] = getattr(xblock, 'program_uuid', None)
+
+                threshold = int(block_tree['progress_threshold']) if block_tree['progress_threshold'] else 0
+                block_tree['show_assmt'] = True  # default: visible
+
+                if threshold <= 0:
+                    return  # no threshold → always show
+                # import pdb; pdb.set_trace()
+
+                # Determine mode
+                is_program_mode = (
+                    block_tree['unlock_type'] == 'program'
+                    and block_tree['program_uuid']
+                )
+
+                unlock_type = 'program' if is_program_mode else 'course'
+
+                # if get_subsection_status(course_key, user_id, loc_str, unlock_type=unlock_type):
+                #     block_tree['show_assmt'] = True
+                #     return
+                
+
+                already_unlocked =False
+                if is_program_mode:
+                    already_unlocked = get_subsection_status(
+                        course_key, 
+                        user_id, 
+                        loc_str, 
+                        unlock_type='program',
+                        program_uuid=block_tree['program_uuid']  
+                    )
+                else:
+                    already_unlocked = get_subsection_status(
+                        course_key, 
+                        user_id, 
+                        loc_str, 
+                        unlock_type='course'
+                    )
+
+                if already_unlocked:
+                    block_tree['show_assmt'] = True
+                    return
+        
+
+                if is_program_mode:
+                    # PROGRAM MODE
+                    all_met, course_progress_dict = check_program_progress(
+                        block_tree['program_uuid'], user_id, threshold
+                    )
+
+                    
+                    if all_met:
+                        update_subsection_status(
+                            course_key=course_key,
+                            user_id=user_id,
+                            subsection_id=loc_str,
+                            current_progress=course_progress_dict[str(course_key)],
+                            threshold=threshold,
+                            unlock_type='program',
+                            program_uuid=block_tree['program_uuid'],
+                            program_progress_dict=course_progress_dict,
+                            status= 'unlocked'
+                        )
+                        block_tree['show_assmt'] = True
+                    else:
+                        update_subsection_status(
+                            course_key=course_key,
+                            user_id=user_id,
+                            subsection_id=loc_str,
+                            current_progress=course_progress_dict[str(course_key)],
+                            threshold=threshold,
+                            unlock_type='program',
+                            program_uuid=block_tree['program_uuid'],
+                            program_progress_dict=course_progress_dict,
+                            status ='blocked'
+                        )
+
+                        block_tree['show_assmt'] = False
+
+                    # Expose progress info for frontend 
+                    block_tree['program_course_progress'] = course_progress_dict
+
+                else:
+                    # SINGLE COURSE MODE 
+                    user_progress = get_progress_percentage(course_key, user_id)
+                    if user_progress >= threshold:
+                        update_subsection_status(
+                            course_key=course_key,
+                            user_id=user_id,
+                            subsection_id=loc_str,
+                            current_progress=user_progress,
+                            threshold=threshold,
+                            unlock_type='course',
+                            status= 'unlocked'
+                        )
+                        block_tree['show_assmt'] = True
+                    else:
+                        update_subsection_status(
+                            course_key=course_key,
+                            user_id=user_id,
+                            subsection_id=loc_str,
+                            current_progress=user_progress,
+                            threshold=threshold,
+                            unlock_type='course',
+                            status= 'blocked'
+                        )
+
+                        block_tree['show_assmt'] = False
+
+                    block_tree['user_progress'] = user_progress
+
+            except Exception as e:
+                logger.warning(f"Failed to enrich sequential {block_tree.get('id')}: {e}", exc_info=True)
+                block_tree['show_assmt'] = True  # fail-open
+                block_tree['progress_threshold'] = 0
+
+        # Recurse into children
+        if 'children' in block_tree and isinstance(block_tree['children'], list):
+            for child in block_tree['children']:
+                self._enrich_with_progress_threshold(child, course_key, user_id)
+
+                
 class CourseNavigationBlocksView(RetrieveAPIView):
     """
     **Use Cases**

@@ -46,6 +46,7 @@ class CourseBlockSerializer(serializers.Serializer):
         if self.context.get('enable_prerequisite_block_type', False) and block.get('accessible') is False:
             block_type = 'lock'
 
+
         serialized = {
             block_key: {
                 'children': [child['id'] for child in children],
@@ -62,6 +63,12 @@ class CourseBlockSerializer(serializers.Serializer):
                 'type': block_type,
                 'has_scheduled_content': block.get('has_scheduled_content'),
                 'hide_from_toc': block.get('hide_from_toc'),
+                # Manprax
+                'progress_threshold': block.get('progress_threshold'),
+                'show_assmt': block.get('show_assmt'),
+                'use_program_threshold': block.get('use_program_threshold'),
+                'program_uuid': block.get('program_uuid'),
+                
             },
         }
         if 'special_exam_info' in self.context.get('extra_fields', []) and block.get('special_exam_info'):

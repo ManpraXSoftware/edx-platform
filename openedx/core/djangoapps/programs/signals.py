@@ -20,7 +20,7 @@ from openedx.core.djangoapps.signals.signals import (
 LOGGER = logging.getLogger(__name__)
 
 
-@receiver(COURSE_CERT_AWARDED)
+# @receiver(COURSE_CERT_AWARDED)
 def handle_course_cert_awarded(sender, user, course_key, mode, status, **kwargs):  # pylint: disable=unused-argument
     """
     If use of the Credentials IDA is enabled and a learner is awarded a course certificate, schedule a celery task to
@@ -47,7 +47,9 @@ def handle_course_cert_awarded(sender, user, course_key, mode, status, **kwargs)
     award_program_certificates.delay(user.username)
 
 
-@receiver(COURSE_CERT_CHANGED)
+
+
+# @receiver(COURSE_CERT_CHANGED)
 def handle_course_cert_changed(sender, user, course_key, mode, status, **kwargs):  # pylint: disable=unused-argument
     """
     When the system updates a course certificate, enqueue a celery task responsible for syncing this change in the
@@ -90,7 +92,7 @@ def handle_course_cert_changed(sender, user, course_key, mode, status, **kwargs)
     award_course_certificate.delay(user.username, str(course_key))
 
 
-@receiver(COURSE_CERT_REVOKED)
+# @receiver(COURSE_CERT_REVOKED)
 def handle_course_cert_revoked(sender, user, course_key, mode, status, **kwargs):  # pylint: disable=unused-argument
     """
     If use of the Credentials IDA is enabled and a learner has a course certificate revoked, schedule a celery task
@@ -115,7 +117,7 @@ def handle_course_cert_revoked(sender, user, course_key, mode, status, **kwargs)
     revoke_program_certificates.delay(user.username, str(course_key))
 
 
-@receiver(COURSE_CERT_DATE_CHANGE, dispatch_uid='course_certificate_date_change_handler')
+# @receiver(COURSE_CERT_DATE_CHANGE, dispatch_uid='course_certificate_date_change_handler')
 def handle_course_cert_date_change(sender, course_key, **kwargs):  # pylint: disable=unused-argument
     """
     When a course run's configuration has been updated, and the system has detected an update related to the display
@@ -142,7 +144,7 @@ def handle_course_cert_date_change(sender, course_key, **kwargs):  # pylint: dis
     update_certificate_available_date_on_course_update.delay(str(course_key))
 
 
-@receiver(COURSE_PACING_CHANGED, dispatch_uid="update_credentials_on_pacing_change")
+# @receiver(COURSE_PACING_CHANGED, dispatch_uid="update_credentials_on_pacing_change")
 def handle_course_pacing_change(sender, updated_course_overview, **kwargs):  # pylint: disable=unused-argument
     """
     If the pacing of a course run has been updated, we should enqueue the tasks responsible for updating the certificate
@@ -166,3 +168,33 @@ def handle_course_pacing_change(sender, updated_course_overview, **kwargs):  # p
     from openedx.core.djangoapps.programs.tasks import update_certificate_visible_date_on_course_update
     update_certificate_available_date_on_course_update.delay(course_id)
     update_certificate_visible_date_on_course_update.delay(course_id)
+
+
+from openedx.core.djangoapps.signals.signals import COURSE_GRADE_NOW_PASSED
+
+# Manprax
+@receiver(COURSE_GRADE_NOW_PASSED)
+def handle_program_cert_awarded(sender, user, course_id, **kwargs):  # pylint: disable=unused-argument
+    """
+    If use of the Credentials IDA is enabled and a learner is awarded a program certificate, schedule a celery task to
+    determine if the learner is also eligible to be awarded any program certificates.
+
+    Args:
+        sender: class of the object instance that sent this signal
+        user(User): The user to whom a course certificate was awarded
+        course_id(CourseLocator): The course run key for which the course certificate was awarded
+
+
+    Returns:
+        None
+    """
+
+    if not is_credentials_enabled():
+        return
+
+    LOGGER.debug(
+        f"Handling COURSE_GRADE_CHANGED: user={user}, course_key={course_id}"
+    )
+    # import here, because signal is registered at startup, but items in tasks are not yet able to be loaded
+    from openedx.core.djangoapps.programs.tasks import mx_award_program_certificates
+    mx_award_program_certificates.delay(user.username, str(course_id))

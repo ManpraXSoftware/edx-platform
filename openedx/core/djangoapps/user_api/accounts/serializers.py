@@ -134,6 +134,13 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
             activation_key = user.registration.activation_key
         except ObjectDoesNotExist:
             activation_key = None
+        # Manprax
+        try:
+            first_name = f"{user.first_name or ''}".strip()
+            if not first_name:
+                first_name = user.username
+        except:
+            first_name = user.username
 
         data = {
             "username": user.username,
@@ -155,7 +162,9 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
             "state": None,
             "profile_image": None,
             "language_proficiencies": 'en',
-            "name": None,
+            # Manprax
+            # "name": None,
+            "name": first_name,
             "gender": None,
             "goals": None,
             "year_of_birth": None,
