@@ -1032,11 +1032,6 @@ def create_xblock_info(  # lint-amnesty, pylint: disable=too-many-statements
         "display_name": xblock.display_name_with_default,
         "category": xblock.category,
         "has_children": xblock.has_children,
-        # Manprax 
-        "progress_threshold": getattr(xblock,"progress_threshold",""),
-        "use_program_threshold": getattr(xblock,"use_program_threshold",""),
-        "program_uuid": getattr(xblock,"program_uuid",""),
-
     }
 
     if course is not None and PUBLIC_VIDEO_SHARE.is_enabled(xblock.location.course_key):
@@ -1109,6 +1104,10 @@ def create_xblock_info(  # lint-amnesty, pylint: disable=too-many-statements
             xblock_info.update(
                 {
                     "hide_after_due": xblock.hide_after_due,
+                    # Manprax 
+                    "progress_threshold": getattr(xblock,"progress_threshold",""),
+                    "use_program_threshold": getattr(xblock,"use_program_threshold",""),
+                    "program_uuid": getattr(xblock,"program_uuid",""),
                 }
             )
         elif xblock.category in ("chapter", "course"):
@@ -1265,6 +1264,62 @@ def create_xblock_info(  # lint-amnesty, pylint: disable=too-many-statements
 
         if is_xblock_unit and summary_configuration.is_enabled():
             xblock_info["summary_configuration_enabled"] = summary_configuration.is_summary_enabled(xblock_info['id'])
+
+        # Manprax 
+
+        if xblock.category == 'sequential':
+            from mx_course_discovery.models import ProgressThreshold
+            # Read the just-saved values from the xblock instance
+            threshold_raw    = getattr(xblock, 'progress_threshold', None)
+            use_program_raw  = getattr(xblock, 'use_program_threshold', None)
+            program_uuid_raw = getattr(xblock, 'program_uuid', None)
+
+            usage_key_str = str(xblock.location)
+            # course_id_str = str(xblock.scope_ids.usage_id.course_key)  # or xblock.location.course_key
+            course_id_str = str(xblock.location.course_key)  # or xblock.location.course_key
+
+            # Normalize values safely
+            threshold    = int(threshold_raw or 0)
+            use_program  = bool(use_program_raw or False)
+            program_uuid = str(program_uuid_raw or "").strip()
+
+            # Apply conditional storage rules
+            if use_program:
+                # Program mode: keep both threshold and program_uuid
+                save_threshold   = threshold
+                save_program_uuid = program_uuid
+            else:
+                # Course/subsection mode: keep threshold, clear program_uuid
+                save_threshold   = threshold
+                save_program_uuid = ""
+
+            # If effectively disabled (threshold <= 0), remove the row
+            if save_threshold <= 0:
+                ProgressThreshold.objects.filter(usage_key=usage_key_str).delete()
+                log.debug("Deleted ProgressThreshold row (disabled): %s", usage_key_str)
+            else:
+                # Upsert the record
+                obj, created = ProgressThreshold.objects.update_or_create(
+                    usage_key=usage_key_str,
+                    defaults={
+                        'course_id': course_id_str,
+                        'threshold_type': 'subsection',
+                        'progress_threshold': save_threshold,
+                        'use_program_threshold': use_program,
+                        'program_uuid': save_program_uuid,
+                        'modified_by': user if user else None,
+                    }
+                )
+
+                action = "Created" if created else "Updated"
+                log.info(
+                    "%s ProgressThreshold for %s: %d%% | use_program=%s | program_uuid='%s'",
+                    action,
+                    usage_key_str,
+                    save_threshold,
+                    use_program,
+                    save_program_uuid
+                )
 
     return xblock_info
 

@@ -196,31 +196,31 @@ class BlockSerializer(serializers.Serializer):  # pylint: disable=abstract-metho
                     data[supported_field.serializer_field_name] = field_value
         # Manprax
         if block_key.block_type == 'sequential':
-            try:
-                threshold = block_structure.get_xblock_field(block_key, 'progress_threshold')
-                threshold = int(threshold)
-            except:
-                threshold = 0
+            from mx_course_discovery.models import ProgressThreshold
+            # try:
+            #     threshold = block_structure.get_xblock_field(block_key, 'progress_threshold')
+            #     threshold = int(threshold)
+            # except:
+            #     threshold = 0
+            subsection_id = str(block_key)
+
+            threshold, use_program_threshold, program_uuid = ProgressThreshold.get_threshold_info(subsection_id)
             show_assmt = True
+
+            show_assmt = True
+            assmt_msg = ""
+
             data['show_assmt'] = show_assmt
             data['progress_threshold'] = threshold
-            use_program_threshold = block_structure.get_xblock_field(block_key, 'use_program_threshold')
             data['use_program_threshold'] = use_program_threshold
-            # import pdb; pdb.set_trace()
-            data['assmt_msg'] = ""
+            data['assmt_msg'] = assmt_msg
+
             if threshold > 0:
                 request = self.context['request']
                 username = request.query_params.get('username')
                 if username is None:
                     username = request.user.username
-
-                program_uuid = block_structure.get_xblock_field(block_key, 'program_uuid')
-                # import pdb; pdb.set_trace()
-
-                subsection_id = str(block_key)
-                if use_program_threshold and program_uuid is None:
-                    seq_block = modulestore().get_item(block_key)
-                    program_uuid = seq_block.program_uuid
+                
                 show_assmt = check_subsection_status(threshold, use_program_threshold, program_uuid, block_key.course_key, subsection_id, username)
                 data['show_assmt'] = show_assmt
                 if not show_assmt and not use_program_threshold:

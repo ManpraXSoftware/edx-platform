@@ -397,68 +397,6 @@ class OutlineTabView(RetrieveAPIView):
         # Adding this header should be moved to global middleware, not just this endpoint
         return expose_header('Date', response)
 
-    # Manprax
-    # def _enrich_with_progress_threshold(self, block_tree, course_key, user_id):
-    #     """
-    #     Recursively traverse the block tree and add 'progress_threshold' to sequential blocks
-    #     by loading the XBlock from modulestore.
-    #     """
-    #     if not block_tree or 'type' not in block_tree:
-    #         return
-
-    #     # Only process sequential blocks (subsections)
-    #     if block_tree['type'] == 'sequential':
-    #         try:
-    #             loc_str = block_tree['id']
-    #             loc = UsageKey.from_string(loc_str)  
-    #             store = modulestore()  
-    #             xblock = store.get_item(loc)  
-    #             block_tree['show_assmt'] = True
-
-    #             try:
-    #                 raw_threshold = xblock.progress_threshold  
-    #                 threshold = int(raw_threshold) if raw_threshold else 0
-    #                 block_tree['progress_threshold'] = threshold
-    #                 if threshold == 0:
-    #                     block_tree['show_assmt'] = True  # No threshold: always show
-    #                 else:
-
-    #                     # Assume course_key and user_id are in scope; add checks if needed
-    #                     if not course_key or not user_id:
-    #                         logger.warning(f"Missing course_key or user_id for vertical {loc_str}")
-    #                         block_tree['show_assmt'] = False
-    #                     else:
-    #                         subsection_id = loc_str  # Already str, no need for str()
-
-    #                         # Check table first (single efficient query)
-    #                         if get_subsection_status(course_key, user_id, subsection_id):
-    #                             block_tree['show_assmt'] = True
-    #                         else:
-    #                             # No cached unlock: calculate fresh progress
-    #                             user_progress = get_progress_percentage(course_key, user_id)
-                                
-    #                             # If met, log and unlock
-    #                             if user_progress >= threshold:
-    #                                 update_subsection_status(course_key, user_id, subsection_id, user_progress, threshold)
-    #                                 block_tree['show_assmt'] = True
-    #                             else:
-    #                                 block_tree['show_assmt'] = False
-                                
-    #                             block_tree['user_progress'] = user_progress
-    #             except Exception as e:
-    #                 block_tree['progress_threshold'] = 0 
-    #                 logger.warning(f"Failed to enrich vertical {block_tree['id']}: {e}")
-    #             logger.debug(f"Added progress_threshold={block_tree['progress_threshold']} for vertical {loc_str}")
-    #         except Exception as e:  # UsageKeyError, ItemNotFoundError, etc.
-    #             logger.warning(f"Failed to enrich vertical {block_tree['id']}: {e}")
-    #             block_tree['progress_threshold'] = 0  # Graceful fallback
-
-    #     # Recurse into children (sections → sequentials → verticals)
-    #     if 'children' in block_tree and isinstance(block_tree['children'], list):
-    #         for child in block_tree['children']:
-    #             self._enrich_with_progress_threshold(child, course_key, user_id)
-
-
 
     def _enrich_with_progress_threshold(self, block_tree, course_key, user_id):
         """
@@ -472,34 +410,39 @@ class OutlineTabView(RetrieveAPIView):
         if block_tree['type'] == 'sequential':
             try:
                 loc_str = block_tree['id']
-                loc = UsageKey.from_string(loc_str)
-                store = modulestore()
-                xblock = store.get_item(loc)
+                # loc = UsageKey.from_string(loc_str)
+                # store = modulestore()
+                # xblock = store.get_item(loc)
                 # Expose fields to frontend
-                block_tree['progress_threshold'] = getattr(xblock, 'progress_threshold', 0)
-                block_tree['unlock_type'] = 'program' if getattr(xblock, 'use_program_threshold', False) else 'course'
-                block_tree['use_program_threshold'] = getattr(xblock, 'use_program_threshold', False)
-                block_tree['program_uuid'] = getattr(xblock, 'program_uuid', None)
+                # block_tree['progress_threshold'] = getattr(xblock, 'progress_threshold', 0)
+                # block_tree['unlock_type'] = 'program' if getattr(xblock, 'use_program_threshold', False) else 'course'
+                # block_tree['use_program_threshold'] = getattr(xblock, 'use_program_threshold', False)
+                # block_tree['program_uuid'] = getattr(xblock, 'program_uuid', None)
 
-                threshold = int(block_tree['progress_threshold']) if block_tree['progress_threshold'] else 0
+                # threshold = int(block_tree['progress_threshold']) if block_tree['progress_threshold'] else 0
+
+
+                from mx_course_discovery.models import ProgressThreshold
+                threshold, use_program_threshold, program_uuid = ProgressThreshold.get_threshold_info(loc_str)
+                block_tree['progress_threshold'] = threshold
+                block_tree['unlock_type'] = 'program' if use_program_threshold else 'course'
+                block_tree['use_program_threshold'] = use_program_threshold
+                block_tree['program_uuid'] = program_uuid if program_uuid else None
+
                 block_tree['show_assmt'] = True  # default: visible
 
                 if threshold <= 0:
                     return  # no threshold → always show
-                # import pdb; pdb.set_trace()
 
                 # Determine mode
+                # is_program_mode = (
+                #     block_tree['unlock_type'] == 'program'
+                #     and block_tree['program_uuid']
+                # )
                 is_program_mode = (
-                    block_tree['unlock_type'] == 'program'
-                    and block_tree['program_uuid']
+                    use_program_threshold
+                    and program_uuid
                 )
-
-                unlock_type = 'program' if is_program_mode else 'course'
-
-                # if get_subsection_status(course_key, user_id, loc_str, unlock_type=unlock_type):
-                #     block_tree['show_assmt'] = True
-                #     return
-                
 
                 already_unlocked =False
                 if is_program_mode:
@@ -508,7 +451,7 @@ class OutlineTabView(RetrieveAPIView):
                         user_id, 
                         loc_str, 
                         unlock_type='program',
-                        program_uuid=block_tree['program_uuid']  
+                        program_uuid=program_uuid 
                     )
                 else:
                     already_unlocked = get_subsection_status(
@@ -538,7 +481,7 @@ class OutlineTabView(RetrieveAPIView):
                             current_progress=course_progress_dict[str(course_key)],
                             threshold=threshold,
                             unlock_type='program',
-                            program_uuid=block_tree['program_uuid'],
+                            program_uuid=program_uuid,
                             program_progress_dict=course_progress_dict,
                             status= 'unlocked'
                         )
@@ -551,7 +494,7 @@ class OutlineTabView(RetrieveAPIView):
                             current_progress=course_progress_dict[str(course_key)],
                             threshold=threshold,
                             unlock_type='program',
-                            program_uuid=block_tree['program_uuid'],
+                            program_uuid=program_uuid,
                             program_progress_dict=course_progress_dict,
                             status ='blocked'
                         )

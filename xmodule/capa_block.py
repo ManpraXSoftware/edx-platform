@@ -1313,7 +1313,11 @@ class ProblemBlock(
 
         # Manprax
         # show_assmt = self._compute_show_assmt_lock()
-        show_assmt, use_program_threshold = self._compute_show_assmt_lock()
+        show_assmt = True
+        use_program_threshold = False
+
+        if not getattr(self.runtime, 'is_author_mode', False):
+            show_assmt, use_program_threshold = self._compute_show_assmt_lock()
         context = {
             'problem': content,
             'id': str(self.location),
@@ -2392,43 +2396,6 @@ class ProblemBlock(
         return Score(raw_earned=lcp_score['score'], raw_possible=lcp_score['total'])
     
 
-    # Manprax
-    # def _compute_show_assmt_lock(self):
-    #     """
-    #     Returns True if content shows (unlocked), False if locked (progress < threshold).
-    #     Checks cache first, then calculates and logs if needed.
-    #     """
-    #     threshold = self._get_parent_threshold()
-    #     if threshold == 0:
-    #         return True  # No threshold: always show
-
-    #     course_key = self.scope_ids.usage_id.context_key
-    #     user_id = self.runtime.service(self, 'user').get_current_user().opt_attrs.get(ATTR_KEY_USER_ID)
-    #     if not user_id:
-    #         log.warning(f"No user_id available for lock check in {self.location}")
-    #         return False
-
-    #     # Get subsection_id properly
-    #     try:
-    #         sequential_block = self.get_parent().get_parent()
-    #         subsection_id = str(sequential_block.location)
-    #     except Exception as e:
-    #         log.warning(f"Failed to get subsection location for {self.location}: {e}")
-    #         return False
-
-    #     # Check table first (single efficient query)
-    #     if get_subsection_status(course_key, user_id, subsection_id):
-    #         return True
-
-    #     user_progress = get_progress_percentage(course_key, user_id)
-
-    #     # If met, log and unlock
-    #     if user_progress >= threshold:
-    #         update_subsection_status(course_key, user_id, subsection_id, user_progress, threshold)
-    #         return True
-
-    #     return False
-
     
     
     def _compute_show_assmt_lock(self):
@@ -2439,11 +2406,59 @@ class ProblemBlock(
         - show_assmt: True if content should be shown (unlocked), False if locked
         - use_program_threshold: whether this subsection is using program-level unlocking
         """
-        threshold = self._get_parent_threshold()
-        if threshold <= 0:
-            # No threshold → always show, and we don't care about mode
-            return True, False
+        from mx_course_discovery.models import ProgressThreshold
 
+
+        # sequence=self.get_parent().get_parent()
+        # threshold = self._get_parent_threshold()
+        # if threshold <= 0:
+        #     # No threshold → always show, and we don't care about mode
+        #     return True, False
+
+        # course_key = self.scope_ids.usage_id.context_key
+        # user_service = self.runtime.service(self, 'user')
+        # current_user = user_service.get_current_user()
+        # user_id = current_user.opt_attrs.get(ATTR_KEY_USER_ID) if current_user else None
+
+        # if not user_id:
+        #     log.warning(f"No user_id available for lock check in {self.location}")
+        #     return False, False
+
+        # # Get the parent sequential block (subsection)
+        # try:
+        #     vertical = self.get_parent()
+        #     sequential = vertical.get_parent() if vertical else None
+        #     if not sequential:
+        #         raise AttributeError("No sequential parent found")
+        #     subsection_id = str(sequential.location)
+        # except Exception as e:
+        #     log.warning(f"Failed to get subsection location for {self.location}: {e}")
+        #     return False, False
+
+        # # Read the flags from the sequential block
+        # use_program_threshold = getattr(sequential, 'use_program_threshold', False)
+        # program_uuid = getattr(sequential, 'program_uuid', None)
+
+
+        try:
+            vertical = self.get_parent()
+            sequential = vertical.get_parent() if vertical else None
+            if not sequential:
+                log.warning(f"No sequential parent found for vertical {self.location}")
+                return False, False
+            
+            subsection_id = str(sequential.location)  # UsageKey object
+        except Exception as e:
+            log.warning(f"Failed to get subsection location for {self.location}: {e}")
+            return False, False
+
+        # Read threshold configuration from the database table
+        threshold, use_program_threshold, program_uuid = ProgressThreshold.get_threshold_info(subsection_id)
+
+        # Early return if no threshold is active
+        if threshold <= 0:
+            return True, False  # no lock → always show, mode irrelevant
+        # Get user & course context
         course_key = self.scope_ids.usage_id.context_key
         user_service = self.runtime.service(self, 'user')
         current_user = user_service.get_current_user()
@@ -2452,21 +2467,6 @@ class ProblemBlock(
         if not user_id:
             log.warning(f"No user_id available for lock check in {self.location}")
             return False, False
-
-        # Get the parent sequential block (subsection)
-        try:
-            vertical = self.get_parent()
-            sequential = vertical.get_parent() if vertical else None
-            if not sequential:
-                raise AttributeError("No sequential parent found")
-            subsection_id = str(sequential.location)
-        except Exception as e:
-            log.warning(f"Failed to get subsection location for {self.location}: {e}")
-            return False, False
-
-        # Read the flags from the sequential block
-        use_program_threshold = getattr(sequential, 'use_program_threshold', False)
-        program_uuid = getattr(sequential, 'program_uuid', None)
 
         is_program_mode = use_program_threshold and bool(program_uuid)
         unlock_type = 'program' if is_program_mode else 'course'

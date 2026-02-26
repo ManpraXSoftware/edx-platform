@@ -21,7 +21,8 @@ from common.djangoapps.student.models import (
 )
 from common.djangoapps.student.models import PendingNameChange as _PendingNameChange
 from common.djangoapps.student.models import UserProfile as _UserProfile
-
+from django.contrib.auth import get_user_model
+User = get_user_model()
 # This is done so that if these strings change within the app, we can keep exported constants the same
 ENROLLED_TO_ENROLLED = _ENROLLED_TO_ENROLLED
 ENROLLED_TO_UNENROLLED = _ENROLLED_TO_UNENROLLED
@@ -66,17 +67,17 @@ def get_phone_number(user_id):
         return None
     return student.phone_number or None
 
-
 def get_name(user_id):
     """
     Get a user's name from their profile, if one exists. Otherwise, return None.
     """
-    try:
-        student = _UserProfile.objects.get(user_id=user_id)
-    except _UserProfile.DoesNotExist:
-        log.exception(f'Could not find UserProfile for id {user_id}')
-        return None
-    return student.name or None
+    # try:
+    #     student = _UserProfile.objects.get(user_id=user_id)
+    # except _UserProfile.DoesNotExist:
+    #     log.exception(f'Could not find UserProfile for id {user_id}')
+    #     return None
+    user = User.objects.get(id=user_id)
+    return user.first_name or None
 
 
 def get_course_access_role(user, org, course_id, role):

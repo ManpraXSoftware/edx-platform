@@ -375,6 +375,7 @@ class SequenceBlock(
 
     def get_metadata(self, view=STUDENT_VIEW, context=None):
         """Returns a dict of some common block properties"""
+        from mx_course_discovery.models import ProgressThreshold
         context = context or {}
         context['exclude_units'] = True
         prereq_met = True
@@ -407,12 +408,13 @@ class SequenceBlock(
         meta['navigation_disabled'] = self.is_sequence_navigation_disabled()
 
         # Manprax
-
         try:
             threshold = int(self.progress_threshold)
         except (TypeError, ValueError):
             threshold = 0
 
+        # Manprax
+        threshold, use_program_threshold, program_uuid = ProgressThreshold.get_threshold_info(self.location)
         meta['show_assmt'] = True   # default
 
         if threshold <= 0:
@@ -438,25 +440,29 @@ class SequenceBlock(
         #   Read XBlock / section fields
         # ────────────────────────────────────────────────────────────────
 
-        use_program_threshold = getattr(self, 'use_program_threshold', False)
-        program_uuid = getattr(self, 'program_uuid', None)
+        # use_program_threshold = getattr(self, 'use_program_threshold', False)
+        # program_uuid = getattr(self, 'program_uuid', None)
 
-        is_program_mode = use_program_threshold and program_uuid is not None
+        # is_program_mode = use_program_threshold and program_uuid is not None
+        # unlock_type = 'program' if is_program_mode else 'course'
+
+        # # Expose to frontend (optional but useful)
+        # meta['unlock_type'] = unlock_type
+        # meta['use_program_threshold'] = use_program_threshold
+        # meta['program_uuid'] = program_uuid
+        # meta['progress_threshold'] = threshold
+        
+        # import pdb; pdb.set_trace()
+        is_program_mode = use_program_threshold and bool(program_uuid.strip())
         unlock_type = 'program' if is_program_mode else 'course'
 
-        # Expose to frontend (optional but useful)
+        # Expose to frontend (same as before, but values now come from DB)
         meta['unlock_type'] = unlock_type
         meta['use_program_threshold'] = use_program_threshold
-        meta['program_uuid'] = program_uuid
+        meta['program_uuid'] = program_uuid if program_uuid else None
         meta['progress_threshold'] = threshold
         
-        # ────────────────────────────────────────────────────────────────
-        #   Fast path: already unlocked in cache
-        # ────────────────────────────────────────────────────────────────
-        # import pdb; pdb.set_trace()
-        # if get_subsection_status(course_key,  user_id, subsection_id, unlock_type=unlock_type):
-        #     meta['show_assmt'] = True
-        #     return meta
+  
         already_unlocked =False
         if is_program_mode:
             already_unlocked = get_subsection_status(
