@@ -703,7 +703,9 @@ class CourseFields:  # lint-amnesty, pylint: disable=missing-class-docstring
         display_name=_("Hide Progress Tab"),
         help=_("Allows hiding of the progress tab."),
         scope=Scope.settings,
-        deprecated=True
+        deprecated=True,
+        # Manprax
+        default=True
     )
 
     display_organization = String(
