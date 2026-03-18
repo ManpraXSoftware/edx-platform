@@ -113,10 +113,12 @@ class Command(BaseCommand):
 
             subject = (row[2] or "").strip()
             medium = (row[3] or "").strip()
+            lesson = (row[4] or "").strip()
+
             if not subject or not medium:
                 logging.error(f"Skipping row due to missing subject/medium: {row}")
                 continue
-            course_name= str(row[4]+"-" +medium) if medium else str(row[5])
+            course_name = f"{lesson}-{medium}" if medium else lesson
             video_url = (row[5] or "").strip() 
             org = "AA"
             number = re.sub(r'\s+', '_', re.sub(r'[^\w\s]', '', course_name)).lower()
