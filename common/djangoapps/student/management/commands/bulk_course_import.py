@@ -94,7 +94,7 @@ class Command(BaseCommand):
         error_count=0
 
           # Debugging breakpoint
-        excel_file = os.path.dirname(__file__)+'/static/LMS Mapping - 683 Vidoes.xlsx'  # Make sure it's in your working dir or use full path
+        excel_file = os.path.dirname(__file__)+'/static/Mapping Grade 1-10 Multiple Languages -Month March 2026.xlsx'  # Make sure it's in your working dir or use full path
         workbook = openpyxl.load_workbook(excel_file)
         sheet = workbook.active
 
