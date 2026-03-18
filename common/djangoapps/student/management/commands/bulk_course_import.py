@@ -104,7 +104,7 @@ class Command(BaseCommand):
 
         store = modulestore()
         User = get_user_model()
-        user = User.objects.get(username="settings.DEFAULT_USER_NAME")  # must be a course staff
+        user = User.objects.get(username=settings.DEFAULT_USER_NAME)  # must be a course staff
   # must be a course staff
         
         for row in sheet.iter_rows(min_row=2, values_only=True):
