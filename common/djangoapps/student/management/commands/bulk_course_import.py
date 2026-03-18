@@ -98,23 +98,26 @@ class Command(BaseCommand):
         error_count=0
 
           # Debugging breakpoint
-        excel_file = os.path.dirname(__file__)+'/static/LMS Mapping - 683 Vidoes.xlsx'  # Make sure it's in your working dir or use full path
+        excel_file = os.path.dirname(__file__)+'/static/Mapping Grade 1-10 Multiple Languages -Month March 2026.xlsx'  # Make sure it's in your working dir or use full path
         workbook = openpyxl.load_workbook(excel_file)
         sheet = workbook.active
 
         store = modulestore()
         User = get_user_model()
-        user = User.objects.get(username=settings.DEFAULT_USER_NAME)  # must be a course staff
+        user = User.objects.get(username="settings.DEFAULT_USER_NAME")  # must be a course staff
   # must be a course staff
         
         for row in sheet.iter_rows(min_row=2, values_only=True):
             
             grade = f"grade {str(row[1]).strip()}"
 
-            subject = row[2]
-            medium = row[3]
+            subject = (row[2] or "").strip()
+            medium = (row[3] or "").strip()
+            if not subject or not medium:
+                logging.error(f"Skipping row due to missing subject/medium: {row}")
+                continue
             course_name= str(row[4]+"-" +medium) if medium else str(row[5])
-            video_url = row[5]
+            video_url = (row[5] or "").strip() 
             org = "AA"
             number = re.sub(r'\s+', '_', re.sub(r'[^\w\s]', '', course_name)).lower()
             logging.info(f"Processing row: {row}")
