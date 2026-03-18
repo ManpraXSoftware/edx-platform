@@ -27,6 +27,10 @@ from django.core.files.base import File
 
 from urllib.parse import urlparse, parse_qs
 
+
+
+
+
 def extract_youtube_id(url: str) -> str | None:
     """
     Extract YouTube video ID from all common YouTube URL formats.
@@ -94,14 +98,14 @@ class Command(BaseCommand):
         error_count=0
 
           # Debugging breakpoint
-        excel_file = os.path.dirname(__file__)+'/static/Mapping Grade 1-10 Multiple Languages -Month March 2026.xlsx'  # Make sure it's in your working dir or use full path
+        excel_file = os.path.dirname(__file__)+'/static/LMS Mapping - 683 Vidoes.xlsx'  # Make sure it's in your working dir or use full path
         workbook = openpyxl.load_workbook(excel_file)
         sheet = workbook.active
 
         store = modulestore()
         User = get_user_model()
-        user = User.objects.get(username=settings.DEFAULT_USER_NAME
-)  # must be a course staff
+        user = User.objects.get(username=settings.DEFAULT_USER_NAME)  # must be a course staff
+  # must be a course staff
         
         for row in sheet.iter_rows(min_row=2, values_only=True):
             
