@@ -225,28 +225,37 @@ class Command(BaseCommand):
 
             tags_list = [grade, subject,medium]
             tags = Tag.objects.translated(language_code='en').filter(translations__value__in=tags_list)
-            try:
-                content_list= Content_List.objects.translated(language_code='en').get(translations__name=subject,category__translations__name=medium)
-                logging.info(f"Content list {content_list} found for subject {subject} and grade {grade}.")
-            except Content_List.DoesNotExist:
-                logging.info(f"Content list not found for subject {subject} and grade {grade}, creating new one.")
-                content_category= Content_Category.objects.translated(language_code='en').filter(translations__name=medium).first()
-                content_list = Content_List.objects.create(
-                    list_name=str(subject),
-                    category_id=content_category.id if content_category else None,
-                    order=1,
-                    internal_name = f"{subject.replace(' ', '_').lower()}_en_{grade.replace(' ', '_').lower()}",
-                    format_type = 'normal',
-                    subscription = SubscriptionCatalog.objects.get(subscription_name='FREE') ,
-                    created_by=user,
-                    modified_by=user,
-                    mode='normal',
-                )
-                content_list.set_current_language('en')
-                content_list.name = subject
-                content_list.save()
+            content_list = Content_List.objects.translated(language_code='en').filter(
+    translations__name=subject,
+    category__translations__name=medium
+).first()
 
-                logging.info(f"Content list {content_list} created for subject {subject} and grade {grade}.")
+        if content_list:
+            logging.info(f"Content list {content_list} found for subject {subject} and grade {grade}.")
+        else:
+            logging.info(f"Content list not found for subject {subject} and grade {grade}, creating new one.")
+
+            content_category = Content_Category.objects.translated(language_code='en').filter(
+                translations__name=medium
+            ).first()
+
+            content_list = Content_List.objects.create(
+                list_name=str(subject),
+                category_id=content_category.id if content_category else None,
+                order=1,
+                internal_name=f"{subject.replace(' ', '_').lower()}_en_{grade.replace(' ', '_').lower()}",
+                format_type='normal',
+                subscription=SubscriptionCatalog.objects.get(subscription_name='FREE'),
+                created_by=user,
+                modified_by=user,
+                mode='normal',
+            )
+
+            content_list.set_current_language('en')
+            content_list.name = subject
+            content_list.save()
+
+            logging.info(f"Content list {content_list} created for subject {subject} and grade {grade}.")
             if content:
                 # for con_list in content_list:
                 content.lists.add(content_list)
