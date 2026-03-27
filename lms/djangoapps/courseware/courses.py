@@ -569,6 +569,10 @@ def get_course_blocks_completion_summary(course_key, user):
     complete_count, incomplete_count, locked_count = 0, 0, 0
     for section_key in block_data.get_children(course_usage_key):  # pylint: disable=too-many-nested-blocks
         for subsection_key in block_data.get_children(section_key):
+            # Manprax
+            is_graded = block_data.get_xblock_field(subsection_key, 'graded', False)
+            if is_graded:
+                continue
             for unit_key in block_data.get_children(subsection_key):
                 complete = block_data.get_xblock_field(unit_key, 'complete', False)
                 contains_gated_content = block_data.get_xblock_field(unit_key, 'contains_gated_content', False)

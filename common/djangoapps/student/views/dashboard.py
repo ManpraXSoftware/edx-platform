@@ -556,6 +556,30 @@ def student_dashboard(request, program_uuid):  # lint-amnesty, pylint: disable=t
 
     return redirect(redirect_url)
 
+
+
+def mx_about(request):  # lint-amnesty, pylint: disable=too-many-statements
+    """
+    Redirect the LMS custom about page
+
+    """
+    explore_course_base_url = settings.FEATURES['explore_course_base_url']
+    redirect_url = f"{explore_course_base_url}explore-courses/about/"
+
+    return redirect(redirect_url)
+
+def mx_privacy_policy(request):  # lint-amnesty, pylint: disable=too-many-statements
+    """
+    Redirect the LMS custom privacy policy page
+
+    """
+    explore_course_base_url = settings.FEATURES['explore_course_base_url']
+    redirect_url = f"{explore_course_base_url}explore-courses/privacy/"
+
+    return redirect(redirect_url)
+
+
+
 @login_required
 @ensure_csrf_cookie
 @add_maintenance_banner

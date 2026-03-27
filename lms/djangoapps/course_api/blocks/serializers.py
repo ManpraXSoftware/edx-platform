@@ -227,7 +227,7 @@ class BlockSerializer(serializers.Serializer):  # pylint: disable=abstract-metho
                     data['assmt_msg'] = "Course Assessment is locked. To unlock it, you need to complete the course first." 
 
                 if not show_assmt and use_program_threshold:
-                    data['assmt_msg'] = "Program Assessment is locked. To unlock it, you need to complete the program first." 
+                    data['assmt_msg'] = "Program Assessment is locked. To unlock it, you need to complete all courses in the program first." 
 
 
 

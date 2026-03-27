@@ -277,9 +277,9 @@
   }
 
   .accomplishment-signatories {
-    .wrapper-signatories {
-      @include text-align(center);
-    }
+    // .wrapper-signatories {
+    //   @include text-align(center);
+    // }
 
     @media print{
       .list-signatories{

@@ -705,7 +705,7 @@ class CourseFields:  # lint-amnesty, pylint: disable=missing-class-docstring
         scope=Scope.settings,
         deprecated=True,
         # Manprax
-        default=True
+        default=False
     )
 
     display_organization = String(

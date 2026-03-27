@@ -10,7 +10,7 @@ from openedx.core.djangolib.markup import HTML, Text
 % if not mx_show_assmt and not mx_use_program_threshold:
 
 <div class="problem-lock-wrapper ">
-  <div class="problem-lock-msg" aria-label="Course Assessment is locked. To unlock it, you need to complete the course first.">
+  <div class="problem-lock-msg" tabindex="0" aria-label="Course Assessment is locked. To unlock it, you need to complete the course first.">
     Course Assessment is locked. To unlock it, you need to complete the course first.
   </div>
 </div>
@@ -19,8 +19,8 @@ from openedx.core.djangolib.markup import HTML, Text
 % elif not mx_show_assmt and mx_use_program_threshold:
 
 <div class="problem-lock-wrapper ">
-  <div class="problem-lock-msg" aria-label="Program Assessment is locked. To unlock it, you need to complete the program first.">
-    Program Assessment is locked. To unlock it, you need to complete the program first.
+  <div class="problem-lock-msg" tabindex="0" aria-label="Program Assessment is locked. To unlock it, you need to complete all courses in the program first.">
+    Program Assessment is locked. To unlock it, you need to complete all courses in the program first.
   </div>
 </div>
 

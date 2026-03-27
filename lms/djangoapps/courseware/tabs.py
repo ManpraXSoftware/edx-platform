@@ -347,6 +347,17 @@ def get_course_tab_list(user, course):
     # We can't switch this function to just use the CourseTabPluginManager without
     # further investigation since CourseTabList.iterate_displayable returns
     # Static Tabs that are not returned by the CourseTabPluginManager.
+
+    # Manprax
+    try:
+        from lms.djangoapps.courseware.tabs import ProgressTab
+        if not any(tab.type == "progress" for tab in course_tab_list):
+            progress_tab = ProgressTab({})
+            progress_tab.is_hidden = False
+            course_tab_list.append(progress_tab)
+    except:
+        pass
+
     course_tab_list.sort(key=lambda tab: tab.priority or float('inf'))
     return course_tab_list
 

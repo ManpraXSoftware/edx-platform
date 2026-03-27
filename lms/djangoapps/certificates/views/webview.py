@@ -54,6 +54,7 @@ from openedx.core.djangoapps.site_configuration import helpers as configuration_
 from openedx.core.lib.courses import course_image_url
 from openedx.core.lib.courses import get_course_by_id
 from xmodule.data import CertificatesDisplayBehaviors  # lint-amnesty, pylint: disable=wrong-import-order
+from openedx.core.djangoapps.user_api.accounts.image_helpers import get_profile_image_urls_for_user
 
 log = logging.getLogger(__name__)
 _ = translation.gettext
@@ -139,6 +140,7 @@ def _update_certificate_context(context, course, course_overview, user_certifica
         platform_name=platform_name
     )
 
+    # Manprax 
     # Translators:  This text fragment appears after the student's name (displayed in a large font) on the certificate
     # screen.  The text describes the accomplishment represented by the certificate information displayed to the user
     context['accomplishment_copy_description_full'] = _("successfully completed, received a passing grade, and is "
@@ -157,11 +159,12 @@ def _update_certificate_context(context, course, course_overview, user_certifica
         context['certificate_type_description'] = certificate_type_description
 
     # Translators: This text describes the purpose (and therefore, value) of a course certificate
-    context['certificate_info_description'] = _("{platform_name} acknowledges achievements through "
-                                                "certificates, which are awarded for course activities "
-                                                "that {platform_name} students complete.").format(
-        platform_name=platform_name,
-    )
+    # context['certificate_info_description'] = _("{platform_name} acknowledges achievements through "
+    #                                             "certificates, which are awarded for course activities "
+    #                                             "that {platform_name} students complete.").format(
+    #     platform_name=platform_name,
+    # )
+    context['certificate_info_description'] = "Subodha acknowledges achievements through certificates, which are awarded for course activities that learners complete."
 
 
 def _update_context_with_basic_info(context, course_id, platform_name, configuration):
@@ -224,9 +227,10 @@ def _update_context_with_basic_info(context, course_id, platform_name, configura
     context['certificate_verify_urltext'] = _("Validate this certificate for yourself")
 
     # Translators:  This text describes (at a high level) the mission and charter the edX platform and organization
-    context['company_about_description'] = _("{platform_name} offers interactive online classes and MOOCs.").format(
-        platform_name=platform_name)
-
+    # Manprax
+    # context['company_about_description'] = _("{platform_name} offers interactive online classes and MOOCs.").format(
+    #     platform_name=platform_name)  
+    context['company_about_description'] = "Subodha offers interactive online classes and MOOCs."
     context['company_about_title'] = _("About {platform_name}").format(platform_name=platform_name)
 
     context['company_about_urltext'] = _("Learn more about {platform_name}").format(platform_name=platform_name)
@@ -345,6 +349,11 @@ def _update_context_with_user_info(context, user, user_certificate):
     context['accomplishment_copy_more_about'] = _("More about {fullname}'s accomplishment").format(
         fullname=user_fullname
     )
+    # user_profile_image = get_profile_image_urls_for_user(user) 
+    # if user_profile_image and 'default' not in user_profile_image.get('medium', ''):
+    #     context['user_profile_image'] = user_profile_image['medium']
+    # else:
+    #     context['user_profile_image'] = '/static/certificates/images/demo-user-profile.png'
 
 
 def _get_user_certificate(request, user, course_key, course_overview, preview_mode=None):

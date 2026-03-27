@@ -100,6 +100,8 @@ urlpatterns = [
     # TODO: Move lms specific student views out of common code
     re_path(r'^dashboard/(?P<program_uuid>[0-9a-f-]+)/', student_views.student_dashboard, name='dashboard'),
     re_path(r'^mxdashboard/(?P<program_uuid>[0-9a-f-]+)/', student_views.mx_student_dashboard, name='mxdashboard'),
+    re_path(r'^about', student_views.mx_about, name='about_page'),
+    re_path(r'^privacy', student_views.mx_privacy_policy, name='privacy_policy_page'),
     path('change_enrollment', student_views.change_enrollment, name='change_enrollment'),
 
     # Event tracking endpoints
