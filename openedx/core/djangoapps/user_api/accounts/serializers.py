@@ -192,7 +192,8 @@ class UserReadOnlySerializer(serializers.Serializer):  # lint-amnesty, pylint: d
                     #     user_profile.language_proficiencies.all().order_by('code'), many=True
                     # ).data,
                     "language_proficiencies": "en",
-                    "name": user_profile.name,
+                    # Manprax
+                    # "name": user_profile.name,
                     "gender": AccountLegacyProfileSerializer.convert_empty_to_None(user_profile.gender),
                     "goals": user_profile.goals,
                     "year_of_birth": user_profile.year_of_birth,
