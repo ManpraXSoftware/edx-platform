@@ -161,17 +161,17 @@ def anonymous_id_for_user(user, course_id):
             hasher.update(str(course_id).encode('utf-8'))
         anonymous_user_id = hasher.hexdigest(16)
 
-        try:
-            AnonymousUserId.objects.create(
-                user=user,
-                course_id=course_id,
-                anonymous_user_id=anonymous_user_id,
-            )
+        anonymous_user_obj, created = AnonymousUserId.objects.get_or_create(
+            user=user,
+            course_id=course_id,
+            defaults={'anonymous_user_id': anonymous_user_id},
+        )
+        if created:
             monitoring.increment('temp_anon_uid_v2.stored')
-        except IntegrityError:
-            # Another thread has already created this entry, so
-            # continue
-            monitoring.increment('temp_anon_uid_v2.store_db_error')
+        else:
+            # Another thread has already created this entry
+            anonymous_user_id = anonymous_user_obj.anonymous_user_id
+            monitoring.increment('temp_anon_uid_v2.fetched_existing')
 
     # cache the anonymous_id in the user object
     if not hasattr(user, '_anonymous_id'):
