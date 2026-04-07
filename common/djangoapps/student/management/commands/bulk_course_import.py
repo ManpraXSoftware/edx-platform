@@ -211,20 +211,20 @@ class Command(BaseCommand):
         error_count = 0
         mapping_only_count = 0
 
-        excel_file = os.path.dirname(__file__)+'/static/Mapping Grade 1-10 Multiple Languages -Month March 2026.xlsx'
+        excel_file = os.path.dirname(__file__)+'/static/YT links_.xlsx'
         workbook = openpyxl.load_workbook(excel_file)
         sheet = workbook.active
 
         store = modulestore()
         User = get_user_model()
-        user = User.objects.get(username="devops_team")
+        user = User.objects.get(username=settings.DEFAULT_USER_NAME)
 
         for row in sheet.iter_rows(min_row=2, values_only=True):
 
             grade = f"grade {str(row[1]).strip()}"
 
             subject = (row[2] or "").strip()
-            medium = (row[3] or "").strip()
+            medium = (row[3] or "English").strip()
             lesson = (row[4] or "").strip()
 
             if not subject or not medium:
