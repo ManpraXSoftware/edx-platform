@@ -139,8 +139,13 @@ def _update_certificate_context(context, course, course_overview, user_certifica
         course_number=context['course_number'],
         platform_name=platform_name
     )
-
     # Manprax 
+    context['document_page_title'] = _("{partner_short_name} {course_number} Course Certificate | {platform_name}").format(
+        partner_short_name=context['organization_short_name'],
+        course_number=context['course_number'],
+        platform_name=platform_name
+    )
+
     # Translators:  This text fragment appears after the student's name (displayed in a large font) on the certificate
     # screen.  The text describes the accomplishment represented by the certificate information displayed to the user
     context['accomplishment_copy_description_full'] = _("successfully completed, received a passing grade, and is "
@@ -329,7 +334,7 @@ def _update_context_with_user_info(context, user, user_certificate):
     context['username'] = user.username
     context['course_mode'] = user_certificate.mode
     context['accomplishment_user_id'] = user.id
-    context['accomplishment_copy_name'] = user_fullname
+    context['accomplishment_copy_name'] = user_fullname if user_fullname else user.username
     context['accomplishment_copy_username'] = user.username
 
     context['accomplishment_more_title'] = _("More Information About {user_name}'s Certificate:").format(
