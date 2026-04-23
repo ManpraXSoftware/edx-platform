@@ -245,6 +245,10 @@ class ProgressTabView(RetrieveAPIView):
 
         access_expiration = get_access_expiration_data(request.user, course_overview)
 
+        # Manprax 
+        # program certificate
+        from mx_course_discovery.views import retrieve_program_certificate_from_courseid
+        program_certificate_data =retrieve_program_certificate_from_courseid(course_key, username)
         data = {
             'access_expiration': access_expiration,
             'certificate_data': get_cert_data(student, course, enrollment_mode, course_grade),
@@ -261,6 +265,7 @@ class ProgressTabView(RetrieveAPIView):
             'user_has_passing_grade': user_has_passing_grade,
             'verification_data': verification_data,
             'disable_progress_graph': disable_progress_graph,
+            'program_certificate_data': program_certificate_data
         }
         context = self.get_serializer_context()
         context['staff_access'] = is_staff

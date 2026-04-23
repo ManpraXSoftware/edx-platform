@@ -126,6 +126,9 @@ class VerificationDataSerializer(ReadOnlySerializer):
     status = serializers.CharField()
     status_date = serializers.DateTimeField()
 
+# Manprax 
+class ProgramCertificateSerializer(serializers.Serializer):
+    certificate_url = serializers.CharField(allow_null=True, required=False)
 
 class ProgressTabSerializer(VerifiedModeSerializer):
     """
@@ -146,3 +149,5 @@ class ProgressTabSerializer(VerifiedModeSerializer):
     user_has_passing_grade = serializers.BooleanField()
     verification_data = VerificationDataSerializer()
     disable_progress_graph = serializers.BooleanField()
+    # Manprax 
+    program_certificate_data = ProgramCertificateSerializer()

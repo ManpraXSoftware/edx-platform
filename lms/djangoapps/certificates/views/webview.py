@@ -354,6 +354,7 @@ def _update_context_with_user_info(context, user, user_certificate):
     context['accomplishment_copy_more_about'] = _("More about {fullname}'s accomplishment").format(
         fullname=user_fullname
     )
+    context['lms_url'] = settings.FEATURES['base_lms_url']
     # user_profile_image = get_profile_image_urls_for_user(user) 
     # if user_profile_image and 'default' not in user_profile_image.get('medium', ''):
     #     context['user_profile_image'] = user_profile_image['medium']
