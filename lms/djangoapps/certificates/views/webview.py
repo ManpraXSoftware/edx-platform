@@ -334,7 +334,10 @@ def _update_context_with_user_info(context, user, user_certificate):
     context['username'] = user.username
     context['course_mode'] = user_certificate.mode
     context['accomplishment_user_id'] = user.id
-    context['accomplishment_copy_name'] = user_fullname if user_fullname else user.username
+    accomplishment_copy_name = user_fullname if user_fullname else user.username
+    if accomplishment_copy_name and len(accomplishment_copy_name) > 25:
+        accomplishment_copy_name = accomplishment_copy_name[:25] + "..."
+    context['accomplishment_copy_name'] = accomplishment_copy_name
     context['accomplishment_copy_username'] = user.username
 
     context['accomplishment_more_title'] = _("More Information About {user_name}'s Certificate:").format(
