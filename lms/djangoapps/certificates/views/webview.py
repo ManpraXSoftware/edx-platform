@@ -345,7 +345,7 @@ def _update_context_with_user_info(context, user, user_certificate):
     )
     # Translators: This line is displayed to a user who has completed a course and achieved a certification
     context['accomplishment_banner_opening'] = _("{fullname}, you earned a certificate!").format(
-        fullname=user_fullname
+        fullname=accomplishment_copy_name
     )
 
     # Translators: This line congratulates the user and instructs them to share their accomplishment on social networks
