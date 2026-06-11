@@ -7,6 +7,7 @@ from lms.djangoapps.learner_dashboard.programs import program_listing_api, stude
 
 
 urlpatterns = [
+    path('', program_views.program_listing, name='program_listing_view'),
     path('programs/', program_views.program_listing, name='program_listing_view'),
     path('mxprograms/', program_views.mx_program_listing, name='mxprogram_listing_view'),
     re_path(r'^programs/(?P<program_uuid>[0-9a-f-]+)/$', program_views.program_details, name='program_details_view'),
