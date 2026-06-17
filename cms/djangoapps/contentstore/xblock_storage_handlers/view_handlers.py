@@ -772,7 +772,30 @@ def _delete_item(usage_key, user):
 
         # Delete user bookmarks
         bookmarks_api.delete_bookmarks(usage_key)
+
+        # Manprax
+        # Collect sequential usage keys for ProgressThreshold cleanup before deletion
+        sequential_keys_to_delete = []
+        if usage_key.block_type == "sequential":
+            sequential_keys_to_delete = [str(usage_key)]
+        elif usage_key.block_type == "chapter":
+            try:
+                chapter = store.get_item(usage_key)
+                sequential_keys_to_delete = [
+                    str(child) for child in chapter.children
+                    if child.block_type == "sequential"
+                ]
+            except Exception:  # pylint: disable=broad-except
+                log.exception("Failed to collect sequentials for ProgressThreshold cleanup: %s", usage_key)
+
         store.delete_item(usage_key, user.id)
+
+        if sequential_keys_to_delete:
+            try:
+                from mx_course_discovery.models import ProgressThreshold
+                ProgressThreshold.objects.filter(usage_key__in=sequential_keys_to_delete).delete()
+            except Exception:  # pylint: disable=broad-except
+                log.exception("Failed to delete ProgressThreshold for %s", sequential_keys_to_delete)
 
 
 def delete_orphans(course_usage_key, user_id, commit=False):
