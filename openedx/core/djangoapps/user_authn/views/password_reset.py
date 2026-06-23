@@ -131,7 +131,9 @@ def send_password_reset_success_email(user, request):
     msg = PasswordResetSuccess(context=message_context).personalize(
         recipient=Recipient(user.id, user.email),
         language=user_language_preference,
-        user_context={"name": user.profile.name},
+        # Manprax
+        # user_context={"name": user.profile.name},
+        user_context={"name": user.first_name},
     )
     try:
         ace.send(msg)
