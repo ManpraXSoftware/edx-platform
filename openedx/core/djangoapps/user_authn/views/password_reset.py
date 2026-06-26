@@ -151,9 +151,15 @@ def send_password_reset_email_for_user(user, request, preferred_email=None):
         preferred_email (str): Send email to this address if present, otherwise fallback to user's email address.
     """
     message_context, user_language_preference = get_user_default_email_params(user)
-    # site_name = settings.AUTHN_MICROFRONTEND_DOMAIN if should_redirect_to_authn_microfrontend() \
-    #     else configuration_helpers.get_value('SITE_NAME', settings.SITE_NAME)
-    site_name = settings.LMS_BASE
+    use_mfe = should_redirect_to_authn_microfrontend()
+    uidb36 = int_to_base36(user.id)
+    token = default_token_generator.make_token(user)
+    if use_mfe:
+        site_name = settings.AUTHN_MICROFRONTEND_DOMAIN
+        link = '/password_reset_confirm/{}-{}/'.format(uidb36, token)
+    else:
+        site_name = configuration_helpers.get_value('SITE_NAME', settings.SITE_NAME)
+        link = reverse('password_reset_confirm', kwargs={'uidb36': uidb36, 'token': token})
     message_context.update({
         'request': request,  # Used by google_analytics_tracking_pixel
         # TODO: This overrides `platform_name` from `get_base_template_context` to make the tests passes
@@ -161,13 +167,9 @@ def send_password_reset_email_for_user(user, request, preferred_email=None):
         'reset_link': '{protocol}://{site}{link}?track=pwreset'.format(
             protocol='https' if request.is_secure() else 'http',
             site=site_name,
-            link=reverse('password_reset_confirm', kwargs={
-                'uidb36': int_to_base36(user.id),
-                'token': default_token_generator.make_token(user),
-            }),
+            link=link,
         )
     })
-
     msg = PasswordReset().personalize(
         recipient=Recipient(user.id, preferred_email or user.email),
         language=user_language_preference,
