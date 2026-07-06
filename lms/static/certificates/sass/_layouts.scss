@@ -281,12 +281,12 @@
     //   @include text-align(center);
     // }
 
-    @media print{
-      .list-signatories{
-        justify-content: center;
-        display: inline-flex !important;
-      }
-    }
+    // @media print{
+    //   .list-signatories{
+    //     justify-content: center;
+    //     display: inline-flex !important;
+    //   }
+    // }
 
     .signatory {
       display: inline-block;
