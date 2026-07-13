@@ -211,7 +211,7 @@ class Command(BaseCommand):
         error_count = 0
         mapping_only_count = 0
 
-        excel_file = os.path.dirname(__file__)+'/static/Mapping_list_1.xlsx'
+        excel_file = os.path.dirname(__file__)+'/static/Master-grade1-5.xlsx'
         workbook = openpyxl.load_workbook(excel_file)
         sheet = workbook.active
 
