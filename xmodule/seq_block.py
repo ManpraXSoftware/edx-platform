@@ -495,7 +495,7 @@ class SequenceBlock(
                 threshold=threshold
             )
 
-            current_course_progress = course_progress_dict.get(str(course_key), 0)
+            current_course_progress = course_progress_dict.get(str(course_key), {}).get('progress', 0)
 
             if all_met:
                 update_subsection_status(
