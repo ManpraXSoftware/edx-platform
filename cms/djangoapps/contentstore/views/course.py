@@ -907,7 +907,11 @@ def _create_or_rerun_course(request):
         source_course_key = request.json.get('source_course_key')
         if source_course_key:
             source_course_key = CourseKey.from_string(source_course_key)
-            destination_course_key = rerun_course(request.user, source_course_key, org, course, run, fields)
+            try:
+                destination_course_key = rerun_course(request.user, source_course_key, org, course, run, fields)
+            except ValidationError as ex:
+                detail = ex.detail[0] if isinstance(ex.detail, list) else ex.detail
+                return JsonResponse({'ErrMsg': str(detail)})
             return JsonResponse({
                 'url': reverse_url('course_handler'),
                 'destination_course_key': str(destination_course_key)
@@ -920,7 +924,8 @@ def _create_or_rerun_course(request):
                     'course_key': str(new_course.id),
                 })
             except ValidationError as ex:
-                return JsonResponse({'error': str(ex)}, status=400)
+                detail = ex.detail[0] if isinstance(ex.detail, list) else ex.detail
+                return JsonResponse({'ErrMsg': str(detail)})
     except DuplicateCourseError:
         return JsonResponse({
             'ErrMsg': _(
@@ -969,6 +974,16 @@ def create_new_course(user, org, number, run, fields):
             'You must link this course to an organization in order to continue. Organization '
             'you selected does not exist in the system, you will need to add it to the system'
         ))
+
+    # block reuse of an org+course number that already exists under a different run,
+    # so every course keeps a distinct org+course number identity (used elsewhere for catalog grouping)
+    for existing_course in CourseOverview.objects.filter(org=org):
+        if existing_course.id.course == number:
+            raise ValidationError(_(
+                'A course with this organization and course number already exists '
+                '(possibly under a different course run). Please choose a different course number.'
+            ))
+
     store_for_new_course = modulestore().default_modulestore.get_modulestore_type()
     new_course = create_new_course_in_store(store_for_new_course, user, org, number, run, fields)
     add_organization_course(org_data, new_course.id)
@@ -1028,6 +1043,13 @@ def rerun_course(user, source_course_key, org, number, run, fields, background=T
     # verify org course and run don't already exist
     if store.has_course(destination_course_key, ignore_case=True):
         raise DuplicateCourseError(source_course_key, destination_course_key)
+
+    # require the rerun to use a course number distinct from the source course,
+    # so each rerun is tracked as its own course rather than grouped with the original
+    if org == source_course_key.org and number == source_course_key.course:
+        raise ValidationError(
+            _('Course number must be different from the original course when creating a rerun.')
+        )
 
     # if org or name of source course don't match the destination course,
     # verify user has access to the destination course
