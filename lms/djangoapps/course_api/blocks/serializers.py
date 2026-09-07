@@ -197,37 +197,37 @@ class BlockSerializer(serializers.Serializer):  # pylint: disable=abstract-metho
         # Manprax
         if block_key.block_type == 'sequential':
             from mx_course_discovery.models import ProgressThreshold
-            # try:
-            #     threshold = block_structure.get_xblock_field(block_key, 'progress_threshold')
-            #     threshold = int(threshold)
-            # except:
-            #     threshold = 0
             subsection_id = str(block_key)
 
-            threshold, use_program_threshold, program_uuid = ProgressThreshold.get_threshold_info(subsection_id)
-            show_assmt = True
+            data['show_assmt'] = True
+            data['progress_threshold'] = 0
+            data['use_program_threshold'] = False
+            data['assmt_msg'] = ""
 
-            show_assmt = True
-            assmt_msg = ""
+            try:
+                threshold, use_program_threshold, program_uuid = ProgressThreshold.get_threshold_info(subsection_id)
+                data['progress_threshold'] = threshold
+                data['use_program_threshold'] = use_program_threshold
 
-            data['show_assmt'] = show_assmt
-            data['progress_threshold'] = threshold
-            data['use_program_threshold'] = use_program_threshold
-            data['assmt_msg'] = assmt_msg
+                if threshold > 0:
+                    request = self.context['request']
+                    username = request.query_params.get('username')
+                    if username is None:
+                        username = request.user.username
 
-            if threshold > 0:
-                request = self.context['request']
-                username = request.query_params.get('username')
-                if username is None:
-                    username = request.user.username
-                
-                show_assmt = check_subsection_status(threshold, use_program_threshold, program_uuid, block_key.course_key, subsection_id, username)
-                data['show_assmt'] = show_assmt
-                if not show_assmt and not use_program_threshold:
-                    data['assmt_msg'] = "Course Assessment is locked. To unlock it, you need to complete the course first." 
+                    show_assmt = check_subsection_status(
+                        threshold, use_program_threshold, program_uuid, block_key.course_key, subsection_id, username
+                    )
+                    data['show_assmt'] = show_assmt
+                    if not show_assmt and not use_program_threshold:
+                        data['assmt_msg'] = "Course Assessment is locked. To unlock it, you need to complete the course first."
 
-                if not show_assmt and use_program_threshold:
-                    data['assmt_msg'] = "Program Assessment is locked. To unlock it, you need to complete all courses in the program first." 
+                    if not show_assmt and use_program_threshold:
+                        data['assmt_msg'] = "Program Assessment is locked. To unlock it, you need to complete all courses in the program first."
+            except Exception:
+                # fail-open, mirrors course_home outline's _enrich_with_progress_threshold
+                data['show_assmt'] = True
+                data['progress_threshold'] = 0
 
 
 
@@ -252,17 +252,11 @@ def check_subsection_status(threshold, use_program_threshold, program_uuid, cour
     from mx_course_discovery.mx_certificate_helper import get_progress_percentage, update_subsection_status, get_subsection_status, check_program_progress
     from django.contrib.auth import get_user_model
     User = get_user_model()
-    show_assmt =False 
-    if use_program_threshold:
-        # import pdb; pdb.set_trace()
+    show_assmt = False
 
-        if program_uuid is None:
-            return show_assmt
+    is_program_mode = use_program_threshold and program_uuid
 
-    is_program_mode =  use_program_threshold and program_uuid is not None
-
-    user_id = User.objects.get(username= username).id
-    show_assmt =False 
+    user_id = User.objects.get(username=username).id
 
     if is_program_mode:
         already_unlocked = get_subsection_status(

@@ -51,7 +51,10 @@ class StudentViewTransformer(BlockStructureTransformer):
             # so that you declare your student_view() method in a common
             # ancestor class of both your Descriptor and Module classes.
             student_view = getattr(block.__class__, 'student_view', None)
-            supports_multi_device = block.has_support(student_view, 'multi_device')
+            if block.category == 'openassessment':
+                supports_multi_device = True
+            else:
+                supports_multi_device = block.has_support(student_view, 'multi_device')
 
             block_structure.set_transformer_block_field(
                 block_key,
