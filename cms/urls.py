@@ -19,7 +19,7 @@ import openedx.core.djangoapps.lang_pref.views
 from cms.djangoapps.contentstore import toggles
 from cms.djangoapps.contentstore import views as contentstore_views
 from cms.djangoapps.contentstore.views.organization import OrganizationListView
-from cms.djangoapps.contentstore.views.mxview import mx_xblock_handler, mx_course_run_create
+from cms.djangoapps.contentstore.views.mxview import mx_xblock_handler, mx_course_run_create, mx_course_run_update
 from openedx.core.apidocs import api_info
 from openedx.core.djangoapps.password_policy import compliance as password_policy_compliance
 from openedx.core.djangoapps.password_policy.forms import PasswordPolicyAwareAdminAuthForm
@@ -197,6 +197,8 @@ urlpatterns = oauth2_urlpatterns + [
     re_path(fr'^v1/mx_xblock/{settings.USAGE_KEY_PATTERN}?$', mx_xblock_handler,
         name='mx_xblock_handler'),
     path('api/v1/mx_course_runs/', mx_course_run_create, name='mx_course_run_create'),
+    re_path(fr'^api/v1/mx_course_runs/{settings.COURSE_KEY_PATTERN}/?$', mx_course_run_update,
+        name='mx_course_run_update'),
 ]
 
 if not settings.DISABLE_DEPRECATED_SIGNIN_URL:
