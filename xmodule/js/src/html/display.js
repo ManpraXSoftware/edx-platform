@@ -7,15 +7,11 @@
       this.el = $(this.element);
       JavascriptLoader.executeModuleScripts(this.el);
       Collapsible.setCollapsibles(this.el);
-      if (typeof MathJax !== "undefined" && MathJax !== null) {
+      if (typeof MathJax !== "undefined" && MathJax !== null && typeof MathJax.typesetPromise === "function") {
         // Manprax
 
         // MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.el[0]]);
-        MathJax.typesetPromise().then(function() {
-          // modify the DOM here
-          MathJax.typesetPromise(mathjaxElm);
-        }).catch(function(err) {console.log(err.message);});
-        
+        MathJax.typesetPromise([this.el[0]]).catch(function(err) {console.log(err.message);});
       }
       if (typeof setupFullScreenModal !== "undefined" && setupFullScreenModal !== null) {
         setupFullScreenModal();
